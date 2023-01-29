@@ -3,7 +3,7 @@
     <center id="top">
         <div class="logo"></div>
         <div class="info">
-            <h6>EL-Habib Plumbing Services and Materials - {{ auth()->user()->branch->name }} Branch</h6>
+            <h4>EL-Habib Plumbing Services and Materials - {{ auth()->user()->branch->name }} Branch</h4>
         </div>
         <!--End Info-->
     </center>
@@ -11,11 +11,20 @@
 
     <div id="mid">
         <div class="info">
+            @if(auth()->user()->branch->name == 'Azare')
             <p>
-                Address : street city, state 0000</br>
-                Email : JohnDoe@gmail.com</br>
-                Phone : 555-555-5555</br>
+                Address : Along Ali Kwara Hospital, Azare,  Bauchi</br>
+                Email : elhabibplumbingservices@gmail.com</br>
+                Phone : 0916-844-3058</br>
             </p>
+            @endif
+            @if(auth()->user()->branch->name == 'Misau')
+            <p>
+                Address : Kofar Yamma, Misau, Bauchi State</br>
+                Email : elhabibplumbingservices@gmail.com</br>
+                Phone : 0901-782-0678</br>
+            </p>
+            @endif
         </div>
     </div>
     <!--End Invoice Mid-->

@@ -30,7 +30,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    if(auth()->check()){
+        if(auth()->user()->usertype == 'admin'){
+            return redirect()->route('admin.home');
+        }
+        if(auth()->user()->usertype == 'cashier'){
+            return redirect()->route('sales.index');
+        }
+       
+    };
+    return view('auth.login');
 });
 
 

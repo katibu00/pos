@@ -274,10 +274,10 @@
 
                             html +=
                                 '<tr style="text-align: center">' +
-                                    '<td>' + (key + 1) +'</td>' +
+                                    '<td style="font-size: 12px;">' + (key + 1) +'</td>' +
                                     '<td style="text-align: left"><p class="itemtext">' + item.product.name +'</td>' +
-                                    '<td>' + item.quantity +'</td>' +
-                                    '<td>' + item.quantity*item.price +'</td>' +
+                                    '<td style="font-size: 12px;">' + item.quantity +'</td>' +
+                                    '<td style="font-size: 12px;">' + item.quantity*item.price +'</td>' +
                                 '</tr>';
                                 total += item.quantity*item.price;
                         });

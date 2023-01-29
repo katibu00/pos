@@ -33,7 +33,7 @@
                         <div class="col-md-8 mb-4">
                             <div class="card mb-2">
                                 <div class="card-header bg-transparent">
-                                    <marquee behavior="" direction=""><b class="">Welcome to El-Habib Plumbing
+                                    <marquee behavior="" direction="" class="text-danger"><b>Welcome to El-Habib Plumbing
                                             Services and Materials - {{ auth()->user()->branch->name }} Branch</b></marquee>
                                 </div>
                                 <div class="card-body sales-table">

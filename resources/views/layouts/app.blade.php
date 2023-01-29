@@ -109,10 +109,10 @@
                         <!-- Logo
       ============================================= -->
                         <div id="logo">
-                            <a href="demo-forum.html" class="standard-logo"><img
-                                    src="" alt="logo"></a>
-                            <a href="demo-forum.html" class="retina-logo"><img
-                                    src="" alt="logo"></a>
+                            <a href="#" class="standard-logo"><img
+                                    src="/logo.jpg" alt="logo"></a>
+                            <a href="#" class="retina-logo"><img
+                                    src="/logo.jpg" alt="logo"></a>
                         </div><!-- #logo end -->
 
                         <div class="header-misc ms-0">
@@ -146,13 +146,9 @@
                             <div class="header-misc-icon profile-image">
                                 <a href="#" id="profilelink" data-bs-toggle="dropdown" data-bs-offset="0,15"
                                     aria-haspopup="true" aria-expanded="false" data-offset="12,12"><img
-                                        class="rounded-circle" src="" alt="User"></a>
+                                        class="rounded-circle" src="/default.png" alt="{{ auth()->user()->first_name }}"></a>
                                 <div class="dropdown-menu dropdown-menu-end py-0 m-0" aria-labelledby="profilelink">
-                                    <a class="dropdown-item" href="demo-forum-edit.html"><i
-                                            class="icon-line-edit me-2"></i>Edit Profile</a>
-                                    <a class="dropdown-item" href="demo-forum-single.html"><i
-                                            class="icon-line-align-left me-2"></i>Your Topics</a>
-                                    <a class="dropdown-item" href="demo-forum-signout.html"><i
+                                    <a class="dropdown-item" href="{{ route('logout') }}"><i
                                             class="icon-line-log-out me-2"></i>Sign Out</a>
                                 </div>
                             </div>
@@ -178,7 +174,8 @@
                         <nav class="primary-menu">
 
                             <ul class="menu-container">
-                                <li class="menu-item "><a class="menu-link" href="demo-forum.html">
+                                @if(auth()->user()->usertype == 'admin')
+                                <li class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}"><a class="menu-link" href="{{ route('admin.home') }}">
                                         <div>Home</div>
                                     </a></li>
                                 <li class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}"><a class="menu-link" href="{{ route('purchase.index') }}">
@@ -196,6 +193,20 @@
                                 <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}"><a class="menu-link" href="{{ route('users.index') }}">
                                         <div>Estimate</div>
                                     </a></li>
+                                @endif
+
+                                @if(auth()->user()->usertype == 'cashier')
+                                <li class="menu-item "><a class="menu-link" href="{{ route('cashier.home') }}">
+                                    <div>Home</div>
+                                </a></li>
+                                <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('sales.index') }}">
+                                    <div>Sales</div>
+                                </a></li>
+                                <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}"><a class="menu-link" href="{{ route('users.index') }}">
+                                    <div>Estimate</div>
+                                </a></li>
+
+                                @endif
                                 
                             </ul>
 

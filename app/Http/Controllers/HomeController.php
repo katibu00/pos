@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\Sale;
 use App\Models\Stock;
+use App\Models\User;
+use Brian2694\Toastr\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,11 +15,13 @@ class HomeController extends Controller
 {
     public function admin(){
         $todays = Sale::whereDate('created_at', Carbon::today())->get();
+        $data['discounts'] = Sale::whereDate('created_at', Carbon::today())->sum('discount');
+        $data['branches'] = Branch::all();
 
         $todays_total = 0;
         foreach($todays as $today)
         {
-            $sum1 = $today['product']['selling_price']*$today->quantity;
+            $sum1 = $today['product']['selling_price']*$today->quantity - $today->discount;
             $todays_total += $sum1;
         }
 
@@ -57,5 +62,19 @@ class HomeController extends Controller
         }
         $data['todays_total'] = $todays_total;
         return view('cashier',$data);
+    }
+
+    
+    public function change_branch(Request $request){
+
+
+        if($request->branch_id == ''){
+            return redirect()->back();
+            Toastr::error("Branch is not selected");
+        }
+        $user = User::find(auth()->user()->id);
+        $user->branch_id = $request->branch_id;
+        $user->update();
+        return redirect()->route('admin.home');
     }
 }

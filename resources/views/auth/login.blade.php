@@ -165,7 +165,7 @@
                                 window.location.replace('{{ route('admin.home') }}');
                             }
                             if (response.user == 'cashier') {
-                                window.location.replace('{{ route('cashier.home') }}');
+                                window.location.replace('{{ route('sales.index') }}');
                             }
 
                         }

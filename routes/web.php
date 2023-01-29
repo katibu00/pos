@@ -44,6 +44,8 @@ Route::get('/logout', [AuthController::class, 'index'])->name('logout');
 
 Route::group(['middleware' => ['auth', 'admin']], function(){
     Route::get('/admin/home', [HomeController::class, 'admin'])->name('admin.home');
+
+    Route::post('/change_branch', [HomeController::class, 'change_branch'])->name('change_branch');
 });
 Route::group(['middleware' => ['auth', 'cashier']], function(){
     Route::get('/cashier/home', [HomeController::class, 'cashier'])->name('cashier.home');

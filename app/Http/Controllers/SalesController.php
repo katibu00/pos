@@ -13,7 +13,7 @@ class SalesController extends Controller
     {
         $user = auth()->user();
         $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $data['recents'] = Sale::select('stock_id','receipt_no')->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
+        $data['recents'] = Sale::select('stock_id','receipt_no')->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
         $data['sold_items'] = [];
         return view('sales.index', $data);
        
@@ -84,57 +84,13 @@ class SalesController extends Controller
     public function loadReceipt(Request $request)
     {
         $items = Sale::with('product')->where('receipt_no', $request->receipt_no)->get();
-       
-        // return view('sales.receipt', $data)->render();
-
         return response()->json([
             'status' => 200,
             'items' => $items,
         ]);
     }
 
-    public function details(Request $request)
-    {
-        return Sale::with(['product', 'user'])->where('receipt_no', $request->receipt_no)->get();
-    }
 
-    public function fetchSales(Request $request)
-    {
-        $data['sales'] = Sale::select('id', 'receipt_no')->where('branch_id', $request->branch_id)->whereDate('created_at', Carbon::today())->groupBy('receipt_no')->latest()->get();
 
-        $user = User::find(auth()->user()->id);
-        $user->branch_id = $request->branch_id;
-        $user->update();
-        return view('sales.table', $data)->render();
-    }
-
-    public function adminSearch(Request $request)
-    {
-
-        $data['sales'] = Sale::select('id', 'receipt_no')->where('receipt_no', 'like', '%' . $request['query'] . '%')->groupBy('receipt_no')->latest()->get();
-
-        if ($data['sales']->count() > 0) {
-            return view('sales.table', $data)->render();
-        } else {
-            return response()->json([
-                'status' => 404,
-            ]);
-        }
-
-    }
-    public function cashierSearch(Request $request)
-    {
-
-        $data['sales'] = Sale::select('id', 'receipt_no')->where('branch_id', auth()->user()->branch_id)->where('receipt_no', 'like', '%' . $request['query'] . '%')->groupBy('receipt_no')->latest()->get();
-
-        if ($data['sales']->count() > 0) {
-            return view('sales.cashier_table', $data)->render();
-        } else {
-            return response()->json([
-                'status' => 404,
-            ]);
-        }
-
-    }
 
 }

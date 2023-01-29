@@ -34,7 +34,7 @@
                             <div class="card mb-2">
                                 <div class="card-header bg-transparent">
                                     <marquee behavior="" direction="" class="text-danger"><b>Welcome to El-Habib Plumbing
-                                            Services and Materials - {{ auth()->user()->branch->name }} Branch</b></marquee>
+                                            Material and Services Ltd - {{ auth()->user()->branch->name }} Branch</b></marquee>
                                 </div>
                                 <div class="card-body sales-table">
                                     <div class="table-responsive">

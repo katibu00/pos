@@ -44,7 +44,7 @@
 
     <!-- Document Title
  ============================================= -->
-    <title>@yield('PageTitle') | El-Habib Plumbing Services and Materials</title>
+    <title>@yield('PageTitle') | El-Habib Plumbing Material and Services Ltd</title>
 
 </head>
 
@@ -236,7 +236,7 @@
                 <div class="container clearfix">
 
                     <div class="w-100 center m-0">
-                        <span>Copyrights &copy; 2020 All Rights Reserved - El-Habib Plumbing Services and Materials.</span>
+                        <span>Copyrights &copy; 2020 All Rights Reserved - El-Habib Plumbing Material and Services Ltd.</span>
                     </div>
 
                 </div>

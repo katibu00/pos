@@ -9,13 +9,12 @@
     <meta name="generator" content="Hugo 0.108.0">
     <title>Signin · El-Habib Plumbing Services and Materials</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sign-in/">
 
 
 
 
 
-    <link href="/css/bootstrap.min.css" rel="stylesheet"
+    <link href="/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 
     <!-- Favicons -->
@@ -83,15 +82,15 @@
 
 
     <!-- Custom styles for this template -->
-    <link href="/css/sign-in.css" rel="stylesheet">
+    <link href="/sign-in.css" rel="stylesheet">
 </head>
 
 <body class="text-center">
 
     <main class="form-signin w-100 m-auto">
         <form id="loginForm">
-            <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72"
-                height="57">
+            {{-- <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72"
+                height="57"> --}}
             <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
             <ul id="error_list"></ul>
             <div class="form-floating">
@@ -109,7 +108,7 @@
                 </label>
             </div>
             <button class="w-100 btn btn-lg btn-primary" type="submit" id="submit_btn">Sign in</button>
-            <p class="mt-5 mb-3 text-muted">&copy; 2017–2022</p>
+            <p class="mt-5 mb-3 text-muted">&copy; El-habib Plumbing Services and Materials</p>
         </form>
     </main>
     <script src="/jquery-3.6.3.min.js"></script>

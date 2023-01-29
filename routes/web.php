@@ -95,11 +95,11 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function(
     // Route::post('/cashier-search-sales', [SalesController::class, 'cashierSearch'])->name('cashier-search-sales');
 });
 
-Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
-    Route::get('/index', [SalesController::class, 'index'])->name('sales.index');
-    Route::post('/store', [SalesController::class, 'store'])->name('sales.store');
+// Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
+//     Route::get('/index', [SalesController::class, 'index'])->name('sales.index');
+//     Route::post('/store', [SalesController::class, 'store'])->name('sales.store');
 
-});
+// });
 
 
 

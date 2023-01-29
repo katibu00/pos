@@ -13,7 +13,7 @@ class SalesController extends Controller
     {
         $user = auth()->user();
         $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $data['recents'] = Sale::select('stock_id','receipt_no')->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
+        $data['recents'] = Sale::select('stock_id','receipt_no')->whereDate('created_at', Carbon::today())->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
         $data['sold_items'] = [];
         return view('sales.index', $data);
        
@@ -78,7 +78,7 @@ class SalesController extends Controller
 
     public function refresh(Request $request)
     {
-        $data['recents'] = Sale::select('stock_id','receipt_no')->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
+        $data['recents'] = Sale::select('stock_id','receipt_no')->whereDate('created_at', Carbon::today())->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
         return view('sales.recent_sales_table', $data)->render();
     }
     public function loadReceipt(Request $request)

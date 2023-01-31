@@ -101,16 +101,15 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function(
     Route::post('/refresh-table', [SalesController::class, 'refresh'])->name('refresh-table');
     Route::post('/refresh-receipt', [SalesController::class, 'loadReceipt'])->name('refresh-receipt');
 
-    // Route::post('/admin-search-sales', [SalesController::class, 'adminSearch'])->name('admin-search-sales');
-
-    // Route::post('/cashier-search-sales', [SalesController::class, 'cashierSearch'])->name('cashier-search-sales');
 });
 
-// Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
-//     Route::get('/index', [SalesController::class, 'index'])->name('sales.index');
-//     Route::post('/store', [SalesController::class, 'store'])->name('sales.store');
+Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
+    Route::get('/index', [EstimateController::class, 'index'])->name('estimate.index');
+    Route::post('/store', [EstimateController::class, 'store'])->name('estimate.store');
 
-// });
+    Route::post('/refresh-table-estimate', [EstimateController::class, 'refresh'])->name('refresh-table-estimate');
+    Route::post('/refresh-receipt-estimate', [EstimateController::class, 'loadReceipt'])->name('refresh-receipt-estimate');
+});
 
 
 
@@ -149,6 +148,7 @@ Route::group(['prefix' => 'branches', 'middleware' => ['auth', 'admin']], functi
 });
 
 Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], function(){
-    Route::get('/index/{id}', [ReturnsController::class, 'index'])->name('returns');
-    Route::post('/record', [ReturnsController::class, 'record'])->name('returns.record');
+    Route::get('/index', [ReturnsController::class, 'index'])->name('returns');
+
+    Route::post('/record', [ReturnsController::class, 'store'])->name('returns.record');
 });

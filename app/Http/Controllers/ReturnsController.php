@@ -5,54 +5,62 @@ namespace App\Http\Controllers;
 use App\Models\Returns;
 use App\Models\Sale;
 use App\Models\Stock;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ReturnsController extends Controller
 {
-    public function index($id)
+    public function index()
     {
-        $receipt =  Sale::where('id', $id)->first();
-        $data['sales'] = Sale::where('receipt_no', $receipt->receipt_no)->get();
-        return view('returns.index',$data);
+        $user = auth()->user();
+        $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
+        $data['recents'] = Returns::select('product_id', 'return_no')->whereDate('created_at', Carbon::today())->where('cashier_id', auth()->user()->id)->groupBy('return_no')->orderBy('created_at', 'desc')->take(4)->get();
+        return view('returns.index', $data);
     }
 
-    public function record(Request $request)
+    public function store(Request $request)
     {
-        // return $request->all();
+        $year = date('Y');
+        $month = Carbon::now()->format('m');
+        $day = Carbon::now()->format('d');
+        $last = Sale::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
+        if ($last == null) {
+            $last_record = '1/0';
+        } else {
+            $last_record = $last->receipt_no;
+        }
+        $exploded = explode("/", $last_record);
+        $number = $exploded[1] + 1;
+        $padded = sprintf("%04d", $number);
+        $stored = $year . $month . $day . '/' . $padded;
 
-        $sale = Sale::find($request->sale_id);
+        $productCount = count($request->product_id);
+        if ($productCount != null) {
+            for ($i = 0; $i < $productCount; $i++) {
 
-        if($request->returned_qty > $sale->quantity)
-        {
-            return response()->json([
-                'status' => 200,
-                'type' => 'error',
-                'message' => 'Returned Quantity cannot be greater than sold quantity',
-            ]);
+                $data = new Returns();
+                $data->branch_id = auth()->user()->branch_id;
+                $data->return_no = $stored;
+                $data->product_id = $request->product_id[$i];
+                $data->price = $request->price[$i];
+                $data->quantity = $request->quantity[$i];
+                $data->cashier_id = auth()->user()->id;
+                $data->customer = $request->customer_name;
+                $data->note = $request->note;
+
+                $data->save();
+
+                $data = Stock::find($request->product_id[$i]);
+                $data->quantity += $request->quantity[$i];
+                $data->update();
+
+            }
         }
 
-
-        $stock = Stock::find($sale->stock_id);
-        $stock->quantity = $stock->quantity + $request->returned_qty;
-        $stock->update();
-
-        $return = new Returns();
-        $return->branch_id = $sale->branch_id;
-        $return->receipt_no = $sale->receipt_no;
-        $return->stock_id = $sale->stock_id;
-        $return->sold_qty = $sale->quantity;
-        $return->returned_qty = $request->returned_qty;
-        $return->money_returned = $stock->selling_price * $request->returned_qty;
-        $return->save();
-
-        $sale->quantity = $sale->quantity - $request->returned_qty;
-        $sale->update();
-
         return response()->json([
-            'status' => 200,
-            'type' => 'success',
-            'message' => 'Return Recorded Successfully',
+            'status' => 201,
+            'message' => 'Return has been saved sucessfully',
         ]);
-    }
 
+    }
 }

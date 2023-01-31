@@ -10,6 +10,6 @@ class Returns extends Model
     use HasFactory;
     
     public function product(){
-        return $this->belongsTo(Stock::class, 'stock_id','id');
+        return $this->belongsTo(Stock::class, 'product_id','id');
     }
 }

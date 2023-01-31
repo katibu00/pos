@@ -89,8 +89,4 @@ class SalesController extends Controller
             'items' => $items,
         ]);
     }
-
-
-
-
 }

@@ -190,8 +190,12 @@
                                 <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}"><a class="menu-link" href="{{ route('users.index') }}">
                                         <div>Users</div>
                                     </a></li>
-                                <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}"><a class="menu-link" href="{{ route('users.index') }}">
+                                <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('estimate.index') }}">
                                         <div>Estimate</div>
+                                    </a></li>
+
+                                <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a class="menu-link" href="{{ route('returns') }}">
+                                        <div>Returns</div>
                                     </a></li>
                                 @endif
 
@@ -202,8 +206,11 @@
                                 <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('sales.index') }}">
                                     <div>Sales</div>
                                 </a></li>
-                                <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}"><a class="menu-link" href="{{ route('users.index') }}">
+                                <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('estimate.index') }}">
                                     <div>Estimate</div>
+                                </a></li>
+                                <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a class="menu-link" href="{{ route('returns') }}">
+                                    <div>Returns</div>
                                 </a></li>
 
                                 @endif

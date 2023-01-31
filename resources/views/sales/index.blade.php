@@ -289,6 +289,7 @@
                         '</tr>';
 
                         html = $('#receipt_body').html(html);
+                        $('.tran_id').html(res.items[0].receipt_no);
            
                         var data = document.getElementById('print').innerHTML;
                         
@@ -344,11 +345,8 @@
 
             $(document).on('submit', '#salesForm', function(e) {
                 e.preventDefault();
-
                 let formData = new FormData($('#salesForm')[0]);
-
                 $.LoadingOverlay("show");
-
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -368,11 +366,8 @@
                             $('#salesForm')[0].reset();
                             updateTable();
                         }
-
-
                     }
                 })
-
             });
 
 

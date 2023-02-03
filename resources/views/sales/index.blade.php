@@ -288,7 +288,6 @@
                 }
                 tr.find('.quantity').val('');
                 
-                $(".product_id"). val('none'). trigger('change');
             }
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;

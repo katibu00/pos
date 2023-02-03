@@ -4,13 +4,13 @@
 
     <style>
         /* .radio-item input[type="radio"]{
-            visibility: hidden;
-            width: 20px;
-            height: 20px;
-            margin: 0 5px 0 5px;
-            padding: 0;
-            cursor: pointer;
-        } */
+                visibility: hidden;
+                width: 20px;
+                height: 20px;
+                margin: 0 5px 0 5px;
+                padding: 0;
+                cursor: pointer;
+            } */
         .radio-item input[type="radio"]::before {
             position: relative;
             margin: 4px -25px -4px 0;
@@ -34,7 +34,8 @@
                             <div class="card mb-2">
                                 <div class="card-header bg-transparent">
                                     <marquee behavior="" direction="" class="text-danger"><b>Welcome to El-Habib Plumbing
-                                            Material and Services Ltd - {{ auth()->user()->branch->name }} Branch</b></marquee>
+                                            Material and Services Ltd - {{ auth()->user()->branch->name }} Branch</b>
+                                    </marquee>
                                 </div>
                                 <div class="card-body sales-table">
                                     <div class="table-responsive">
@@ -60,18 +61,20 @@
 
                                                         <select class="form-select product_id" id="product_id"
                                                             name="product_id[]" required>
-                                                            <option value=""></option>
+                                                            <option value="none"></option>
                                                             @foreach ($products as $product)
                                                                 <option data-price="{{ $product->selling_price }}"
+                                                                    data-quantity="{{ $product->quantity }}"
                                                                     value="{{ $product->id }}">{{ $product->name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
-
+                                                        <input type="hidden" class="product_qty" value="">
                                                     </td>
                                                     <td>
-                                                        <input type="number" name="quantity[]" value="1" id="quantity"
-                                                            class="form-control quantity" required>
+                                                        <input type="number" name="quantity[]" value="1"
+                                                            step="0.5" id="quantity" class="form-control quantity"
+                                                            required>
                                                     </td>
                                                     <td>
                                                         <input type="number" readonly name="price[]" id="price"
@@ -93,6 +96,8 @@
                                                 </tr>
                                             </tbody>
                                         </table>
+                                        <a href="#" class="btn btn-success add_row d-block"><i
+                                                class="fa fa-plus"></i>&nbsp; Add row</a>
                                     </div>
                                 </div>
                             </div>
@@ -194,8 +199,8 @@
             var numberofrow = ($('.addMoreRow tr').length - 0) + 1;
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
-                '</select></td>' +
-                '<td><input type="number" name="quantity[]" value="1" class="form-control quantity" required></td>' +
+                '</select><input type="hidden" class="product_qty" value=""></td>' +
+                '<td><input type="number" name="quantity[]" value="1" step="0.5" class="form-control quantity" required></td>' +
                 '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
                 '<td><input type="number" name="discount[]" class="form-control discount"></td>' +
                 '<td><input type="number" readonly name="total_amount[]" class="form-control total_amount"></td>' +
@@ -223,18 +228,68 @@
         $('.addMoreRow').delegate('.product_id', 'change', function() {
             var tr = $(this).parent().parent();
             var price = tr.find('.product_id option:selected').attr('data-price');
+            var quantity = tr.find('.product_id option:selected').attr('data-quantity');
             tr.find('.price').val(price);
             var qty = tr.find('.quantity').val() - 0;
+
+            if (quantity < 1) {
+                Command: toastr["error"](quantity + ' Remaining')
+                toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                tr.find('.quantity').val('');
+            }
+
+
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price) - ((qty * price * disc) / 100);
             tr.find('.total_amount').val(total_amount);
+            tr.find('.product_qty').val(quantity);
             TotalAmount();
         });
 
         $('.addMoreRow').delegate('.quantity, .discount', 'keyup', function() {
             var tr = $(this).parent().parent();
             var qty = tr.find('.quantity').val() - 0;
+            var product_qty = tr.find('.product_qty').val() - 0;
+            if (qty > product_qty) {
+                Command: toastr["error"](product_qty + ' Product Quantity Remaining Only.')
+                toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                tr.find('.quantity').val('');
+                
+                $(".product_id"). val('none'). trigger('change');
+            }
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price - disc);
@@ -250,94 +305,93 @@
         });
 
 
-          function PrintReceiptContent(receipt_no){
+        function PrintReceiptContent(receipt_no) {
+            data = {
+                'receipt_no': receipt_no,
+            }
 
-                data = {
-                    'receipt_no':receipt_no,
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-               
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
+            });
 
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('refresh-receipt') }}",
-                    data: data,
-                    success: function(res) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('refresh-receipt') }}",
+                data: data,
+                success: function(res) {
 
-                        var html = '';
-                        var total = 0;
-                        $.each(res.items, function(key, item) {
+                    var html = '';
+                    var total = 0;
+                    $.each(res.items, function(key, item) {
 
-                            html +=
-                                '<tr style="text-align: center">' +
-                                    '<td style="font-size: 12px;">' + (key + 1) +'</td>' +
-                                    '<td style="text-align: left"><p class="itemtext">' + item.product.name +'</td>' +
-                                    '<td style="font-size: 12px;">' + item.quantity +'</td>' +
-                                    '<td style="font-size: 12px;">' + item.quantity*item.price +'</td>' +
-                                '</tr>';
-                                total += item.quantity*item.price;
-                        });
                         html +=
+                            '<tr style="text-align: center">' +
+                            '<td style="font-size: 12px;">' + (key + 1) + '</td>' +
+                            '<td style="text-align: left"><p class="itemtext">' + item.product.name +
+                            '</td>' +
+                            '<td style="font-size: 12px;">' + item.quantity + '</td>' +
+                            '<td style="font-size: 12px;">' + item.quantity * item.price + '</td>' +
+                            '</tr>';
+                        total += item.quantity * item.price;
+                    });
+                    html +=
                         '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Total Amount</b></td>' +
-                            '<td><b>&#8358;'+ total.toLocaleString()+'</b></td>' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Total Amount</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
                         '</tr>';
 
-                        html = $('#receipt_body').html(html);
-                        $('.tran_id').html(res.items[0].receipt_no);
-           
-                        var data = document.getElementById('print').innerHTML;
-                        
-                        myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-                  
-                        myReceipt.screenX = 0;
-                        myReceipt.screenY = 0;
-                        myReceipt.document.write(data);
-                        myReceipt.document.title = "Print Peceipt";
-                        myReceipt.focus();
-                        myReceipt.print();
+                    html = $('#receipt_body').html(html);
+                    $('.tran_id').html(res.items[0].receipt_no);
 
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        if (xhr.status === 419) {
-                            Command: toastr["error"](
-                                "Session expired. please login again."
-                            );
-                            toastr.options = {
-                                closeButton: false,
-                                debug: false,
-                                newestOnTop: false,
-                                progressBar: false,
-                                positionClass: "toast-top-right",
-                                preventDuplicates: false,
-                                onclick: null,
-                                showDuration: "300",
-                                hideDuration: "1000",
-                                timeOut: "5000",
-                                extendedTimeOut: "1000",
-                                showEasing: "swing",
-                                hideEasing: "linear",
-                                showMethod: "fadeIn",
-                                hideMethod: "fadeOut",
-                            };
-                            setTimeout(() => {
-                                window.location.replace('{{ route('login') }}');
-                            }, 2000);
-                        }
-                    },
-                });
-            
-           
+                    var data = document.getElementById('print').innerHTML;
+
+                    myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+
+                    myReceipt.screenX = 0;
+                    myReceipt.screenY = 0;
+                    myReceipt.document.write(data);
+                    myReceipt.document.title = "Print Peceipt";
+                    myReceipt.focus();
+                    myReceipt.print();
+
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    if (xhr.status === 419) {
+                        Command: toastr["error"](
+                            "Session expired. please login again."
+                        );
+                        toastr.options = {
+                            closeButton: false,
+                            debug: false,
+                            newestOnTop: false,
+                            progressBar: false,
+                            positionClass: "toast-top-right",
+                            preventDuplicates: false,
+                            onclick: null,
+                            showDuration: "300",
+                            hideDuration: "1000",
+                            timeOut: "5000",
+                            extendedTimeOut: "1000",
+                            showEasing: "swing",
+                            hideEasing: "linear",
+                            showMethod: "fadeIn",
+                            hideMethod: "fadeOut",
+                        };
+                        setTimeout(() => {
+                            window.location.replace('{{ route('login') }}');
+                        }, 2000);
+                    }
+                },
+            });
+
+
             setTimeout(() => {
                 // myReceipt.close();
             }, 8000);
-          } 
-
+        }
     </script>
 
     <script>
@@ -364,6 +418,7 @@
                         if (res.status == 201) {
                             $.LoadingOverlay("hide");
                             $('#salesForm')[0].reset();
+                            $(".product_id"). val('none'). trigger('change');
                             updateTable();
                         }
                     }
@@ -374,8 +429,7 @@
             //update table
             function updateTable() {
 
-                data = {
-                }
+                data = {}
                 $(".recent-table").LoadingOverlay("show");
                 $.ajaxSetup({
                     headers: {

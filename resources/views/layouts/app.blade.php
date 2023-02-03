@@ -37,14 +37,10 @@
     	<!-- Bootstrap Select CSS -->
 	<link rel="stylesheet" href="/css/components/bs-select.css" type="text/css" />
 
-    <!-- Forum Demo Specific Stylesheet -->
-    <link rel="stylesheet" href="/demos/forum/forum.css" type="text/css" /> <!-- Forum Custom Css -->
-    <link rel="stylesheet" href="/demos/forum/css/fonts.css" type="text/css" /> <!-- Forum Custom Fonts -->
-    <!-- / -->
-
     <!-- Document Title
  ============================================= -->
     <title>@yield('PageTitle') | El-Habib Plumbing Material and Services Ltd</title>
+    <link rel="stylesheet" href="/toastr/toastr.min.css">
 
 </head>
 
@@ -274,6 +270,8 @@
  ============================================= -->
     <script src="/js/functions.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/toastr/toastr.min.js"></script>
+    {!! Toastr::message() !!}
 
     @yield('js')
 </body>

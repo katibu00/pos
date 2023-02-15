@@ -10,7 +10,6 @@ class AuthController extends Controller
 {
     public function loginIndex()
     {
-        auth()->logout();
         return view('auth.login');
     }
 
@@ -50,5 +49,10 @@ class AuthController extends Controller
             return back()->with('status', 'You are not authorized to access this content');
         }
 
+    }
+
+    public function logout(){
+        auth()->logout();
+        return redirect()->route('login');
     }
 }

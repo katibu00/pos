@@ -37,7 +37,6 @@ Route::get('/', function () {
         if(auth()->user()->usertype == 'cashier'){
             return redirect()->route('sales.index');
         }
-       
     };
     return view('auth.login');
 });
@@ -45,15 +44,10 @@ Route::get('/', function () {
 
 Route::get('/login', [AuthController::class, 'loginIndex'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-
-
-Route::get('/logout', [AuthController::class, 'index'])->name('logout');
-
-
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth', 'admin']], function(){
     Route::get('/admin/home', [HomeController::class, 'admin'])->name('admin.home');
-
     Route::post('/change_branch', [HomeController::class, 'change_branch'])->name('change_branch');
 });
 Route::group(['middleware' => ['auth', 'cashier']], function(){
@@ -68,16 +62,12 @@ Route::group(['prefix' => 'inventory', 'middleware' => ['auth', 'admin']], funct
     Route::post('/update/{id}', [StockController::class, 'update'])->name('stock.update');
     Route::post('/copy', [StockController::class, 'copyStore'])->name('stock.copy');
     Route::post('/delete', [StockController::class, 'delete'])->name('stock.delete');
-
     Route::post('/fetch-stocks', [StockController::class, 'fetchStocks'])->name('fetch-stocks');
-
-
 });
 
 //pagination routes
 Route::get('/paginate-stocks', [StockController::class, 'paginate']);
 Route::get('/paginate-purchases', [PurchasesController::class, 'fetchPurchases']);
-
 Route::post('/search-stocks', [StockController::class, 'Search'])->name('search-stocks');
 
 
@@ -85,44 +75,28 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::get('/index', [PurchasesController::class, 'index'])->name('purchase.index');
     Route::get('/details/{date}', [PurchasesController::class, 'details'])->name('purchase.details');
     Route::post('/store', [PurchasesController::class, 'store'])->name('purchase.store');
+
+    Route::get('/shopping_list/index', [PurchasesController::class, 'shopping_list'])->name('shopping_list.index');
+    Route::post('/fetch-shopping_list', [PurchasesController::class, 'fetchShopList'])->name('fetch-shopping-list');
+
     Route::post('/fetch-branch-stocks', [PurchasesController::class, 'fetchStocks'])->name('fetch-branch-stocks');
     Route::post('/fetch-purchases', [PurchasesController::class, 'fetchPurchases'])->name('fetch-purchases');
-
-
 });
 
 Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function(){
     Route::get('/index', [SalesController::class, 'index'])->name('sales.index');
     Route::post('/store', [SalesController::class, 'store'])->name('sales.store');
     Route::post('/sales/details', [SalesController::class, 'details']);
-
     Route::post('/fetch-sales', [SalesController::class, 'fetchSales'])->name('fetch-sales');
-
     Route::post('/refresh-table', [SalesController::class, 'refresh'])->name('refresh-table');
     Route::post('/refresh-receipt', [SalesController::class, 'loadReceipt'])->name('refresh-receipt');
-
 });
 
 Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
     Route::get('/index', [EstimateController::class, 'index'])->name('estimate.index');
     Route::post('/store', [EstimateController::class, 'store'])->name('estimate.store');
-
     Route::post('/refresh-table-estimate', [EstimateController::class, 'refresh'])->name('refresh-table-estimate');
     Route::post('/refresh-receipt-estimate', [EstimateController::class, 'loadReceipt'])->name('refresh-receipt-estimate');
-});
-
-
-
-Route::group(['prefix' => 'settings/banks', 'middleware' => ['auth', 'admin']], function(){
-    Route::get('/index', [BanksController::class, 'index'])->name('banks.index');
-    Route::post('/store', [BanksController::class, 'store'])->name('banks.store');
-});
-
-
-
-Route::group(['prefix' => 'debtors', 'middleware' => ['auth', 'admin']], function(){
-    Route::get('/index', [DebtorsController::class, 'index'])->name('debtors.index');
-    Route::post('/store', [DebtorsController::class, 'store'])->name('debtors.store');
 });
 
 Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function(){
@@ -149,6 +123,5 @@ Route::group(['prefix' => 'branches', 'middleware' => ['auth', 'admin']], functi
 
 Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], function(){
     Route::get('/index', [ReturnsController::class, 'index'])->name('returns');
-
     Route::post('/record', [ReturnsController::class, 'store'])->name('returns.record');
 });

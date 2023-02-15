@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Auth;
 class HomeController extends Controller
 {
     public function admin(){
-        $todays = Sale::whereDate('created_at', Carbon::today())->get();
-        $data['discounts'] = Sale::whereDate('created_at', Carbon::today())->sum('discount');
+        $branch_id = auth()->user()->branch_id;
+        $todays = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+        $data['discounts'] = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->sum('discount');
         $data['branches'] = Branch::all();
 
         $todays_total = 0;
@@ -25,7 +26,7 @@ class HomeController extends Controller
             $todays_total += $sum1;
         }
 
-        $weeks = Sale::whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
+        $weeks = Sale::where('branch_id', $branch_id)->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
 
 
         $weeks_total = 0;

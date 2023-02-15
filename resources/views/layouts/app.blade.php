@@ -18,7 +18,10 @@
     {{-- <link rel="stylesheet" href="/css/font-icons.css" type="text/css" /> --}}
     <link rel="stylesheet" href="/css/animate.css" type="text/css" />
     <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css" integrity="sha512-Mo79lrQ4UecW8OCcRUZzf0ntfMNgpOFR46Acj2ZtWO8vKhBvD79VCp3VOKSzk6TovLg5evL3Xi3u475Q/jMu4g==" crossorigin="anonymous" referrerpolicy="no-referrer" />    <link rel="stylesheet" href="/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css"
+        integrity="sha512-Mo79lrQ4UecW8OCcRUZzf0ntfMNgpOFR46Acj2ZtWO8vKhBvD79VCp3VOKSzk6TovLg5evL3Xi3u475Q/jMu4g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -29,13 +32,13 @@
             -webkit-appearance: none;
             margin: 0;
         }
-  
+
         input[type=number] {
             -moz-appearance: textfield;
         }
     </style>
-    	<!-- Bootstrap Select CSS -->
-	<link rel="stylesheet" href="/css/components/bs-select.css" type="text/css" />
+    <!-- Bootstrap Select CSS -->
+    <link rel="stylesheet" href="/css/components/bs-select.css" type="text/css" />
 
     <!-- Document Title
  ============================================= -->
@@ -50,50 +53,6 @@
  ============================================= -->
     <div id="wrapper" class="clearfix">
 
-        <!-- Modal -->
-        <div class="modal fade" id="modal-signin" tabindex="-1" aria-labelledby="modal-signin" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content bg-white p-4 p-md-5 rounded">
-                    <h3 class="h2 fw-bolder mb-4">Create a New Topic</h3>
-                    <form class="row mb-0" action="#" method="post" enctype="multipart/form-data">
-                        <div class="col-12 form-group mb-4">
-                            <textarea name="post-message" id="post-message" class="form-control" cols="30" rows="10"></textarea>
-                        </div>
-                        <div class="clear"></div>
-                        <div class="col-6 form-group">
-                            <small class="text-muted">Maximum file size allowed is 2048 KB.</small>
-                            <div class="form-file">
-                                <input type="file" class="form-control" id="file-input">
-                            </div>
-                        </div>
-                        <div class="clear"></div>
-                        <div class="col-12 form-group mb-1">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
-                                <label class="form-check-label nott ls0 mb-0 fw-semibold" for="inlineCheckbox1">Set as a
-                                    Private Reply</label>
-                            </div>
-                        </div>
-                        <div class="clear"></div>
-                        <div class="col-12 form-group">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">
-                                <label class="form-check-label nott ls0 mb-0 fw-semibold" for="inlineCheckbox2">Email me
-                                    when Someone Replies</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" name="submit"
-                                class="button button-large bg-alt border border-width-2 rounded-1 fw-medium nott ls0 ms-0">Submit
-                                Now</button>
-
-                            <button type="button" data-bs-dismiss="modal" aria-label="Close"
-                                class="button button-large button-border border-default h-bg-danger rounded-1 fw-medium nott ls0 ms-0">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
 
         <!-- Header
   ============================================= -->
@@ -105,10 +64,8 @@
                         <!-- Logo
       ============================================= -->
                         <div id="logo">
-                            <a href="#" class="standard-logo"><img
-                                    src="/logo.jpg" alt="logo"></a>
-                            <a href="#" class="retina-logo"><img
-                                    src="/logo.jpg" alt="logo"></a>
+                            <a href="#" class="standard-logo"><img src="/logo.jpg" alt="logo"></a>
+                            <a href="#" class="retina-logo"><img src="/logo.jpg" alt="logo"></a>
                         </div><!-- #logo end -->
 
                         <div class="header-misc ms-0">
@@ -124,12 +81,12 @@
                                     <span
                                         class="dropdown-header border-bottom border-f5 fw-medium text-uppercase ls1">Notifications</span>
                                     <div class="list-group list-group-flush">
-                                       
+
                                         <a href="#" class="d-flex list-group-item">
                                             {{-- <i class="icon-line-check badge-icon bg-success text-white me-3 mt-1"></i> --}}
                                             <div class="media-body">
-                                                <h5 class="my-0 fw-normal text-muted"><span
-                                                        class="text-dark fw-bold">No New Notification</h5>
+                                                <h5 class="my-0 fw-normal text-muted"><span class="text-dark fw-bold">No
+                                                        New Notification</h5>
                                                 {{-- <small class="text-smaller">2 days ago</small> --}}
                                             </div>
                                         </a>
@@ -142,7 +99,8 @@
                             <div class="header-misc-icon profile-image">
                                 <a href="#" id="profilelink" data-bs-toggle="dropdown" data-bs-offset="0,15"
                                     aria-haspopup="true" aria-expanded="false" data-offset="12,12"><img
-                                        class="rounded-circle" src="/default.png" alt="{{ auth()->user()->first_name }}"></a>
+                                        class="rounded-circle" src="/default.png"
+                                        alt="{{ auth()->user()->first_name }}"></a>
                                 <div class="dropdown-menu dropdown-menu-end py-0 m-0" aria-labelledby="profilelink">
                                     <a class="dropdown-item" href="{{ route('logout') }}"><i
                                             class="icon-line-log-out me-2"></i>Sign Out</a>
@@ -170,47 +128,75 @@
                         <nav class="primary-menu">
 
                             <ul class="menu-container">
-                                @if(auth()->user()->usertype == 'admin')
-                                <li class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}"><a class="menu-link" href="{{ route('admin.home') }}">
-                                        <div>Home</div>
-                                    </a></li>
-                                <li class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}"><a class="menu-link" href="{{ route('purchase.index') }}">
-                                        <div>Purchases</div>
-                                    </a></li>
-                                <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('stock.index') }}">
-                                        <div>Inventory</div>
-                                    </a></li>
-                                <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('sales.index') }}">
-                                        <div>Sales</div>
-                                    </a></li>
-                                <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}"><a class="menu-link" href="{{ route('users.index') }}">
-                                        <div>Users</div>
-                                    </a></li>
-                                <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('estimate.index') }}">
-                                        <div>Estimate</div>
-                                    </a></li>
+                                @if (auth()->user()->usertype == 'admin')
+                                   
 
-                                <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a class="menu-link" href="{{ route('returns') }}">
-                                        <div>Returns</div>
-                                    </a></li>
+                                    <li class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('admin.home') }}">
+                                            <div>Home</div>
+                                        </a></li>
+                                  
+
+                                        <li class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }} {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
+                                            <a class="menu-link" href="">
+                                                <div>Purchases</div>
+                                            </a>
+                                            <ul class="sub-menu-container">
+                                                <li class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
+                                                    <a class="menu-link" href="{{ route('purchase.index') }}">
+                                                        <div>Purchases</div>
+                                                    </a>
+                                                </li>
+                                                <li class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }}">
+                                                    <a class="menu-link" href="{{ route('shopping_list.index') }}">
+                                                        <div>Shopping List</div>
+                                                    </a>
+                                                </li>
+                                         
+                                            </ul>
+                                        </li>
+                                    <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('stock.index') }}">
+                                            <div>Inventory</div>
+                                        </a></li>
+                                    <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('sales.index') }}">
+                                            <div>Sales</div>
+                                        </a></li>
+                                    <li
+                                        class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}">
+                                        <a class="menu-link" href="{{ route('users.index') }}">
+                                            <div>Users</div>
+                                        </a></li>
+                                    <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('estimate.index') }}">
+                                            <div>Estimate</div>
+                                        </a></li>
+
+                                    <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('returns') }}">
+                                            <div>Returns</div>
+                                        </a></li>
                                 @endif
 
-                                @if(auth()->user()->usertype == 'cashier')
-                                <li class="menu-item "><a class="menu-link" href="{{ route('cashier.home') }}">
-                                    <div>Home</div>
-                                </a></li>
-                                <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('sales.index') }}">
-                                    <div>Sales</div>
-                                </a></li>
-                                <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a class="menu-link" href="{{ route('estimate.index') }}">
-                                    <div>Estimate</div>
-                                </a></li>
-                                <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a class="menu-link" href="{{ route('returns') }}">
-                                    <div>Returns</div>
-                                </a></li>
-
+                                @if (auth()->user()->usertype == 'cashier')
+                                    <li class="menu-item "><a class="menu-link" href="{{ route('cashier.home') }}">
+                                            <div>Home</div>
+                                        </a></li>
+                                    <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('sales.index') }}">
+                                            <div>Sales</div>
+                                        </a></li>
+                                    <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('estimate.index') }}">
+                                            <div>Estimate</div>
+                                        </a></li>
+                                    <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('returns') }}">
+                                            <div>Returns</div>
+                                        </a></li>
                                 @endif
-                                
+
                             </ul>
 
                         </nav>
@@ -224,7 +210,7 @@
 
         <!-- Content
   ============================================= -->
-            @yield('content')
+        @yield('content')
 
         <!-- Footer
   ============================================= -->
@@ -239,7 +225,8 @@
                 <div class="container clearfix">
 
                     <div class="w-100 center m-0">
-                        <span>Copyrights &copy; 2020 All Rights Reserved - El-Habib Plumbing Material and Services Ltd.</span>
+                        <span>Copyrights &copy; 2020 All Rights Reserved - El-Habib Plumbing Material and Services
+                            Ltd.</span>
                     </div>
 
                 </div>
@@ -258,13 +245,14 @@
     <script src="/js/plugins.min.js"></script>
 
     <!-- TinyMCE Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js">
+    </script>
 
-    	<!-- Bootstrap Select Plugin -->
-	<script src="/js/components/bs-select.js"></script>
+    <!-- Bootstrap Select Plugin -->
+    <script src="/js/components/bs-select.js"></script>
 
-	<!-- Select Splitter Plugin -->
-	<script src="/js/components/selectsplitter.js"></script>
+    <!-- Select Splitter Plugin -->
+    <script src="/js/components/selectsplitter.js"></script>
 
     <!-- Footer Scripts
  ============================================= -->

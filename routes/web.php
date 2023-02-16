@@ -1,11 +1,7 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
-use App\Http\Controllers\DebtorsController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrintController;
@@ -13,7 +9,6 @@ use App\Http\Controllers\PurchasesController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReturnsController;
 use App\Http\Controllers\SalesController;
-use App\Http\Controllers\Settings\BanksController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -124,4 +119,8 @@ Route::group(['prefix' => 'branches', 'middleware' => ['auth', 'admin']], functi
 Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], function(){
     Route::get('/index', [ReturnsController::class, 'index'])->name('returns');
     Route::post('/record', [ReturnsController::class, 'store'])->name('returns.record');
+});
+Route::group(['prefix' => 'report', 'middleware' => ['auth', 'admin']], function(){
+    Route::get('/index', [ReportController::class, 'index'])->name('report.index');
+    Route::post('/generate', [ReportController::class, 'generate'])->name('report.generate');
 });

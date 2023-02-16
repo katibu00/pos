@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Estimate;
+use App\Models\Purchase;
 use App\Models\Returns;
 use App\Models\Sale;
+use App\Models\Stock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -72,6 +75,71 @@ class ReportController extends Controller
             $data['start'] = $request->start;
             $data['end'] = $request->end;
         }
+
+        if($request->report == 'today') {
+          
+            $todays = Sale::where('branch_id', $request->branch_id)->whereDate('created_at', Carbon::today())->get();
+
+            $todays_total = 0;
+            $todays_discount = 0;
+            foreach($todays as $today)
+            {
+                $sum1 = $today['product']['selling_price']*$today->quantity ;
+                $todays_total += $sum1;
+                $todays_discount += $today->discount;
+            }
+            $data['gross'] = $todays_total;
+            $data['discount'] = $todays_discount;
+            $data['sales_count'] = Sale::select('receipt_no')->where('branch_id',$request->branch_id)->whereDate('created_at', Carbon::today())->groupBy('receipt_no')->get()->count();
+            $data['items_sold'] = Sale::select('receipt_no')->where('branch_id',$request->branch_id)->whereDate('created_at', Carbon::today())->get()->count();
+            $purchases = Purchase::select('stock_id','quantity')->where('branch_id', $request->branch_id)->whereDate('created_at', Carbon::today())->get();
+
+            $todays_purchases = 0;
+            foreach($purchases as $purchase)
+            {
+                $todays_purchases += $purchase['product']['buying_price']*$purchase->quantity ;
+            }
+            $data['todays_purchases'] = $todays_purchases;
+            
+            //estimate
+            $estimates = Estimate::where('branch_id', $request->branch_id)->whereDate('created_at', Carbon::today())->get();
+
+            $todays_estimate = 0;
+            foreach($estimates as $estimate)
+            {
+                $todays_estimate += $estimate['product']['selling_price']*$estimate->quantity - $estimate->discount;
+                
+            }
+            $data['todays_estimate'] = $todays_estimate;
+            $data['estimate_count'] = Estimate::select('estimate_no')->where('branch_id',$request->branch_id)->whereDate('created_at', Carbon::today())->groupBy('estimate_no')->get()->count();
+
+            //return
+            $returns = Returns::where('branch_id', $request->branch_id)->whereDate('created_at', Carbon::today())->get();
+
+            $todays_returns = 0;
+            foreach($returns as $return)
+            {
+                $todays_returns += $return->price*$return->quantity;
+                
+            }
+            $data['todays_returns'] = $todays_returns;
+            $data['returns_count'] = Returns::select('return_no')->where('branch_id',$request->branch_id)->whereDate('created_at', Carbon::today())->groupBy('return_no')->get()->count();
+
+            $lows = 0;
+            $total_stock = 0;
+            $stocks = Stock::where('branch_id',$request->branch_id)->get();
+            foreach($stocks as $stock){
+    
+                if($stock->quantity <= $stock->critical_level){
+                    $lows ++;
+                }
+                $total_stock++;
+            }
+            $data['lows'] = $lows;
+            $data['total_stock'] = $total_stock;
+
+        }
+
         $data['branches'] = Branch::all();
         $data['report'] = $request->report;
         $data['date'] = $request->date;

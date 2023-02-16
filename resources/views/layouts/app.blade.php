@@ -135,6 +135,10 @@
                                             class="menu-link" href="{{ route('admin.home') }}">
                                             <div>Home</div>
                                         </a></li>
+                                    <li class="menu-item {{ $route == 'report.index' ? 'current' : '' }} {{ $route == 'report.generate' ? 'current' : '' }}"><a
+                                            class="menu-link" href="{{ route('report.index') }}">
+                                            <div>Report</div>
+                                        </a></li>
                                   
 
                                         <li class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }} {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">

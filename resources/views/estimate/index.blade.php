@@ -46,7 +46,7 @@
 
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="quantity[]" value="1" id="quantity"
+                                                    <input type="number" name="quantity[]" step="any" id="quantity"
                                                         class="form-control quantity" required>
                                                 </td>
                                                 <td>
@@ -134,7 +134,7 @@
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
                 '</select></td>' +
-                '<td><input type="number" name="quantity[]" value="1" class="form-control quantity" required></td>' +
+                '<td><input type="number" name="quantity[]" class="form-control quantity" required></td>' +
                 '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
                 '<td><input type="number" name="discount[]" class="form-control discount"></td>' +
                 '<td><input type="number" readonly name="total_amount[]" class="form-control total_amount"></td>' +

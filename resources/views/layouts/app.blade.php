@@ -139,6 +139,10 @@
                                             class="menu-link" href="{{ route('report.index') }}">
                                             <div>Report</div>
                                         </a></li>
+                                    <li class="menu-item {{ $route == 'expense.index' ? 'current' : '' }} "><a
+                                            class="menu-link" href="{{ route('expense.index') }}">
+                                            <div>Expense</div>
+                                        </a></li>
                                   
 
                                         <li class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }} {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
@@ -199,6 +203,10 @@
                                             class="menu-link" href="{{ route('returns') }}">
                                             <div>Returns</div>
                                         </a></li>
+                                    <li class="menu-item {{ $route == 'expense.index' ? 'current' : '' }} "><a
+                                        class="menu-link" href="{{ route('expense.index') }}">
+                                        <div>Expense</div>
+                                    </a></li>
                                 @endif
 
                             </ul>

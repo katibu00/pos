@@ -418,9 +418,7 @@
             </div>
         </div>
     </section>
-
         <!-- ============ Body content End ============= -->
-
     @endsection
     @section('js')
         <script src="/assets/js/vendor/pickadate/picker.js"></script>

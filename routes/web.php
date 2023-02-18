@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\EstimateController;
+use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PurchasesController;
@@ -123,4 +124,9 @@ Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], functio
 Route::group(['prefix' => 'report', 'middleware' => ['auth', 'admin']], function(){
     Route::get('/index', [ReportController::class, 'index'])->name('report.index');
     Route::post('/generate', [ReportController::class, 'generate'])->name('report.generate');
+});
+
+Route::group(['prefix' => 'expense', 'middleware' => ['auth', 'staff']], function(){
+    Route::get('/index', [ExpensesController::class, 'index'])->name('expense.index');
+    Route::post('/store', [ExpensesController::class, 'store'])->name('expense.store');
 });

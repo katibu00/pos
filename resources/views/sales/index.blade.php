@@ -3,14 +3,6 @@
 @section('content')
 
     <style>
-        /* .radio-item input[type="radio"]{
-                visibility: hidden;
-                width: 20px;
-                height: 20px;
-                margin: 0 5px 0 5px;
-                padding: 0;
-                cursor: pointer;
-            } */
         .radio-item input[type="radio"]::before {
             position: relative;
             margin: 4px -25px -4px 0;
@@ -24,7 +16,6 @@
         }
     </style>
     <!-- ============ Body content start ============= -->
-
     <section id="content">
         <div class="content-wraap mt-3">
             <div class="container clearfix">
@@ -72,9 +63,7 @@
                                                         <input type="hidden" class="product_qty" value="">
                                                     </td>
                                                     <td>
-                                                        <input type="number" name="quantity[]" value="1"
-                                                            step="0.5" id="quantity" class="form-control quantity"
-                                                            required>
+                                                        <input type="number" name="quantity[]" step="0.5" id="quantity" class="form-control quantity" required>
                                                     </td>
                                                     <td>
                                                         <input type="number" readonly name="price[]" id="price"
@@ -88,7 +77,7 @@
                                                         <input type="number" readonly name="total_amount[]"
                                                             id="total_amount" class="form-control total_amount">
                                                     </td>
-                                                    <td>
+                                                    <td class="d-flex flex-row">
                                                         <a href="#"
                                                             class="btn btn-danger btn-sm remove_row rounded-circle"><i
                                                                 class="fa fa-times-circle"></i></a>
@@ -101,7 +90,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             @include('sales.recent_sales_table')
                         </div>
 
@@ -190,8 +178,6 @@
     </section>
 @endsection
 
-
-
 @section('js')
     <script>
         $('.add_row').on('click', function() {
@@ -200,7 +186,7 @@
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
                 '</select><input type="hidden" class="product_qty" value=""></td>' +
-                '<td><input type="number" name="quantity[]" value="1" step="0.5" class="form-control quantity" required></td>' +
+                '<td><input type="number" name="quantity[]" step="0.5" class="form-control quantity" required></td>' +
                 '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
                 '<td><input type="number" name="discount[]" class="form-control discount"></td>' +
                 '<td><input type="number" readonly name="total_amount[]" class="form-control total_amount"></td>' +

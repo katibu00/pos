@@ -45,7 +45,7 @@
                                                 </td>
                                                 <td>
                                                     <input type="number" name="quantity[]" id="quantity"
-                                                        class="form-control quantity" required>
+                                                        class="form-control quantity" step="any" required>
                                                 </td>
                                                 <td>
                                                     <input type="number" readonly name="price[]" id="price"

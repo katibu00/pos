@@ -5,7 +5,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Return #</th>
+                        <th>Return ID</th>
                         <th>Amount</th>
                         <th>Action</th>
                     </tr>
@@ -14,11 +14,11 @@
                     @foreach ($recents as $key2 => $recent )
                     @php
                     $total_amount = 0;
-                        $sales = App\Models\Returns::select('price','quantity')
+                        $returns = App\Models\Returns::select('price','quantity','discount')
                                                 ->where('return_no', $recent->return_no)
                                                 ->get();
-                        foreach ($sales as $sale) {
-                            $total_amount += ($sale->price*$sale->quantity);
+                        foreach ($returns as $return) {
+                            $total_amount += ($return->price*$return->quantity)-$return->discount;
                         }
                             
                     @endphp 
@@ -27,7 +27,7 @@
                             <td>{{ $recent->return_no }}</td>
                             <td>&#8358;{{ number_format($total_amount,0) }}</td>
                             <td>
-                                <button type="button" class="btn btn-info btn-sm"><i class="fa fa-eye"></i></button>
+                                <button type="button" onclick="PrintReceiptContent('{{ $recent->return_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button>
                             </td>
                         </tr>
                     @endforeach

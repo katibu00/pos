@@ -20,6 +20,7 @@ class CreateReturnsTable extends Migration
             $table->integer('cashier_id');
             $table->integer('product_id');
             $table->integer('price');
+            $table->integer('discount')->default(0);
             $table->integer('quantity');
             $table->string('customer')->nullable();
             $table->string('note')->nullable();

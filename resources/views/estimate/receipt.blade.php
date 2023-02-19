@@ -13,16 +13,14 @@
         <div class="info">
             @if(auth()->user()->branch->name == 'Azare')
             <p>
-                Address : Along Ali Kwara Hospital, Azare,  Bauchi</br>
-                Email : elhabibplumbingservices@gmail.com</br>
-                Phone : 0916-844-3058</br>
+                Address : Along Ali Kwara Hospital, Azare.<br/>
+                Phone : 0916-844-3058<br/>
             </p>
             @endif
             @if(auth()->user()->branch->name == 'Misau')
             <p>
-                Address : Kofar Yamma, Misau, Bauchi State</br>
-                Email : elhabibplumbingservices@gmail.com</br>
-                Phone : 0901-782-0678</br>
+                Address : Kofar Yamma, Misau, Bauchi State<br/>
+                Phone : 0901-782-0678<br/>
             </p>
             @endif
         </div>

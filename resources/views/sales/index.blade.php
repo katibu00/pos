@@ -85,8 +85,6 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <a href="#" class="btn btn-success add_row d-block"><i
-                                                class="fa fa-plus"></i>&nbsp; Add row</a>
                                     </div>
                                 </div>
                             </div>
@@ -157,8 +155,7 @@
                                                     class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
                                             </td>
                                             <td>
-                                                <button type="button"
-                                                    class="btn btn-danger btn-lg btn-block mt-2">Calculator</button>
+                                                <button type="button" class="btn btn-success btn-sm add_row btn-block mt-2"><i class="fa fa-plus"></i>&nbsp; </button>
                                             </td>
                                         </div>
                                     </div>
@@ -281,6 +278,7 @@
             tr.find('.total_amount').val(total_amount);
             TotalAmount();
         });
+
         $('#paid_amount').keyup(function() {
             var total = $('#total_hidden').val();
             var paid_amount = $(this).val();
@@ -314,8 +312,8 @@
                         html +=
                             '<tr style="text-align: center">' +
                             '<td style="font-size: 12px;">' + (key + 1) + '</td>' +
-                            '<td style="text-align: left"><p class="itemtext">' + item.product.name +
-                            '</td>' +
+                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item.product.name +
+                            '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
                             '<td style="font-size: 12px;">' + item.quantity * item.price + '</td>' +
                             '</tr>';
@@ -329,7 +327,7 @@
                         '</tr>';
 
                     html = $('#receipt_body').html(html);
-                    $('.tran_id').html(res.items[0].receipt_no);
+                    $('.tran_id').html('S'+res.items[0].receipt_no);
 
                     var data = document.getElementById('print').innerHTML;
 
@@ -341,7 +339,6 @@
                     myReceipt.document.title = "Print Peceipt";
                     myReceipt.focus();
                     myReceipt.print();
-
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {

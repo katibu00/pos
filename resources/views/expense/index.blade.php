@@ -7,7 +7,7 @@
 
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="col-4 "><span class="text-bold fs-16">Expense</span></div>
+                        <div class="col-4 "><span class="text-bold fs-16">Expense ({{ auth()->user()->branch->name }})</span></div>
                         <div class="col-md-2 float-right"><button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal"
                                 data-bs-target=".addModal">Record New Expense(s)</button></div>
                     </div>

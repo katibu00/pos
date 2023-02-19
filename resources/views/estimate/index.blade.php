@@ -103,7 +103,7 @@
         
                                         <td>
                                             <button type="submit" id="submitBtn"
-                                                class="btn btn-info btn-lg btn-block mt-2">Save Estimage</button>
+                                                class="btn btn-warning text-white btn-lg btn-block mt-2">Save Estimage</button>
                                         </td>
                                         
                                     </div>
@@ -214,7 +214,7 @@
                             html +=
                                 '<tr style="text-align: center">' +
                                     '<td style="font-size: 12px;">' + (key + 1) +'</td>' +
-                                    '<td style="text-align: left"><p class="itemtext">' + item.product.name +'</td>' +
+                                    '<td style="text-align: left"><span style="font-size: 12px;" >' + item.product.name +'</span></td>' +
                                     '<td style="font-size: 12px;">' + item.quantity +'</td>' +
                                     '<td style="font-size: 12px;">' + item.quantity*item.price +'</td>' +
                                 '</tr>';

@@ -121,19 +121,19 @@
                                                     <label>Payment Method:</label><br>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input required" type="radio"
-                                                            name="payment_method" id="cash" value="cash" checked>
+                                                            name="payment_method" id="cash" value="cash" required>
                                                         <label class="form-check-label nott" for="cash"><i
                                                                 class="fa fa-money text-success"></i> Cash</label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="payment_method"
-                                                            id="pos" value="pos">
+                                                            id="pos" value="pos" required>
                                                         <label class="form-check-label nott" for="pos"><i
                                                                 class="fa fa-credit-card text-info"></i> POS</label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="payment_method"
-                                                            id="transfer" value="transfer">
+                                                            id="transfer" value="transfer" required>
                                                         <label class="form-check-label nott" for="transfer"><i
                                                                 class="fa fa-university text-danger"></i> Transfer</label>
                                                     </div>

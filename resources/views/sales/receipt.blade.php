@@ -39,6 +39,7 @@
         </div>
         <div class="info">
             <h4>EL-Habib Plumbing Services and Materials - {{ auth()->user()->branch->name }} Branch</h4>
+            <h5 style="text-decoration: underline;">Sales Receipt</h5>
         </div>
         <!--End Info-->
     </center>

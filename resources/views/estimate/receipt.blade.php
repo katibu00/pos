@@ -4,10 +4,11 @@
         <div class="logo"></div>
         <div class="info">
             <h4>EL-Habib Plumbing Services and Materials - {{ auth()->user()->branch->name }} Branch</h4>
+            <h5 style="text-decoration: underline;">Estimate</h5>
         </div>
         <!--End Info-->
     </center>
-    <!--End InvoiceTop-->
+    <em>Estimate ID:</em>  <em class="tran_id"></em>
 
     <div id="mid">
         <div class="info">
@@ -48,6 +49,7 @@
         <!--End Table-->
 
         <div id="legalcopy">
+            <p style="font-size: 12px">NB: This certifcate is estimated cost only. No real transaction occured.</p>
             <p class="legal" style="text-align: center">*** Thank you! *** </p><br/><br/>
             <p>.</p>
             <p>.</p>

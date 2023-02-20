@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Estimate;
+use App\Models\Expense;
+use App\Models\Purchase;
+use App\Models\Returns;
 use App\Models\Sale;
 use App\Models\Stock;
 use App\Models\User;
@@ -13,63 +17,62 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    public function admin(){
+    public function adminaa()
+    {
         $branch_id = auth()->user()->branch_id;
-        $todays = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
-        $data['discounts'] = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->sum('discount');
-        $data['branches'] = Branch::all();
+        // $todays = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+        // $data['discounts'] = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->sum('discount');
+        // $data['branches'] = Branch::all();
 
-        $todays_total = 0;
-        foreach($todays as $today)
-        {
-            $sum1 = $today['product']['selling_price']*$today->quantity - $today->discount;
-            $todays_total += $sum1;
-        }
+        // $todays_total = 0;
+        // foreach($todays as $today)
+        // {
+        //     $sum1 = $today['product']['selling_price']*$today->quantity - $today->discount;
+        //     $todays_total += $sum1;
+        // }
 
-        $weeks = Sale::where('branch_id', $branch_id)->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
+        // $weeks = Sale::where('branch_id', $branch_id)->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
 
+        // $weeks_total = 0;
+        // foreach($weeks as $week)
+        // {
+        //     $sum2 = $week['product']['selling_price']*$week->quantity;
+        //     $weeks_total += $sum2;
+        // }
 
-        $weeks_total = 0;
-        foreach($weeks as $week)
-        {
-            $sum2 = $week['product']['selling_price']*$week->quantity;
-            $weeks_total += $sum2;
-        }
-
-        $data['todays_total'] = $todays_total;
-        $data['weeks_total'] = $weeks_total;
+        // $data['todays_total'] = $todays_total;
+        // $data['weeks_total'] = $weeks_total;
 
         $lows = [];
         $stocks = Stock::all();
-        foreach($stocks as $stock){
+        foreach ($stocks as $stock) {
 
-            if($stock->quantity <= $stock->critical_level){
+            if ($stock->quantity <= $stock->critical_level) {
                 array_push($lows, $stock);
             }
         }
         $data['lows'] = $lows;
-        return view('admin',$data);
+        return view('admin', $data);
     }
 
-    public function cashier(){
+    public function cashier()
+    {
 
-        $todays = Sale::where('branch_id',Auth::user()->branch_id)->whereDate('created_at', Carbon::today())->get();
+        $todays = Sale::where('branch_id', Auth::user()->branch_id)->whereDate('created_at', Carbon::today())->get();
 
         $todays_total = 0;
-        foreach($todays as $today)
-        {
-            $sum1 = $today['product']['selling_price']*$today->quantity;
+        foreach ($todays as $today) {
+            $sum1 = $today['product']['selling_price'] * $today->quantity;
             $todays_total += $sum1;
         }
         $data['todays_total'] = $todays_total;
-        return view('cashier',$data);
+        return view('cashier', $data);
     }
 
-    
-    public function change_branch(Request $request){
+    public function change_branch(Request $request)
+    {
 
-
-        if($request->branch_id == ''){
+        if ($request->branch_id == '') {
             return redirect()->back();
             Toastr::error("Branch is not selected");
         }
@@ -78,4 +81,89 @@ class HomeController extends Controller
         $user->update();
         return redirect()->route('admin.home');
     }
+
+    public function admin(Request $request)
+    {
+        $data['branches'] = Branch::all();
+        $branch_id = auth()->user()->branch_id;
+        $todays = Sale::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+
+        $todays_gross = 0;
+        $todays_cash = 0;
+        $todays_pos = 0;
+        $todays_credit = 0;
+        $todays_discount = 0;
+        foreach ($todays as $today) {
+            $gross = $today->price * $today->quantity;
+            $todays_gross += $gross;
+            $todays_discount += $today->discount;
+            if($today->payment_method == 'cash')
+            {
+                $todays_cash += $today->price * $today->quantity - $today->discount;
+            }
+            if($today->payment_method == 'pos')
+            {
+                $todays_pos += $today->price * $today->quantity - $today->discount;
+            }
+            if($today->payment_method == 'transfer')
+            {
+                $todays_credit += $today->price * $today->quantity - $today->discount ;
+            }
+        }
+        $data['todays_gross'] = $todays_gross;
+        $data['discounts'] = $todays_discount;
+
+        $data['todays_pos'] = $todays_pos;
+        $data['todays_cash'] = $todays_cash;
+        $data['todays_credit'] = $todays_credit;
+
+        $data['sales_count'] = Sale::select('receipt_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('receipt_no')->get()->count();
+        $data['items_sold'] = Sale::select('receipt_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get()->count();
+        $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+
+        $todays_purchases = 0;
+        foreach ($purchases as $purchase) {
+            $todays_purchases += $purchase['product']['buying_price'] * $purchase->quantity;
+        }
+        $data['todays_purchases'] = $todays_purchases;
+
+        //estimate
+        $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+
+        $todays_estimate = 0;
+        foreach ($estimates as $estimate) {
+            $todays_estimate += $estimate['product']['selling_price'] * $estimate->quantity - $estimate->discount;
+
+        }
+        $data['todays_estimate'] = $todays_estimate;
+        $data['estimate_count'] = Estimate::select('estimate_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('estimate_no')->get()->count();
+
+        //return
+        $returns = Returns::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+
+        $todays_returns = 0;
+        foreach ($returns as $return) {
+            $todays_returns += $return->price * $return->quantity;
+
+        }
+        $data['todays_returns'] = $todays_returns;
+        $data['returns_count'] = Returns::select('return_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('return_no')->get()->count();
+        $data['todays_expenses'] = Expense::select('amount')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->sum('amount');
+
+        $lows = 0;
+        $total_stock = 0;
+        $stocks = Stock::where('branch_id', $branch_id)->get();
+        foreach ($stocks as $stock) {
+
+            if ($stock->quantity <= $stock->critical_level) {
+                $lows++;
+            }
+            $total_stock++;
+        }
+        $data['lows'] = $lows;
+        $data['total_stock'] = $total_stock;
+        return view('admin', $data);
+
+    }
+
 }

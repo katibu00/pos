@@ -91,7 +91,7 @@
                                                 <td>
                                                     <label for="">Customer Name</label>
                                                     <input type="text" name="customer_name" id=""
-                                                        class="form-control">
+                                                        class="form-control" required>
                                                 </td>
                                                 <td>
                                                     <label for="">Note</label>
@@ -228,6 +228,8 @@
                         '</tr>';
 
                         html = $('#receipt_body').html(html);
+                        $('.tran_id').html('E'+res.items[0].estimate_no);
+
            
                         var data = document.getElementById('print').innerHTML;
                         
@@ -236,7 +238,7 @@
                         myReceipt.screenX = 0;
                         myReceipt.screenY = 0;
                         myReceipt.document.write(data);
-                        myReceipt.document.title = "Print Peceipt";
+                        myReceipt.document.title = "Print Estimate Certificate";
                         myReceipt.focus();
                         myReceipt.print();
 

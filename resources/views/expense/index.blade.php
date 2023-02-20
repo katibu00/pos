@@ -40,7 +40,6 @@
                                         @endphp
                                         @foreach ($items as $key => $item)
                                         @php
-                                          
                                             $total += $item->amount;
                                         @endphp
                                         <tr>
@@ -112,7 +111,13 @@
                             <div class="col-md-4 mb-2">
                                 <input class="form-control form-control-sm" type="text" name="description[]" placeholder="Description">
                             </div>
-
+                            <div class="col-md-2 mb-2">
+                                <select class="form-select form-select-sm" name="payment_method[]" required>
+                                    <option value=""></option>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                </select>
+                            </div>
                             <div class="col-md-3 mb-2">
                                 <span class="btn btn-success btn-sm addeventmore"><i
                                         class="fa fa-plus-circle"></i></span>
@@ -124,7 +129,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary ml-2">Save Purchases</button>
+                    <button type="submit" class="btn btn-primary ml-2">Save Expense</button>
                 </div>
             </form>
             </div>
@@ -153,7 +158,13 @@
                     <div class="col-md-4 mb-2">
                         <input class="form-control form-control-sm" type="text" name="description[]" placeholder="Description">
                     </div>
-
+                    <div class="col-md-2 mb-2">
+                        <select class="form-select form-select-sm" name="payment_method[]" required>
+                            <option value=""></option>
+                            <option value="cash">Cash</option>
+                            <option value="transfer">Transfer</option>
+                        </select>
+                    </div>
                     <div class="col-md-3 mb-2">
                         <span class="btn btn-success btn-sm addeventmore"><i class="fa fa-plus-circle"></i></span>
                         <span class="btn btn-danger btn-sm removeeventmore mx-1"><i class="fa fa-minus-circle"></i></span>

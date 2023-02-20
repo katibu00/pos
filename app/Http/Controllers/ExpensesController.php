@@ -34,6 +34,7 @@ class ExpensesController extends Controller
                 $data->expense_category_id = $request->expense_category_id[$i];
                 $data->amount = $request->amount[$i];
                 $data->description = $request->description[$i];
+                $data->payment_method = $request->payment_method[$i];
                 $data->payer_id = auth()->user()->id;
                 $data->branch_id = auth()->user()->branch_id;
                 $data->date = $request->date;

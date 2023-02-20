@@ -34,7 +34,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Returns</div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_returns, 0) }} ({{ $returns_count }})</p>
+                                <p class="card-text">&#8358;{{ number_format($todays_returns_cash+$todays_returns_bank, 0) }} ({{ $returns_count }})</p>
                             </div>
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Expenses </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_expenses, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($todays_expense_cash+$todays_expense_bank, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                         <div class="card bg-primary text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">Cash </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_cash-$todays_returns-$todays_expenses, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($todays_cash-$todays_returns_cash-$todays_expense_cash, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                         <div class="card bg-info text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">POS </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_pos, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($todays_pos-$todays_returns_bank-$todays_expense_bank, 0) }}</p>
                             </div>
                         </div>
                     </div>

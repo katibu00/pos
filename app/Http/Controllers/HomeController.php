@@ -141,15 +141,40 @@ class HomeController extends Controller
         //return
         $returns = Returns::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
 
-        $todays_returns = 0;
+        $todays_returns_cash = 0;
+        $todays_returns_bank = 0;
         foreach ($returns as $return) {
-            $todays_returns += $return->price * $return->quantity;
+            if($return->payment_method == 'cash')
+            {
+                $todays_returns_cash += $return->price * $return->quantity;
+            }
+            if($return->payment_method == 'transfer')
+            {
+                $todays_returns_bank += $return->price * $return->quantity;
+            }
 
         }
-        $data['todays_returns'] = $todays_returns;
+        $data['todays_returns_cash'] = $todays_returns_cash;
+        $data['todays_returns_bank'] = $todays_returns_bank;
         $data['returns_count'] = Returns::select('return_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('return_no')->get()->count();
-        $data['todays_expenses'] = Expense::select('amount')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->sum('amount');
+        $expenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+       
+        $todays_expense_cash = 0;
+        $todays_expense_bank = 0;
 
+        foreach ($expenses as $expense) {
+            if($expense->payment_method == 'cash')
+            {
+                $todays_expense_cash += $expense->amount;
+            }
+            if($expense->payment_method == 'transfer')
+            {
+                $todays_expense_bank += $expense->amount;
+            }
+        }
+        $data['todays_expense_cash'] = $todays_expense_cash;
+        $data['todays_expense_bank'] = $todays_expense_bank;
+        
         $lows = 0;
         $total_stock = 0;
         $stocks = Stock::where('branch_id', $branch_id)->get();

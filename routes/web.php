@@ -86,6 +86,15 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function(
     Route::post('/fetch-sales', [SalesController::class, 'fetchSales'])->name('fetch-sales');
     Route::post('/refresh-table', [SalesController::class, 'refresh'])->name('refresh-table');
     Route::post('/refresh-receipt', [SalesController::class, 'loadReceipt'])->name('refresh-receipt');
+
+
+    Route::get('/credit_sales/index', [SalesController::class, 'creditIndex'])->name('credit.index');
+    Route::post('/credit_sales/store', [SalesController::class, 'creditStore'])->name('credit.store');
+    Route::post('/fetch-balance', [SalesController::class, 'fetchBalance'])->name('fetch-balance');
+
+
+    Route::get('/credit/index', [SalesController::class, 'index'])->name('sales.credit.index');
+    Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
 });
 
 Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
@@ -134,4 +143,8 @@ Route::group(['prefix' => 'report', 'middleware' => ['auth', 'admin']], function
 Route::group(['prefix' => 'expense', 'middleware' => ['auth', 'staff']], function(){
     Route::get('/index', [ExpensesController::class, 'index'])->name('expense.index');
     Route::post('/store', [ExpensesController::class, 'store'])->name('expense.store');
+});
+Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], function(){
+    Route::get('/index', [UsersController::class, 'customersIndex'])->name('customers.index');
+    Route::post('/store', [UsersController::class, 'customerStore'])->name('customers.store');
 });

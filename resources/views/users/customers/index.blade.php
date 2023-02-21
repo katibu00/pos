@@ -8,9 +8,9 @@
                 <div class="card">
                     <!-- Default panel contents -->
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="col-4 "><span class="text-bold fs-16">Users</span></div>
+                        <div class="col-4 "><span class="text-bold text-danger fs-16">Customers ({{ auth()->user()->branch->name }} Branch)</span></div>
                         <div class="col-md-2 float-right"><button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal"
-                                data-bs-target=".addModal">Add New</button></div>
+                                data-bs-target=".addModal">Add New Customer</button></div>
                     </div>
                     <div class="card-body">
 
@@ -20,21 +20,19 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
-                                        <th scope="col">Full Name</th>
-                                        <th scope="col">Branch</th>
-                                        <th scope="col">Email</th>
-                                        <th scope="col">Position</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Phone</th>
+                                        <th scope="col">Balance</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($users as $key => $user)
+                                    @foreach ($customers as $key => $user)
                                         <tr>
                                             <th scope="row">{{ $key + 1 }}</th>
-                                            <td>{{ $user->first_name.' '.$user->last_name }}</td>
-                                            <td>{{ $user['branch']['name'] }}</td>
-                                            <td>{{ $user->email }}</td>
-                                            <td>{{ $user->usertype }}</td>
+                                            <td>{{ $user->first_name }}</td>
+                                            <td>{{ $user->phone }}</td>
+                                            <td>&#8358;{{ number_format($user->balance) }}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary mb-1"
                                                     href="{{ route('users.edit', $user->id) }}"> <i
@@ -92,46 +90,28 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Add New User</h4>
+                    <h4 class="modal-title" id="myModalLabel">Add New Customer</h4>
                     <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
                 </div>
-                <form action="{{ route('users.store') }}" method="POST">
+                <form action="{{ route('customers.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
 
                        
                         <div class="form-group">
-                            <label for="first_name" class="col-form-label">First Name:</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            <label for="first_name" class="col-form-label">Customer Name:</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name"  required>
                         </div>
+                       
                         <div class="form-group">
-                            <label for="last_name" class="col-form-label">Last Name:</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            <label for="email" class="col-form-label">Phone Number:</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
                         </div>
+                        
+                       
                         <div class="form-group">
-                            <label for="email" class="col-form-label">Email:</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                                <label for="position">Branch</label>
-                                <select class="form-control" name="branch_id">
-                                    <option value="">Select Branch</option>
-                                    @foreach ($branches as $branch)
-                                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                    @endforeach
-                                </select>
-                        </div>
-                        <div class="form-group">
-                                <label for="position">Position</label>
-                                <select class="form-control" id="position" name="position" required>
-                                    <option value=""></option>
-                                    <option value="admin">Admin</option>
-                                    <option value="cashier">Cashier</option>
-                                </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="password" class="col-form-label">Password:</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <label for="balance" class="col-form-label">Balance Brought Forward:</label>
+                            <input type="number" class="form-control" id="balance" name="balance" required>
                         </div>
                        
                    
@@ -139,7 +119,7 @@
                 </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary ml-2">Add Submit</button>
+                        <button type="submit" class="btn btn-primary ml-2">Submit</button>
                     </div>
                 </form>
             </div>

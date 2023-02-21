@@ -13,9 +13,29 @@ class UsersController extends Controller
 {
     public function index()
     {
-        $data['users'] = User::all();
+        $data['users'] = User::where('usertype','!=','customer')->get();
         $data['branches'] = Branch::all();
         return view('users.index', $data);
+    }
+
+    public function customersIndex()
+    {
+        $data['customers'] = User::where('usertype','customer')->where('branch_id', auth()->user()->branch_id)->get();
+        return view('users.customers.index', $data);
+    }
+
+    public function customerStore(Request $request)
+    {
+        $user = new User();
+        $user->branch_id = auth()->user()->branch_id;
+        $user->first_name = $request->first_name;
+        $user->phone = $request->phone;
+        $user->balance = $request->balance;
+        $user->usertype = 'customer';
+        $user->password = Hash::make(12345678);
+        $user->save();
+        Toastr::success('Customer has been created sucessfully', 'Done');
+        return redirect()->route('customers.index');
     }
 
     public function store(Request $request)

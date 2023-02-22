@@ -92,6 +92,7 @@ class HomeController extends Controller
         $todays_cash = 0;
         $todays_pos = 0;
         $todays_credit = 0;
+        $todays_transfer = 0;
         $todays_discount = 0;
         foreach ($todays as $today) {
             $gross = $today->price * $today->quantity;
@@ -107,6 +108,10 @@ class HomeController extends Controller
             }
             if($today->payment_method == 'transfer')
             {
+                $todays_transfer += $today->price * $today->quantity - $today->discount ;
+            }
+            if($today->payment_method == 'credit')
+            {
                 $todays_credit += $today->price * $today->quantity - $today->discount ;
             }
         }
@@ -116,6 +121,7 @@ class HomeController extends Controller
         $data['todays_pos'] = $todays_pos;
         $data['todays_cash'] = $todays_cash;
         $data['todays_credit'] = $todays_credit;
+        $data['todays_transfer'] = $todays_transfer;
 
         $data['sales_count'] = Sale::select('receipt_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('receipt_no')->get()->count();
         $data['items_sold'] = Sale::select('receipt_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get()->count();

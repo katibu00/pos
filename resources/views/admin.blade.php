@@ -71,6 +71,14 @@
                         </div>
                     </div>
                     <div class="col-md-3">
+                        <div class="card bg-info text-white mb-3" style="max-width: 20rem;">
+                            <div class="card-header">Transfer </div>
+                            <div class="card-body">
+                                <p class="card-text">&#8358;{{ number_format($todays_transfer, 0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Credit Sales </div>
                             <div class="card-body">

@@ -93,7 +93,6 @@ class EstimateController extends Controller
         ]);
     }
 
-
     public function allStore(Request $request)
     {
         $estimates = Estimate::where('estimate_no', $request->estimate_no)->get();
@@ -139,6 +138,7 @@ class EstimateController extends Controller
             $data->update();
         }
 
+        $estimates->delete();
         Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
         return redirect()->route('estimate.all.index'); 
     }

@@ -266,10 +266,11 @@
 
                                         </ul>
                                     </li>
-                                    <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}"><a
-                                            class="menu-link" href="{{ route('estimate.index') }}">
-                                            <div>Estimate</div>
-                                        </a></li>
+                                    <li class="menu-item {{ $route == 'expense.index' ? 'current' : '' }} "><a
+                                        class="menu-link" href="{{ route('expense.index') }}">
+                                        <div>Expense</div>
+                                    </a></li>
+                                   
                                     <li class="menu-item {{ $route == 'returns' ? 'current' : '' }}"><a
                                             class="menu-link" href="{{ route('returns') }}">
                                             <div>Returns</div>

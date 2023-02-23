@@ -102,6 +102,10 @@ Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], functi
     Route::post('/store', [EstimateController::class, 'store'])->name('estimate.store');
     Route::post('/refresh-table-estimate', [EstimateController::class, 'refresh'])->name('refresh-table-estimate');
     Route::post('/refresh-receipt-estimate', [EstimateController::class, 'loadReceipt'])->name('refresh-receipt-estimate');
+
+    Route::get('/all/index', [EstimateController::class, 'allIndex'])->name('estimate.all.index');
+    Route::post('/all/store', [EstimateController::class, 'allStore'])->name('estimate.all.store');
+
 });
 
 Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function(){

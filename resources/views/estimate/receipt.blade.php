@@ -3,7 +3,7 @@
     <center id="top">
         <div class="logo"></div>
         <div class="info">
-            <h4>EL-Habib Plumbing Services and Materials - {{ auth()->user()->branch->name }} Branch</h4>
+            <h4>EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch</h4>
             <h5 style="text-decoration: underline;">Estimate</h5>
         </div>
         <!--End Info-->

@@ -158,6 +158,12 @@
                                             <li
                                                 class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('shopping_list.index') }}">
+                                                    <div>Low Stocks</div>
+                                                </a>
+                                            </li>
+                                            <li
+                                                class="menu-item">
+                                                <a class="menu-link" href="#">
                                                     <div>Shopping List</div>
                                                 </a>
                                             </li>

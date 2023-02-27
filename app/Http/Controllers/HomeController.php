@@ -149,19 +149,22 @@ class HomeController extends Controller
 
         $todays_returns_cash = 0;
         $todays_returns_bank = 0;
+        $todays_returns_discounts = 0;
         foreach ($returns as $return) {
             if($return->payment_method == 'cash')
             {
-                $todays_returns_cash += $return->price * $return->quantity;
+                $todays_returns_cash += $return->price * $return->quantity-$return->discount;
             }
             if($return->payment_method == 'transfer')
             {
-                $todays_returns_bank += $return->price * $return->quantity;
+                $todays_returns_bank += $return->price * $return->quantity-$return->discount;
             }
+            $todays_returns_discounts += $return->discount;
 
         }
         $data['todays_returns_cash'] = $todays_returns_cash;
         $data['todays_returns_bank'] = $todays_returns_bank;
+        $data['todays_returns_discounts'] = $todays_returns_discounts;
         $data['returns_count'] = Returns::select('return_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('return_no')->get()->count();
         $expenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
        

@@ -35,9 +35,9 @@
                                             <td>&#8358;{{ number_format($user->balance) }}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary mb-1"
-                                                    href="{{ route('users.edit', $user->id) }}"> <i
-                                                        class="fa fa-edit"></i></a>
-                                                <button class="btn btn-sm btn-danger mb-1"data-toggle="modal"
+                                                    href="{{ route('customers.profile', $user->id) }}" title="View Profile"> <i
+                                                        class="fa fa-user"></i></a>
+                                                <button class="btn btn-sm btn-danger mb-1" data-toggle="modal"
                                                     data-target="#exampleModal{{ $key }}"><i
                                                         class="fa fa-trash"></i></button>
                                             </td>

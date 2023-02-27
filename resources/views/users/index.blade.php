@@ -8,7 +8,7 @@
                 <div class="card">
                     <!-- Default panel contents -->
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="col-4 "><span class="text-bold fs-16">Users</span></div>
+                        <div class="col-4 "><span class="text-bold fs-16">Staffs</span></div>
                         <div class="col-md-2 float-right"><button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal"
                                 data-bs-target=".addModal">Add New</button></div>
                     </div>

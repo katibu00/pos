@@ -42,7 +42,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Discounts </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($discounts, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($discounts-$todays_returns_discounts, 0) }}</p>
                             </div>
                         </div>
                     </div>

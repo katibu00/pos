@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Payment;
+use App\Models\Sale;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -70,6 +72,13 @@ class UsersController extends Controller
         return view('users.edit',$data);
     }
 
+    function customerProfile($id){
+        $data['user'] = User::select('id','first_name','balance')->where('id',$id)->first();
+        $data['dates'] = Sale::select('stock_id','receipt_no','created_at')->where('customer_name', $id)->groupBy('receipt_no')->orderBy('created_at','desc')->paginate(200);
+        $data['payments'] = Payment::select('payment_amount','payment_type','created_at')->where('customer_id', $id)->orderBy('created_at','desc')->take(10)->get();
+        return view('users.customers.profile',$data);
+    }
+
     
     public function update(Request $request, $id)
     {
@@ -84,4 +93,12 @@ class UsersController extends Controller
         Toastr::success('User has been updated sucessfully', 'Done');
         return redirect()->route('users.index');
     }
+
+    public function savePayment(Request $request)
+    {
+
+        dd($request->all());
+
+    }
+
 }

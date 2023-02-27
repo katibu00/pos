@@ -21,8 +21,8 @@
                        @$last = App\Models\Purchase::where('stock_id',@$low->id)->first();
                      
                    @endphp
-                   <td>{{ @$last->created_at? $last->created_at->diffForHumans():'Never' }}</td>
-                   <td>{{ @$last->quantity }}</td>
+                   <td>{{ @$last->created_at? $last->created_at->diffForHumans():'Never' }} ({{ @$last->quantity }})</td>
+                   <td>{{ @$low->quantity }}</td>
                 </tr>
             @endforeach
 

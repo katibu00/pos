@@ -114,6 +114,8 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function(
     Route::post('/delete', [UsersController::class, 'delete'])->name('users.delete');
     Route::get('/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
     Route::post('/update/{id}', [UsersController::class, 'update'])->name('users.update');
+
+
 });
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'admin']], function(){
     Route::get('/index', [ReportController::class, 'index'])->name('reports.index');
@@ -151,4 +153,7 @@ Route::group(['prefix' => 'expense', 'middleware' => ['auth', 'staff']], functio
 Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], function(){
     Route::get('/index', [UsersController::class, 'customersIndex'])->name('customers.index');
     Route::post('/store', [UsersController::class, 'customerStore'])->name('customers.store');
+    Route::get('/profile/{id}', [UsersController::class, 'customerProfile'])->name('customers.profile');
+    Route::post('/add_payment', [UsersController::class, 'savePayment'])->name('customers.payment');
+
 });

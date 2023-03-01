@@ -194,6 +194,12 @@
                                                     <div>Credit Sales</div>
                                                 </a>
                                             </li>
+                                            <li
+                                                class="menu-item {{ $route == 'sales.all.index' ? 'current' : '' }}">
+                                                <a class="menu-link" href="{{ route('sales.all.index') }}">
+                                                    <div>All Sales</div>
+                                                </a>
+                                            </li>
 
                                         </ul>
                                     </li>

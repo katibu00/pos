@@ -26,13 +26,14 @@
                                                 <th scope="col">Price</th>
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Total</th>
+                                                <th scope="col">status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($dates as $key => $date)
                                                 @php
                                                     $total_amount = 0;
-                                                    $sales = App\Models\Sale::select('stock_id', 'price', 'quantity', 'discount')
+                                                    $sales = App\Models\Sale::select('stock_id', 'price', 'quantity', 'discount','status')
                                                         ->where('receipt_no', $date->receipt_no)
                                                         ->get();
                                                 @endphp
@@ -51,6 +52,7 @@
                                                         <td>{{ number_format($sale->price, 0) }}</td>
                                                         <td>{{ number_format($sale->quantity, 0) }}</td>
                                                         <td>{{ number_format($sale->price * $sale->quantity, 0) }}</td>
+                                                        <td>{{ $sale->status ? $sale->status : '--' }}</td>
                                                     </tr>
                                                     @php
                                                         $total_amount += $sale->price * $sale->quantity - $sale->discount;
@@ -63,7 +65,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    {{ $dates->links() }}
+                                   
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -135,16 +137,86 @@
                 <h4 class="modal-title" id="myModalLabel">Add New Payment</h4>
                 <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
             </div>
-            <form action="{{ route('customers.payment') }}" method="POST">
+            <form action="{{ route('customers.save.payment') }}" method="POST">
                 @csrf
                 <div class="modal-body">
 
                    
                 <div class="form-group">
-                    <label for="first_name" class="col-form-label">Amount:</label>
-                    <input type="number" class="form-control" id="" name="amount" required>
+                    <label for="" class="col-form-label">Amount:</label>
+                    <input type="number" class="form-control" id="payment_amount" name="payment_amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-form-label">Payment Method:</label>
+                    <select class="form-select" name="payment_method" required>
+                        <option value=""></option>
+                        <option value="cash">Cash</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="pos">POS</option>
+                    </select>
                 </div>
                 <input type="hidden" value="{{ $user->id }}" name="customer_id">
+                <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Sales ID</th>
+                        <th>Amount</th>
+                        <th>Payment Option</th>
+                        <th>Partial Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $grand_total = 0;
+                        @endphp
+                        @foreach ($dates as $key => $date)
+                        @php
+                            $total_amount = 0;
+                            $sales = App\Models\Sale::select('stock_id', 'price', 'quantity', 'discount','status')
+                                ->where('receipt_no', $date->receipt_no)
+                                ->get();
+                            foreach ($sales as $sale) {
+                                $total_amount += $sale->price * $sale->quantity - $sale->discount;
+                            }
+                            $grand_total += $total_amount;
+                        @endphp
+                      <tr>
+                        <td>{{ $key+1 }}</td>
+                        <td>${{ $date->receipt_no }}</td>
+                        <td>{{ $total_amount }}</td>
+                        <td>
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="payment_option[]{{ $key }}" id="fullPayment{{ $date->receipt_no }}" value="Full Payment">
+                              <label class="form-check-label" for="fullPayment{{ $date->receipt_no }}">Full </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="payment_option[]{{ $key }}" id="partialPayment{{ $date->receipt_no }}" value="Partial Payment">
+                              <label class="form-check-label" for="partialPayment{{ $date->receipt_no }}">Partial</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="payment_option[]{{ $key }}" id="noPayment{{ $date->receipt_no }}" checked value="No Payment">
+                              <label class="form-check-label" for="noPayment{{ $date->receipt_no }}">None</label>
+                            </div>
+                          </td>
+                          <input type="hidden" name="receipt_no[]" value="{{ $date->receipt_no }}">
+                          <input type="hidden" name="full_price[]" value="{{ $total_amount }}">
+                        <td class="partial-amount d-none">
+                          <input type="number" name="partial_amount[]" class="form-control partial-amount-input" placeholder="Enter Partial Amount">
+                        </td>
+                        <td class="holdtd"></td>
+                        
+                  
+                      </tr>
+                      @endforeach
+                     
+                    </tbody>
+                  </table>
+                </div>
+                  <input type="hidden" id="grand_total" value="{{ $grand_total }}">
+                  <h3>Grand Total: <span id="grand_total_span"></span></h3>
+                  
             </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -157,4 +229,57 @@
 
 
 
+@endsection
+
+@section('js')
+<script>
+$(document).ready(function() {
+
+    var paid_amount = $('#paid_amount').val();
+    var grand_total = $('#grand_total').val();
+    $('#grand_total_span').html(grand_total);
+    var new_grand_total = 0;
+    $('input[type="radio"]').click(function() {
+      var selectedOption = $(this).val();
+
+      if (selectedOption === 'Partial Payment') {
+        $(this).closest('tr').find('.partial-amount').removeClass('d-none');
+        $(this).closest('tr').find('.holdtd').addClass('d-none');
+        var price = $(this).closest('tr').find('td:eq(2)').text();
+
+      }else
+      {
+        $(this).closest('tr').find('.partial-amount').addClass('d-none');
+        $(this).closest('tr').find('.holdtd').removeClass('d-none');
+      }
+
+      if (selectedOption === 'Full Payment') {
+       
+        var full_paid = $(this).closest('tr').find('td:eq(2)').text();
+        // console.log(full_paid);
+        new_grand_total = (parseInt(grand_total) -  parseInt(full_paid));
+        $('#grand_total_span').html(parseInt(new_grand_total));
+
+      }
+
+    });
+
+
+    $(".partial-amount-input").on("keyup", function() {
+    var partial_paid = $(this).val();
+    var price = $(this).closest('tr').find('td:eq(2)').text();
+    new_grand_total = grand_total - partial_paid;
+    $('#grand_total_span').html(new_grand_total);
+  
+  });
+
+
+
+
+   
+
+
+
+  });
+  </script>
 @endsection

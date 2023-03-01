@@ -95,6 +95,9 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function(
 
     Route::get('/credit/index', [SalesController::class, 'index'])->name('sales.credit.index');
     Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
+
+    Route::get('/all/index', [SalesController::class, 'allIndex'])->name('sales.all.index');
+
 });
 
 Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function(){
@@ -154,6 +157,6 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::get('/index', [UsersController::class, 'customersIndex'])->name('customers.index');
     Route::post('/store', [UsersController::class, 'customerStore'])->name('customers.store');
     Route::get('/profile/{id}', [UsersController::class, 'customerProfile'])->name('customers.profile');
-    Route::post('/add_payment', [UsersController::class, 'savePayment'])->name('customers.payment');
+    Route::post('/save_payment', [UsersController::class, 'savePayment'])->name('customers.save.payment');
 
 });

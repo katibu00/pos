@@ -9,20 +9,21 @@ use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
     public function index()
     {
-        $data['users'] = User::where('usertype','!=','customer')->get();
+        $data['users'] = User::where('usertype', '!=', 'customer')->get();
         $data['branches'] = Branch::all();
         return view('users.index', $data);
     }
 
     public function customersIndex()
     {
-        $data['customers'] = User::where('usertype','customer')->where('branch_id', auth()->user()->branch_id)->get();
+        $data['customers'] = User::where('usertype', 'customer')->where('branch_id', auth()->user()->branch_id)->get();
         return view('users.customers.index', $data);
     }
 
@@ -57,7 +58,7 @@ class UsersController extends Controller
     public function delete(Request $request)
     {
         $user = User::find($request->id);
-        if($user->id == Auth::user()->id){
+        if ($user->id == Auth::user()->id) {
             Toastr::error('You cannot delete yourself', 'Warning');
             return redirect()->route('users.index');
         }
@@ -66,20 +67,31 @@ class UsersController extends Controller
         return redirect()->route('users.index');
     }
 
-    function edit($id){
+    public function edit($id)
+    {
         $data['branches'] = Branch::all();
         $data['user'] = User::find($id);
-        return view('users.edit',$data);
+        return view('users.edit', $data);
     }
 
-    function customerProfile($id){
-        $data['user'] = User::select('id','first_name','balance')->where('id',$id)->first();
-        $data['dates'] = Sale::select('stock_id','receipt_no','created_at')->where('customer_name', $id)->groupBy('receipt_no')->orderBy('created_at','desc')->paginate(200);
-        $data['payments'] = Payment::select('payment_amount','payment_type','created_at')->where('customer_id', $id)->orderBy('created_at','desc')->take(10)->get();
-        return view('users.customers.profile',$data);
+    public function customerProfile($id)
+    {
+        $data['user'] = User::select('id', 'first_name', 'balance')->where('id', $id)->first();
+        $data['dates'] = Sale::select('stock_id', 'receipt_no', 'created_at')
+                        ->where('payment_method', 'credit')
+                        ->where(function ($query) use ($id) {
+                            $query->where('status', '!=', 'paid')
+                                ->orWhereNull('status');
+                        })
+                        ->where('customer_name', $id)
+                        ->groupBy('receipt_no')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+        // dd($data['dat÷es']);
+        $data['payments'] = Payment::select('payment_amount', 'created_at')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
+        return view('users.customers.profile', $data);
     }
 
-    
     public function update(Request $request, $id)
     {
         $user = User::find($id);
@@ -97,7 +109,51 @@ class UsersController extends Controller
     public function savePayment(Request $request)
     {
 
-        dd($request->all());
+        // dd($request->all());
+        $customer = User::find($request->customer_id);
+        $receipt_nos = [];
+
+        $rowCount = count($request->receipt_no);
+        if ($rowCount != null) {
+            for ($i = 0; $i < $rowCount; $i++) {
+
+                if ($request->payment_option[$i] == "Full Payment") {
+
+                    DB::table('sales')
+                        ->where('receipt_no', '=', $request->receipt_no[$i])
+                        ->update(['status' => 'paid']);
+
+                    $customer->balance = $customer->balance - $request->full_price[$i];
+                    $customer->update();
+
+                    array_push($receipt_nos, $request->receipt_no[$i]);
+                }
+                if ($request->payment_option[$i] == "Partial Payment") {
+                    DB::table('sales')
+                        ->where('receipt_no', '=', $request->receipt_no[$i])
+                        ->update(['status' => 'partial', 'payment_amount' => $request->partial_amount[$i]]);
+
+                    $customer->balance = $customer->balance - $request->partial_amount[$i];
+
+                    array_push($receipt_nos, $request->receipt_no[$i]);
+
+                }
+
+            }
+        }
+        $customer->update();
+
+        $record = new Payment();
+        $record->payment_method = $request->payment_method;
+        $record->payment_amount = $request->payment_amount;
+        $record->branch_id = auth()->user()->branch_id;
+        $record->customer_id = $request->customer_id;
+        $record->receipt_nos = implode(',', $receipt_nos);
+        $record->user_id = auth()->user()->id;
+        $record->save();
+
+        Toastr::success('Sales has been Recorded sucessfully', 'Done');
+        return redirect()->back();
 
     }
 

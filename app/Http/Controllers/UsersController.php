@@ -88,7 +88,7 @@ class UsersController extends Controller
                         ->orderBy('created_at', 'desc')
                         ->get();
         // dd($data['dat÷es']);
-        $data['payments'] = Payment::select('payment_amount', 'created_at')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
+        $data['payments'] = Payment::select('id','payment_amount','payment_method','created_at')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
         return view('users.customers.profile', $data);
     }
 
@@ -129,9 +129,14 @@ class UsersController extends Controller
                     array_push($receipt_nos, $request->receipt_no[$i]);
                 }
                 if ($request->payment_option[$i] == "Partial Payment") {
+
                     DB::table('sales')
                         ->where('receipt_no', '=', $request->receipt_no[$i])
-                        ->update(['status' => 'partial', 'payment_amount' => $request->partial_amount[$i]]);
+                        ->update([
+                            'status' => 'partial',
+                            'payment_amount' => DB::raw('payment_amount + ' . $request->partial_amount[$i])
+                        ]);
+
 
                     $customer->balance = $customer->balance - $request->partial_amount[$i];
 
@@ -145,7 +150,7 @@ class UsersController extends Controller
 
         $record = new Payment();
         $record->payment_method = $request->payment_method;
-        $record->payment_amount = $request->payment_amount;
+        $record->payment_amount += $request->payment_amount;
         $record->branch_id = auth()->user()->branch_id;
         $record->customer_id = $request->customer_id;
         $record->receipt_nos = implode(',', $receipt_nos);

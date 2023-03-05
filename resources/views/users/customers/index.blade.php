@@ -23,6 +23,7 @@
                                         <th scope="col">Name</th>
                                         <th scope="col">Phone</th>
                                         <th scope="col">Balance</th>
+                                        <th scope="col">Last Payment</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -33,6 +34,10 @@
                                             <td>{{ $user->first_name }}</td>
                                             <td>{{ $user->phone }}</td>
                                             <td>&#8358;{{ number_format($user->balance) }}</td>
+                                            @php
+                                                $payment = App\Models\Payment::select('created_at')->where('customer_id',$user->id)->first();
+                                            @endphp
+                                            <td>{{ @$payment ? $payment->created_at->diffForHumans():'Never' }}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary mb-1"
                                                     href="{{ route('customers.profile', $user->id) }}" title="View Profile"> <i
@@ -101,21 +106,19 @@
                         <div class="form-group">
                             <label for="first_name" class="col-form-label">Customer Name:</label>
                             <input type="text" class="form-control" id="first_name" name="first_name"  required>
+                            @error('first_name')
+                                <p class="text-danger">{{ $message }}</p>
+                            @enderror
                         </div>
                        
                         <div class="form-group">
                             <label for="email" class="col-form-label">Phone Number:</label>
                             <input type="tel" class="form-control" id="phone" name="phone" required>
+                            @error('phone')
+                                <p class="text-danger">{{ $message }}</p>
+                            @enderror
                         </div>
-                        
-                       
-                        <div class="form-group">
-                            <label for="balance" class="col-form-label">Balance Brought Forward:</label>
-                            <input type="number" class="form-control" id="balance" name="balance" required>
-                        </div>
-                       
                    
-
                 </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

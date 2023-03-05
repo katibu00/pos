@@ -22,7 +22,7 @@ class SalesController extends Controller
     {
         $user = auth()->user();
         $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $data['recents'] = Sale::select('stock_id','receipt_no')->whereDate('created_at', Carbon::today())->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
+        $data['recents'] = Sale::select('stock_id','receipt_no','customer_name')->whereDate('created_at', Carbon::today())->where('user_id',auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at','desc')->take(4)->get();
         $data['sold_items'] = [];
         $data['customers'] = User::where('usertype','customer')->where('branch_id', auth()->user()->branch_id)->get();
         return view('sales.credit.index', $data);  
@@ -119,11 +119,12 @@ class SalesController extends Controller
         $number = $exploded[1] + 1;
         $padded = sprintf("%04d", $number);
         $stored = $year . $month . $day . '/' . $padded;
-
+        $total_price = 0;
+        $discount = 0;
         $productCount = count($request->product_id);
         if ($productCount != null) {
             for ($i = 0; $i < $productCount; $i++) {
-
+               
                 $data = new Sale();
                 $data->branch_id = auth()->user()->branch_id;
                 $data->receipt_no = $stored;
@@ -131,11 +132,12 @@ class SalesController extends Controller
                 $data->price = $request->price[$i];
                 $data->quantity = $request->quantity[$i];
                 if($request->discount[$i] == null){
-                    $data->discount = 0;
+                    $discount = 0;
 
                 }else{
-                    $data->discount = $request->discount[$i];
+                    $discount = $request->discount[$i];
                 }
+                $data->discount = $discount;
                 $data->payment_method = 'credit';
                 $data->user_id = auth()->user()->id;
                 $data->customer_name = $request->customer;
@@ -146,13 +148,14 @@ class SalesController extends Controller
                 $data->quantity -= $request->quantity[$i];
                 $data->update();
 
-                $user = User::find($request->customer);
-                $user->balance = $request->new_balance;
-                $user->update();
+               $total_price += ($request->price[$i]*$request->quantity[$i])-$discount;
 
             }
         }
 
+        $user = User::find($request->customer);
+        $user->balance += $total_price;
+        $user->update();
         
         return response()->json([
             'status' => 201,

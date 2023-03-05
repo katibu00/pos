@@ -205,7 +205,7 @@
                                     </li>
                                   
 
-                                    <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
+                                    <li class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
                                         <a class="menu-link" href="#">
                                             <div>Users</div>
                                         </a>
@@ -217,7 +217,7 @@
                                                 </a>
                                             </li>
                                             <li
-                                                class="menu-item {{ $route == 'customers.index' ? 'current' : '' }}">
+                                                class="menu-item {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('customers.index') }}">
                                                     <div>Customers</div>
                                                 </a>
@@ -307,7 +307,7 @@
                                             </li>
                                         </ul>
                                     </li>
-                                    <li class="menu-item {{ $route == 'customers.index' ? 'current' : '' }}"><a
+                                    <li class="menu-item {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}"><a
                                         class="menu-link" href="{{ route('customers.index') }}">
                                         <div>Customers</div>
                                     </a></li>

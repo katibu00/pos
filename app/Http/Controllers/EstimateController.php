@@ -15,7 +15,7 @@ class EstimateController extends Controller
     {
         $user = auth()->user();
         $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $data['recents'] = Estimate::select('product_id','estimate_no')->whereDate('created_at', Carbon::today())->where('cashier_id',auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at','desc')->take(4)->get();
+        $data['recents'] = Estimate::select('product_id','estimate_no','customer')->whereDate('created_at', Carbon::today())->where('cashier_id',auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at','desc')->take(4)->get();
         return view('estimate.index', $data); 
     }
     public function allIndex()

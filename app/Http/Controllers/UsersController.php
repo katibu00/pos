@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\Sale;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,11 +30,15 @@ class UsersController extends Controller
 
     public function customerStore(Request $request)
     {
+        $request->validate([
+            'first_name'=>'required',
+            'phone'=>'required|unique:users,phone',
+        ]);
         $user = new User();
         $user->branch_id = auth()->user()->branch_id;
         $user->first_name = $request->first_name;
         $user->phone = $request->phone;
-        $user->balance = $request->balance;
+        $user->balance = 0;
         $user->usertype = 'customer';
         $user->password = Hash::make(12345678);
         $user->save();
@@ -77,7 +82,7 @@ class UsersController extends Controller
     public function customerProfile($id)
     {
         $data['user'] = User::select('id', 'first_name', 'balance')->where('id', $id)->first();
-        $data['dates'] = Sale::select('stock_id', 'receipt_no', 'created_at')
+        $data['dates'] = Sale::select('stock_id', 'receipt_no', 'created_at','status')
                         ->where('payment_method', 'credit')
                         ->where(function ($query) use ($id) {
                             $query->where('status', '!=', 'paid')
@@ -112,35 +117,96 @@ class UsersController extends Controller
         // dd($request->all());
         $customer = User::find($request->customer_id);
         $receipt_nos = [];
+        $total_amount_paid = 0;
 
         $rowCount = count($request->receipt_no);
         if ($rowCount != null) {
             for ($i = 0; $i < $rowCount; $i++) {
 
                 if ($request->payment_option[$i] == "Full Payment") {
-
-                    DB::table('sales')
+                    $receiptNo = $request->receipt_no[$i];
+                    $sales = DB::table('sales')
+                                    ->where('receipt_no', $receiptNo)
+                                    ->get();
+                    $total_amount = 0;
+                    if($sales[0]->status)
+                    {
+                        foreach($sales as $sale)
+                        {
+                            $total_amount += $sale->price*$sale->quantity-$sale->discount;
+                        }
+                        DB::table('sales')
                         ->where('receipt_no', '=', $request->receipt_no[$i])
                         ->update(['status' => 'paid']);
+                        $amount_paid = $total_amount - $sales[0]->payment_amount;
 
-                    $customer->balance = $customer->balance - $request->full_price[$i];
-                    $customer->update();
+                        $customer->balance = $customer->balance - $amount_paid;
+                        $customer->update();
 
-                    array_push($receipt_nos, $request->receipt_no[$i]);
+                        array_push($receipt_nos, $receiptNo);
+                        $total_amount_paid += $amount_paid;
+                       
+                    }else
+                    {
+                        DB::table('sales')
+                            ->where('receipt_no', '=', $request->receipt_no[$i])
+                            ->update(['status' => 'paid']);
+
+                        $customer->balance = $customer->balance - $request->full_price[$i];
+                        $customer->update();
+
+                        array_push($receipt_nos, $request->receipt_no[$i]);
+                        $total_amount_paid += $request->full_price[$i];
+                    }
+                   
                 }
                 if ($request->payment_option[$i] == "Partial Payment") {
 
-                    DB::table('sales')
-                        ->where('receipt_no', '=', $request->receipt_no[$i])
-                        ->update([
-                            'status' => 'partial',
-                            'payment_amount' => DB::raw('payment_amount + ' . $request->partial_amount[$i])
-                        ]);
+                    try {
+                        DB::beginTransaction();
+                    
+                        $receiptNo = $request->receipt_no[$i];
+                        $partialAmount = $request->partial_amount[$i];
+                    
+                        $sale = DB::table('sales')
+                                    ->where('receipt_no', $receiptNo)
+                                    ->first();
+                    
+                        if (!$sale) {
+                            throw new Exception("Sale not found for receipt no: $receiptNo");
+                        }
+                    
+                        $newPaymentAmount = $sale->payment_amount + $partialAmount;
+                    
+                        DB::table('sales')
+                            ->where('receipt_no', $receiptNo)
+                            ->update([
+                                'status' => 'partial',
+                                'payment_amount' => $newPaymentAmount
+                            ]);
+                    
+                        DB::commit();
+                    
+                        // Success message or redirect
+
+                        $customer->balance = $customer->balance - $request->partial_amount[$i];
+
+                        array_push($receipt_nos, $request->receipt_no[$i]);
+                        $total_amount_paid += $request->partial_amount[$i];
+                        
+                    } catch (Exception $e) {
+                        DB::rollback();
+                    
+                        // Log error message and return error response
+                    }
+                    
 
 
-                    $customer->balance = $customer->balance - $request->partial_amount[$i];
+                    // $customer->balance = $customer->balance - $request->partial_amount[$i];
 
-                    array_push($receipt_nos, $request->receipt_no[$i]);
+                    // array_push($receipt_nos, $request->receipt_no[$i]);
+                    // $total_amount_paid += $request->partial_amount[$i];
+
 
                 }
 
@@ -148,16 +214,25 @@ class UsersController extends Controller
         }
         $customer->update();
 
-        $record = new Payment();
-        $record->payment_method = $request->payment_method;
-        $record->payment_amount += $request->payment_amount;
-        $record->branch_id = auth()->user()->branch_id;
-        $record->customer_id = $request->customer_id;
-        $record->receipt_nos = implode(',', $receipt_nos);
-        $record->user_id = auth()->user()->id;
-        $record->save();
+        if($total_amount_paid != 0)
+        {
+            $record = new Payment();
+            $record->payment_method = $request->payment_method;
+            $record->payment_amount += $total_amount_paid;
+            $record->branch_id = auth()->user()->branch_id;
+            $record->customer_id = $request->customer_id;
+            $record->receipt_nos = implode(',', $receipt_nos);
+            $record->user_id = auth()->user()->id;
+            $record->save();
 
-        Toastr::success('Sales has been Recorded sucessfully', 'Done');
+            Toastr::success('Sales has been Recorded sucessfully', 'Done');
+            return redirect()->back();    
+
+        }
+
+       
+
+        Toastr::warning('Sales amount is zero. Nothing Recorded', 'Not Recorded');
         return redirect()->back();
 
     }

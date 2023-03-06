@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Estimate;
 use App\Models\Sale;
 use App\Models\Stock;
 use App\Models\User;
@@ -177,4 +179,11 @@ class SalesController extends Controller
             'items' => $items,
         ]);
     }
+
+    public function allIndex()
+    {
+         $data['sales'] = Sale::select('stock_id','receipt_no')->groupBy('receipt_no')->orderBy('created_at','desc')->paginate(10);
+        return view('sales.all_index', $data); 
+    }
+
 }

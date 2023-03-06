@@ -177,7 +177,7 @@
                                             <div>Inventory</div>
                                         </a></li>
                                    
-                                    <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
+                                    <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}  {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
                                         <a class="menu-link" href="#">
                                             <div>Sales</div>
                                         </a>
@@ -234,13 +234,13 @@
                                             <li
                                                 class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('estimate.index') }}">
-                                                    <div><i class="icon-wpforms"></i>New</div>
+                                                    <div><i class="icon-wpforms"></i>Estimate</div>
                                                 </a>
                                             </li>
                                             <li
                                                 class="menu-item {{ $route == 'estimate.all.index' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('estimate.all.index') }}">
-                                                    <div>All</div>
+                                                    <div>All Estimate</div>
                                                 </a>
                                             </li>
 
@@ -258,7 +258,7 @@
                                     <li class="menu-item "><a class="menu-link" href="{{ route('cashier.home') }}">
                                             <div>Home</div>
                                         </a></li>
-                                    <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
+                                    <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}  {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
                                         <a class="menu-link" href="#">
                                             <div>Sales</div>
                                         </a>
@@ -273,6 +273,12 @@
                                                 class="menu-item {{ $route == 'credit.index' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('credit.index') }}">
                                                     <div>Credit Sales</div>
+                                                </a>
+                                            </li>
+                                            <li
+                                                class="menu-item {{ $route == 'sales.all.index' ? 'current' : '' }}">
+                                                <a class="menu-link" href="{{ route('sales.all.index') }}">
+                                                    <div>All Sales</div>
                                                 </a>
                                             </li>
 
@@ -296,13 +302,13 @@
                                             <li
                                                 class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('estimate.index') }}">
-                                                    <div><i class="icon-wpforms"></i>New</div>
+                                                    <div><i class="icon-wpforms"></i>Estimate</div>
                                                 </a>
                                             </li>
                                             <li
                                                 class="menu-item {{ $route == 'estimate.all.index' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('estimate.all.index') }}">
-                                                    <div>All</div>
+                                                    <div>All Estimates</div>
                                                 </a>
                                             </li>
                                         </ul>

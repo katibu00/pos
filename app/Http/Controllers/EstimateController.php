@@ -20,15 +20,7 @@ class EstimateController extends Controller
     }
     public function allIndex()
     {
- 
-        $user = auth()->user();
-        if($user->usertype == 'admin')
-        {
-            $data['estimates'] = Estimate::select('product_id','estimate_no')->groupBy('estimate_no')->orderBy('created_at','desc')->paginate(10);
-        }else
-        {
-            $data['estimates'] = Estimate::select('product_id','estimate_no')->where('cashier_id',auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at','desc')->paginate(5);
-        }
+         $data['estimates'] = Estimate::select('product_id','estimate_no')->groupBy('estimate_no')->orderBy('created_at','desc')->paginate(10);
         return view('estimate.all_index', $data); 
     }
 

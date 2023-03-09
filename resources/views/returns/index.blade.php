@@ -128,6 +128,12 @@
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="payment_method"
+                                                            id="pos" value="pos" required>
+                                                        <label class="form-check-label nott" for="pos"><i
+                                                                class="fa fa-credit-card text-info"></i> POS</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="payment_method"
                                                             id="transfer" value="transfer" required>
                                                         <label class="form-check-label nott" for="transfer"><i
                                                                 class="fa fa-credit-card text-info"></i> Transfer</label>

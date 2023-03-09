@@ -94,6 +94,7 @@ class HomeController extends Controller
         $todays_credit = 0;
         $todays_transfer = 0;
         $todays_discount = 0;
+        $todays_net_sales = 0;
         foreach ($todays as $today) {
             $gross = $today->price * $today->quantity;
             $todays_gross += $gross;
@@ -114,9 +115,11 @@ class HomeController extends Controller
             {
                 $todays_credit += $today->price * $today->quantity - $today->discount ;
             }
+            $todays_net_sales += ($today->price - $today->product->buying_price)*$today->quantity - $today->discount;
         }
         $data['todays_gross'] = $todays_gross;
         $data['discounts'] = $todays_discount;
+        $data['todays_net_sales'] = $todays_net_sales;
 
         $data['todays_pos'] = $todays_pos;
         $data['todays_cash'] = $todays_cash;
@@ -149,6 +152,7 @@ class HomeController extends Controller
 
         $todays_returns_cash = 0;
         $todays_returns_bank = 0;
+        $todays_returns_pos = 0;
         $todays_returns_discounts = 0;
         foreach ($returns as $return) {
             if($return->payment_method == 'cash')
@@ -159,11 +163,16 @@ class HomeController extends Controller
             {
                 $todays_returns_bank += $return->price * $return->quantity-$return->discount;
             }
+            if($return->payment_method == 'pos')
+            {
+                $todays_returns_pos += $return->price * $return->quantity-$return->discount;
+            }
             $todays_returns_discounts += $return->discount;
 
         }
         $data['todays_returns_cash'] = $todays_returns_cash;
         $data['todays_returns_bank'] = $todays_returns_bank;
+        $data['todays_returns_pos'] = $todays_returns_pos;
         $data['todays_returns_discounts'] = $todays_returns_discounts;
         $data['returns_count'] = Returns::select('return_no')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->groupBy('return_no')->get()->count();
         $expenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();

@@ -161,5 +161,8 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
 
     Route::post('/load-receipt', [UsersController::class, 'loadReceipt'])->name('load-receipt');
 
+    Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
+
+
 
 });

@@ -42,40 +42,9 @@
                                                 <a class="btn btn-sm btn-primary mb-1"
                                                     href="{{ route('customers.profile', $user->id) }}" title="View Profile"> <i
                                                         class="fa fa-user"></i></a>
-                                                <button class="btn btn-sm btn-danger mb-1" data-toggle="modal"
-                                                    data-target="#exampleModal{{ $key }}"><i
-                                                        class="fa fa-trash"></i></button>
+                                                <button class="btn btn-sm btn-danger mb-1 deleteItem" data-id="{{ $user->id }}" data-name="{{ $user->first_name }}"><i class="fa fa-trash"></i></button>
                                             </td>
                                         </tr>
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="exampleModal{{ $key }}" tabindex="-1"
-                                            role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Delete
-                                                            {{ $user->first_name }} {{ $user->last_name }}?</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <form action="{{ route('users.delete') }}" method="post">
-                                                            @csrf
-                                                            <p>You cannot undo this operation once executed.</p>
-                                                            <input type="hidden" name="id"
-                                                                value="{{ $user->id }}">
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-danger ml-2">Delete</button>
-                                                    </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     @endforeach
 
                                 </tbody>
@@ -130,4 +99,100 @@
     </div>
 
 
+@endsection
+
+@section('js')
+<script>
+    $(document).on('click', '.deleteItem', function(e) {
+        e.preventDefault();
+
+        let id = $(this).data('id');
+        let name = $(this).data('name');
+
+        swal({
+                title: "Delete "+name+"?",
+                text: "Once deleted, all Payments by the user will also be deleted and you will no able to restore it!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+
+                    var data = {
+                        'id': id,
+                    }
+
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('customers.delete') }}",
+                        data: data,
+                        dataType: "json",
+                        success: function(res) {
+
+                            if(res.status == 200)
+                            {
+                                Command: toastr["success"](
+                                        "User deleted Successfully."
+                                    );
+                                    toastr.options = {
+                                        closeButton: false,
+                                        debug: false,
+                                        newestOnTop: false,
+                                        progressBar: false,
+                                        positionClass: "toast-top-right",
+                                        preventDuplicates: false,
+                                        onclick: null,
+                                        showDuration: "300",
+                                        hideDuration: "1000",
+                                        timeOut: "5000",
+                                        extendedTimeOut: "1000",
+                                        showEasing: "swing",
+                                        hideEasing: "linear",
+                                        showMethod: "fadeIn",
+                                        hideMethod: "fadeOut",
+                                    };
+                                    window.location.replace('{{ route('customers.index') }}');
+
+                            }else
+                            {
+
+                            Command: toastr["error"](
+                            "Error Occured"
+                                );
+                                toastr.options = {
+                                    closeButton: false,
+                                    debug: false,
+                                    newestOnTop: false,
+                                    progressBar: false,
+                                    positionClass: "toast-top-right",
+                                    preventDuplicates: false,
+                                    onclick: null,
+                                    showDuration: "300",
+                                    hideDuration: "1000",
+                                    timeOut: "5000",
+                                    extendedTimeOut: "1000",
+                                    showEasing: "swing",
+                                    hideEasing: "linear",
+                                    showMethod: "fadeIn",
+                                    hideMethod: "fadeOut",
+                                };
+                            }
+                            
+
+                        }
+                    });
+
+                }
+            });
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
+integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
+crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @endsection

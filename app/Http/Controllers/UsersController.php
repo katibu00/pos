@@ -251,5 +251,16 @@ class UsersController extends Controller
         ]);
     }
 
+   
+    public function deleteCustomer(Request $request)
+    { 
+        $user = User::find($request->id);
+        $user->delete();
+        Payment::where('customer_id', $request->id)->delete();
+        return response()->json([
+        'status'=>200,
+        'message'=>'Customer deleted succesfully'
+       ]);
+    }
 
 }

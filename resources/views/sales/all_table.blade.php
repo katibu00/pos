@@ -18,7 +18,7 @@
                 @php
                     $total_amount = 0;
                     $total_discount = 0;
-                    $saled = App\Models\Sale::select('price','quantity','discount','customer_name','created_at','receipt_no')
+                    $saled = App\Models\Sale::select('price','quantity','discount','customer_name','created_at','receipt_no','note')
                                             ->where('receipt_no', $row->receipt_no)
                                             ->get();
                     foreach ($saled as $sale) {
@@ -32,13 +32,13 @@
 
               <th scope="row">{{ $sale->receipt_no }}</th>
               <td>{{ $saled[0]->created_at->format('l, d F') }}</td>
-              <td>{{ $saled[0]->customer }}</td>
+              <td>{{ is_numeric($saled[0]->customer_name) ? $saled[0]->customer->first_name : $saled[0]->customer_name}}</td>
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
               <td>{{ $saled[0]->note }}</td>
 
-              <td>
+              <td class="text-center">
                 <button type="button" onclick="PrintReceiptContent('{{ $row->receipt_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button>
             </td>
             </tr>

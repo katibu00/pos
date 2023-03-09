@@ -5,7 +5,6 @@
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="author" content="SemiColonWeb" />
-
     <!-- Stylesheets
  ============================================= -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -329,7 +328,6 @@
             </div>
             <div class="header-wrap-clone"></div>
         </header><!-- #header end -->
-
 
         <!-- Content
   ============================================= -->

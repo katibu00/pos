@@ -166,22 +166,15 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
 
 });
-Route::post('/post-data', [ApiController::class, 'store'])->name('post-data');
+Route::get('/post-data', [ApiController::class, 'store'])->name('post-data');
 
 
 Route::get('/send-data', function(){
 
 
-    $client = new Client();
-    $response = $client->post('https://elhabibplumbing.com/post-data', [
-        'headers' => [
-            'Content-Type' => 'application/json',
-        ],
-        'json' => [
-            'key1' => 'value1',
-            'key2' => 'value2',
-        ],
-    ]);
+    $key = sha1('K92@218$%_712bn');
+    $json = json_decode(file_get_contents('https://elhabibplumbing.com/post-data?regno=08033174228' . '&api_key=' . $key), true);
+
     return 'this passed';
 
 })->name('send-data');

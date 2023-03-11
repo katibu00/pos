@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\EstimateController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
+use GuzzleHttp\Client;
 
 /*
 |--------------------------------------------------------------------------
@@ -163,6 +165,23 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
 
     Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
 
-
-
 });
+Route::post('/post-data', [ApiController::class, 'store'])->name('post-data');
+
+
+Route::get('/send-data', function(){
+
+
+    $client = new Client();
+    $response = $client->post('https://elhabibplumbing.com/post-data', [
+        'headers' => [
+            'Content-Type' => 'application/json',
+        ],
+        'json' => [
+            'key1' => 'value1',
+            'key2' => 'value2',
+        ],
+    ]);
+    return 'this passed';
+
+})->name('send-data');

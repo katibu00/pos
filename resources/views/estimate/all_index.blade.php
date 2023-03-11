@@ -72,8 +72,8 @@
 
         });
     </script>
-  
-  <script>
+
+    <script>
         function PrintReceiptContent(estimate_no) {
 
             data = {
@@ -220,13 +220,28 @@
             let payable = $(this).data('payable');
             let customer = $(this).data('customer');
             let note = $(this).data('note');
+            let total_amount = $(this).data('payable');
 
             $('#estimate_no_span').html(estimate_no);
             $('#estimate_no').val(estimate_no);
+            $('#total_amount').val(total_amount);
             $('#payable').html(payable);
             $('#customer').html(customer);
             $('#note').html(note);
-            
+
+
+        });
+        $(document).on('change', '#payment_method', function() {
+
+            var payment_method = $('#payment_method').val();
+
+            if (payment_method == 'credit') {
+                $('.customer_div').removeClass('d-none');
+                $('#customer').attr('required', true);
+            } else {
+                $('.customer_div').addClass('d-none');
+                $('#customer').attr('required', false);
+            }
 
         });
     </script>

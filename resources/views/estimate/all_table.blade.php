@@ -68,12 +68,22 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-1">
-                               <select class="form-select form-select-sm" name="payment_method" required>
+                               <select class="form-select form-select-sm" id="payment_method" name="payment_method" required>
                                     <option value="">--Payment Method--</option>
                                     <option value="cash">Cash</option>
                                     <option value="transfer">Transfer</option>
                                     <option value="pos">POS</option>
                                     <option value="credit">Credit</option>
+                               </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 customer_div d-none">
+                            <div class="mb-1">
+                               <select class="form-select form-select-sm" id="customer" name="customer" required>
+                                    <option value="">-- Customer --</option>
+                                    @foreach ($customers as $customer)   
+                                        <option value="{{ @$customer->id }}">{{ @$customer->first_name }}</option>
+                                    @endforeach
                                </select>
                             </div>
                         </div>
@@ -95,6 +105,7 @@
                         </div>
                     </div>
                     <input type="hidden" id="estimate_no" name="estimate_no">
+                    <input type="hidden" id="total_amount" name="total_amount">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

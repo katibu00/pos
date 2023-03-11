@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Estimate;
 use App\Models\Sale;
 use App\Models\Stock;
+use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,7 +21,9 @@ class EstimateController extends Controller
     }
     public function allIndex()
     {
+        $user = auth()->user();
          $data['estimates'] = Estimate::select('product_id','estimate_no')->groupBy('estimate_no')->orderBy('created_at','desc')->paginate(10);
+         $data['customers'] = User::select('id','first_name')->where('branch_id', $user->branch_id)->where('usertype','customer')->orderBy('first_name')->get();
         return view('estimate.all_index', $data); 
     }
 
@@ -87,6 +90,7 @@ class EstimateController extends Controller
 
     public function allStore(Request $request)
     {
+        // dd($request->all());
         $estimates = Estimate::where('estimate_no', $request->estimate_no)->get();
 
         $year = date('Y');
@@ -120,7 +124,13 @@ class EstimateController extends Controller
             $data->payment_method = $request->payment_method;
             $data->payment_amount = 0;
             $data->user_id = auth()->user()->id;
-            $data->customer_name = $estimate->customer_name;
+            if($request->payment_method == 'credit')
+            {
+                $data->customer_name = $request->customer;
+            }else
+            {
+                $data->customer_name = $estimate->customer_name;
+            }
             $data->note = null;
 
             $data->save();
@@ -132,6 +142,9 @@ class EstimateController extends Controller
             $estimate->delete();
         }
 
+        $customer = User::find($request->customer);
+        $customer->balance += $request->total_amount;
+        $customer->update();
       
         Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
         return redirect()->route('estimate.all.index'); 

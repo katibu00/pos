@@ -212,7 +212,7 @@ class HomeController extends Controller
         $data['credit_cash'] = 0;
         $data['credit_all'] = 0;
        
-        $credit_payments = Payment::select('payment_method','payment_method')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+        $credit_payments = Payment::select(['payment_amount','payment_method'])->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
         
         foreach ($credit_payments as $payment) {
             if($payment->payment_method == 'cash')

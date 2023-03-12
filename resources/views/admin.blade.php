@@ -76,9 +76,9 @@
                             <div class="card-header">Cash </div>
                             <div class="card-body">
                                 @php
-                                    $cash = $todays_cash+$credit_cash-$todays_returns_cash-$todays_expense_cash;
+                                    $cash = $todays_cash-$todays_returns_cash-$todays_expense_cash;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($cash, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($cash+$credit_cash, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -87,9 +87,9 @@
                             <div class="card-header">POS </div>
                             <div class="card-body">
                                 @php
-                                    $pos = $todays_pos+$credit_pos-$todays_returns_bank-$todays_returns_pos-$todays_expense_bank;
+                                    $pos = $todays_pos-$todays_returns_bank-$todays_returns_pos-$todays_expense_bank;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($pos,0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($pos+$credit_pos,0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                         <div class="card bg-warning text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">Transfer </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_transfer-$credit_transfer, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($todays_transfer+$credit_transfer, 0) }}</p>
                             </div>
                         </div>
                     </div>

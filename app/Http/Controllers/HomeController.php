@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Estimate;
 use App\Models\Expense;
+use App\Models\Payment;
 use App\Models\Purchase;
 use App\Models\Returns;
 use App\Models\Sale;
@@ -205,6 +206,30 @@ class HomeController extends Controller
         }
         $data['lows'] = $lows;
         $data['total_stock'] = $total_stock;
+       
+        $data['credit_pos'] = 0;
+        $data['credit_transfer'] = 0;
+        $data['credit_cash'] = 0;
+        $data['credit_all'] = 0;
+       
+        $credit_payments = Payment::select('payment_method','payment_method')->where('branch_id', $branch_id)->whereDate('created_at', Carbon::today())->get();
+        
+        foreach ($credit_payments as $payment) {
+            if($payment->payment_method == 'cash')
+            {
+                $data['credit_cash'] += $payment->payment_amount;
+            }
+            if($payment->payment_method == 'transfer')
+            {
+                $data['credit_transfer'] += $payment->payment_amount;
+            }
+            if($payment->payment_method == 'pos')
+            {
+                $data['credit_pos'] += $payment->payment_amount;
+            }
+            $data['credit_all'] += $payment->payment_amount;
+        }
+
         return view('admin', $data);
 
     }

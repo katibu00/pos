@@ -70,6 +70,8 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::get('/index', [PurchasesController::class, 'index'])->name('purchase.index');
     Route::get('/details/{date}', [PurchasesController::class, 'details'])->name('purchase.details');
     Route::post('/store', [PurchasesController::class, 'store'])->name('purchase.store');
+    Route::get('/create', [PurchasesController::class, 'create'])->name('purchase.create');
+
 
     Route::get('/shopping_list/index', [PurchasesController::class, 'shopping_list'])->name('shopping_list.index');
     Route::post('/fetch-shopping_list', [PurchasesController::class, 'fetchShopList'])->name('fetch-shopping-list');

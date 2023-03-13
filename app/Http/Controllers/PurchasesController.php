@@ -16,6 +16,12 @@ class PurchasesController extends Controller
         $data['purchases'] = Purchase::select('date')->where('branch_id',0)->groupBy('date')->paginate(15);
         return view('purchases.index',$data);
     }
+
+    function create(){
+        $data['branches'] = Branch::all();
+        $data['products'] = Stock::where('branch_id', auth()->user()->branch_id)->orderBy('name')->get();
+        return view('purchases.create',$data);
+    }
     function shopping_list(){
 
         $data['branches'] = Branch::all();
@@ -26,6 +32,7 @@ class PurchasesController extends Controller
 
 
     function store(Request $request){
+        // dd($request->all());
         $productCount = count($request->product_id);
         if($productCount != NULL){
             for ($i=0; $i < $productCount; $i++){
@@ -42,15 +49,18 @@ class PurchasesController extends Controller
                 $data->update();
 
                 $data = new Purchase();
-                $data->branch_id = $request->branch;
+                $data->branch_id = auth()->user()->branch_id;
                 $data->stock_id = $request->product_id[$i];
                 $data->quantity = $request->quantity[$i];
                 $data->date = $request->date;
                 $data->save();
             }
         }
-        Toastr::success('Purchases has been added sucessfully', 'Done');
-        return redirect()->route('purchase.index');
+      
+        return response()->json([
+            'status' => 201,
+            'message' => 'Purchases has been added sucessfully',
+            ]);
 
     }
 

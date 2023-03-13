@@ -143,13 +143,13 @@
                                             <div>Expense</div>
                                         </a></li>
 
-                                    <li class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'shopping_list.index' ? 'current' : '' }}">
+                                    <li class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'shopping_list.index' ? 'current' : '' }}">
                                         <a class="menu-link" href="#">
                                             <div>Purchases</div>
                                         </a>
                                         <ul class="sub-menu-container">
                                             <li
-                                                class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
+                                                class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
                                                 <a class="menu-link" href="{{ route('purchase.index') }}">
                                                     <div><i class="icon-wpforms"></i>Purchases</div>
                                                 </a>

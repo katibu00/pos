@@ -20,7 +20,7 @@
                     <div class="col-sm-3 col-md-5 d-none d-md-block">
                        
                     </div>
-                    <div class="col-sm-4 col-md-2"><button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target=".addModal">New Purchases</button></div>
+                    <div class="col-sm-4 col-md-2"><a class="btn btn-sm btn-primary me-2" href="{{ route('purchase.create') }}">+ New Purchases</a></div>
                 </div>
                 <div class="card-body">
                     <div class="table-data">

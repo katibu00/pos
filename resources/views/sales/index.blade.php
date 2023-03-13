@@ -52,7 +52,7 @@
 
                                                         <select class="form-select product_id" id="product_id"
                                                             name="product_id[]" required>
-                                                            <option value="none"></option>
+                                                            <option value=""></option>
                                                             @foreach ($products as $product)
                                                                 <option data-price="{{ $product->selling_price }}"
                                                                     data-quantity="{{ $product->quantity }}"
@@ -77,7 +77,7 @@
                                                         <input type="number" readonly name="total_amount[]"
                                                             id="total_amount" class="form-control total_amount">
                                                     </td>
-                                                    <td class="d-flex flex-row">
+                                                    <td>
                                                         <a href="#"
                                                             class="btn btn-danger btn-sm remove_row rounded-circle"><i
                                                                 class="fa fa-times-circle"></i></a>

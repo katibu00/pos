@@ -116,6 +116,7 @@
                                     <option value=""></option>
                                     <option value="cash">Cash</option>
                                     <option value="transfer">Transfer</option>
+                                    <option value="pos">POS</option>
                                 </select>
                             </div>
                             <div class="col-md-3 mb-2">

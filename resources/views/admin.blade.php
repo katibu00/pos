@@ -26,7 +26,7 @@
                         <div class="card bg-secondary text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">Gross Sales</div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_gross, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($grossSales, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -35,9 +35,9 @@
                             <div class="card-header">Returns</div>
                             <div class="card-body">
                                 @php
-                                    $return = $todays_returns_cash+$todays_returns_bank+$todays_returns_pos;
+                                    // $return = $todays_returns_cash+$todays_returns_bank+$todays_returns_pos;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($return, 0) }} ({{ $returns_count }})</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format($return, 0) }} ({{ $returns_count }})</p> --}}
                             </div>
                         </div>
                     </div>
@@ -46,9 +46,9 @@
                             <div class="card-header">Discounts </div>
                             <div class="card-body">
                                 @php
-                                    $disc = $discounts-$todays_returns_discounts;
+                                    // $disc = $discounts-$todays_returns_discounts;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($disc, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($totalDiscount, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -57,9 +57,9 @@
                             <div class="card-header">Expenses </div>
                             <div class="card-body">
                                 @php
-                                    $exp = $todays_expense_cash+$todays_expense_bank;
+                                    // $exp = $todays_expense_cash+$todays_expense_bank;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($exp, 0) }}</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format($exp, 0) }}</p> --}}
                             </div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Credit Payments </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($credit_all, 0) }}</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format($credit_all, 0) }}</p> --}}
                             </div>
                         </div>
                     </div>
@@ -76,9 +76,9 @@
                             <div class="card-header">Cash </div>
                             <div class="card-body">
                                 @php
-                                    $cash = $todays_cash-$todays_returns_cash-$todays_expense_cash;
+                                    // $cash = $todays_cash-$todays_returns_cash-$todays_expense_cash;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($cash+$credit_cash, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($cashSales, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -87,9 +87,9 @@
                             <div class="card-header">POS </div>
                             <div class="card-body">
                                 @php
-                                    $pos = $todays_pos-$todays_returns_bank-$todays_returns_pos-$todays_expense_bank;
+                                    // $pos = $todays_pos-$todays_returns_bank-$todays_returns_pos-$todays_expense_bank;
                                 @endphp
-                                <p class="card-text">&#8358;{{ number_format($pos+$credit_pos,0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($posSales,0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                         <div class="card bg-warning text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">Transfer </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_transfer+$credit_transfer, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($transferSales, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -105,7 +105,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Credit Sales </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_credit, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($creditSales, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Estimates </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_estimate, 0) }}</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format($todays_estimate, 0) }}</p> --}}
                             </div>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Walk-in </div>
                             <div class="card-body">
-                                <p class="card-text">{{ number_format($sales_count, 0) }}</p>
+                                <p class="card-text">{{ number_format($uniqueSalesCount, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Items Sold </div>
                             <div class="card-body">
-                                <p class="card-text">{{ number_format($items_sold, 0) }}</p>
+                                <p class="card-text">{{ number_format($totalItemsSold, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -137,7 +137,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Purchases </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_purchases, 0) }}</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format($todays_purchases, 0) }}</p> --}}
                             </div>
                         </div>
                     </div>
@@ -145,7 +145,7 @@
                         <div class="card bg-success text-white  mb-3" style="max-width: 20rem;">
                             <div class="card-header">Net Sales </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format(($cash+$pos+$todays_credit+$todays_transfer), 0) }}</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format(($cash+$pos+$todays_credit+$todays_transfer), 0) }}</p> --}}
                             </div>
                         </div>
                     </div>
@@ -153,7 +153,7 @@
                         <div class="card bg-danger text-white  mb-3" style="max-width: 20rem;">
                             <div class="card-header">Gross Profit </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($todays_net_sales, 0) }}</p>
+                                {{-- <p class="card-text">&#8358;{{ number_format($todays_net_sales, 0) }}</p> --}}
                             </div>
                         </div>
                     </div>

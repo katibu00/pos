@@ -181,6 +181,7 @@
         });
 
         $('.product_id').select2();
+        $('#customer').select2();
 
         function TotalAmount() {
             var total = 0;

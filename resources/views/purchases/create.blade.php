@@ -50,7 +50,7 @@
                                                             @foreach ($products as $product)
                                                                 <option data-price="{{ $product->selling_price }}"
                                                                     data-quantity="{{ $product->quantity }}"
-                                                                    value="{{ $product->id }}">{{ $product->name }}
+                                                                    value="{{ $product->id }}">{{ $product->name }} - N{{ number_format($product->buying_price,0) }}
                                                                 </option>
                                                             @endforeach
                                                         </select>

@@ -32,7 +32,7 @@
 
               <th scope="row">{{ $sale->receipt_no }}</th>
               <td>{{ $saled[0]->created_at->format('l, d F') }}</td>
-              <td>{{ is_numeric($saled[0]->customer_name) ? $saled[0]->customer->first_name : $saled[0]->customer_name}}</td>
+              <td>{{ is_numeric($saled[0]->customer_name) ? @$saled[0]->customer->first_name : @$saled[0]->customer_name}}</td>
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>

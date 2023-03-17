@@ -5,21 +5,40 @@
         <div class="content-wrap">
             <div class="container">
 
-                <form class="row row-cols-lg-auto g-3 align-items-end" action="{{ route('change_branch') }}" method="POST">
-                    @csrf
-                    <div class="col-12">
-                        <label for="branch" class="visually-hidden">Password</label>
-                        <select id="branch" name="branch_id" class="form-select form-select-sm">
-                            <option value=""></option>
-                            @foreach ($branches as $branch)
-                                <option value="{{ $branch->id }}"
-                                    {{ auth()->user()->branch_id == $branch->id ? 'selected' : '' }}>{{ $branch->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form class="row" action="{{ route('change_branch') }}" method="POST">
+                            @csrf
+                            <div class="col-6">
+                                <label for="branch" class="visually-hidden">Password</label>
+                                <select id="branch" name="branch_id" class="form-select form-select-sm">
+                                    <option value=""></option>
+                                    @foreach ($branches as $branch)
+                                        <option value="{{ $branch->id }}"
+                                            {{ auth()->user()->branch_id == $branch->id ? 'selected' : '' }}>
+                                            {{ $branch->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-6">
+                            <button type="submit" class="btn btn-sm btn-info text-white col-6">Change</button>
+                            </div>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-info col-12">Change</button>
-                </form>
+                    <div class="col-md-6">
+                        <form class="row" action="{{ route('change_date') }}" method="POST">
+                            @csrf
+                            <div class="col-6">
+                               <input type="date" class="form-control form-control-sm" placeholder="Pick a Date" value="{{ isset($date) ? $date : ''  }}" name="date">
+                            </div>
+                            <div class="col-6">
+                            <button type="submit" class="btn btn-sm btn-secondary text-white col-6">Go >>></button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                </div>
                 <p>Today's Stats >>></p>
                 <div class="row">
                     <div class="col-md-3">
@@ -34,7 +53,9 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Returns</div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($totalReturn, 0) }} ({{ 'Cash: ' .number_format($cashReturns,0).' POS: '.number_format($posReturns,0).' Trans: '.number_format($transferReturns,0) }})</p>
+                                <p class="card-text">&#8358;{{ number_format($totalReturn, 0) }}
+                                    ({{ 'Cash: ' . number_format($cashReturns, 0) . ' POS: ' . number_format($posReturns, 0) . ' Trans: ' . number_format($transferReturns, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -50,7 +71,9 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Expenses </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($totalExpenses, 0) }} ({{ 'Cash: ' .number_format($cashExpenses,0).' POS: '.number_format($posExpenses,0).' Trans: '.number_format($transferExpenses,0) }})</p>
+                                <p class="card-text">&#8358;{{ number_format($totalExpenses, 0) }}
+                                    ({{ 'Cash: ' . number_format($cashExpenses, 0) . ' POS: ' . number_format($posExpenses, 0) . ' Trans: ' . number_format($transferExpenses, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -58,7 +81,9 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Credit Payments </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($totalCreditPayments, 0) }} ({{ 'Cash: ' .number_format($cashCreditPayments,0).' POS: '.number_format($posCreditPayments,0).' Trans: '.number_format($transferCreditPayments,0) }})</p>
+                                <p class="card-text">&#8358;{{ number_format($totalCreditPayments, 0) }}
+                                    ({{ 'Cash: ' . number_format($cashCreditPayments, 0) . ' POS: ' . number_format($posCreditPayments, 0) . ' Trans: ' . number_format($transferCreditPayments, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -66,7 +91,10 @@
                         <div class="card bg-primary text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">Cash </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns), 0) }} ({{ 'Sales: ' .number_format($cashSales,0).' Returns: '.number_format($cashReturns,0).' Expense: '.number_format($cashExpenses,0) }})</p>
+                                <p class="card-text">
+                                    &#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns), 0) }}
+                                    ({{ 'Sales: ' . number_format($cashSales, 0) . ' Returns: ' . number_format($cashReturns, 0) . ' Expense: ' . number_format($cashExpenses, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -74,7 +102,10 @@
                         <div class="card bg-info text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">POS </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($posSales - ($posExpenses + $posReturns), 0) }} ({{ 'Sales: ' .number_format($posSales,0).' Returns: '.number_format($posReturns,0).' Expense: '.number_format($posExpenses,0) }})</p>
+                                <p class="card-text">
+                                    &#8358;{{ number_format($posSales - ($posExpenses + $posReturns), 0) }}
+                                    ({{ 'Sales: ' . number_format($posSales, 0) . ' Returns: ' . number_format($posReturns, 0) . ' Expense: ' . number_format($posExpenses, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -82,7 +113,10 @@
                         <div class="card bg-warning text-white mb-3" style="max-width: 20rem;">
                             <div class="card-header">Transfer </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns), 0) }} ({{ 'Sales: ' .number_format($transferSales,0).' Returns: '.number_format($transferReturns,0).' Expense: '.number_format($transferExpenses,0) }})</p>
+                                <p class="card-text">
+                                    &#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns), 0) }}
+                                    ({{ 'Sales: ' . number_format($transferSales, 0) . ' Returns: ' . number_format($transferReturns, 0) . ' Expense: ' . number_format($transferExpenses, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -146,14 +180,14 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Low Stock Counts</div>
                             <div class="card-body">
-                                <p class="card-text">{{ $lows .' of '.$total_stock }}</p>
+                                <p class="card-text">{{ $lows . ' of ' . $total_stock }}</p>
                             </div>
                         </div>
                     </div>
 
                 </div>
 
-                </div>
             </div>
+        </div>
     </section>
 @endsection

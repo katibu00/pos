@@ -45,19 +45,32 @@ class HomeController extends Controller
         return redirect()->route('admin.home');
     }
 
-    public function admin()
+    public function admin(Request $request)
     {
         $data['branches'] = Branch::all();
         $branch_id = auth()->user()->branch_id;
 
         //quries
 
-        $todaySales = Sale::where('branch_id', $branch_id)->where('stock_id','!=',1000)->whereDate('created_at', today())->get();
-        $todayReturns = Returns::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        if(isset($request->date))
+        {
+            $todaySales = Sale::where('branch_id', $branch_id)->where('stock_id','!=',1000)->whereDate('created_at', $request->date)->get();
+            $todayReturns = Returns::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
+            $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
+            $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
+            $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
+            $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
+            $data['date'] = $request->date;
+        }else
+        {
+            $todaySales = Sale::where('branch_id', $branch_id)->where('stock_id','!=',1000)->whereDate('created_at', today())->get();
+            $todayReturns = Returns::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+            $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+            $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+            $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+            $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+    
+        }
 
         //sales 
         $data['grossSales'] = $todaySales->sum(function($sale) {

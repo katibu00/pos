@@ -51,7 +51,6 @@ class HomeController extends Controller
         $branch_id = auth()->user()->branch_id;
 
         //quries
-
         if(isset($request->date))
         {
             $todaySales = Sale::where('branch_id', $branch_id)->where('stock_id','!=',1000)->whereDate('created_at', $request->date)->get();
@@ -69,16 +68,12 @@ class HomeController extends Controller
             $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-    
         }
-
         //sales 
         $data['grossSales'] = $todaySales->sum(function($sale) {
             return $sale->price * $sale->quantity;
         });
-        
         $data['totalDiscount'] = $todaySales->sum('discount');
-
         $data['posSales'] = $todaySales->where('payment_method', 'pos')->reduce(function ($total, $sale) {
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
@@ -100,12 +95,10 @@ class HomeController extends Controller
         });
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');
-
         //returns
         $data['totalReturn'] = $todayReturns->sum(function($return) {
             return ($return->price * $return->quantity) - $return->discount;
         });
-
         $data['cashReturns'] = $todayReturns->where('payment_method', 'cash')->reduce(function ($total, $return) {
             $total += ($return->price * $return->quantity) - $return->discount;
             return $total;
@@ -118,39 +111,29 @@ class HomeController extends Controller
             $total += ($return->price * $return->quantity) - $return->discount;
             return $total;
         }, 0);
-
         //Expenses
         $data['totalExpenses'] = $todayExpenses->sum('amount');
         $data['cashExpenses'] = $todayExpenses->where('payment_method', 'cash')->sum('amount');
         $data['posExpenses'] = $todayExpenses->where('payment_method', 'pos')->sum('amount');
         $data['transferExpenses'] = $todayExpenses->where('payment_method', 'transfer')->sum('amount');
-
         //credit Payments
         $data['totalCreditPayments'] = $creditPayments->sum('payment_amount');
         $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->sum('payment_amount');
         $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->sum('payment_amount');
         $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->sum('payment_amount');
-
         //estimates
         $data['totalEstimate'] = $estimates->sum(function($estimate) {
             return ($estimate->price * $estimate->quantity) - $estimate->discount;
         });
-
         //purchases
         $data['totalPurchases'] = $purchases->sum(function($purchase) {
             return $purchase['product']['buying_price'] * $purchase->quantity;
         });
-
-
-        // dd( $data['transferReturns']);
-        // dd($uniqueSales->count());
-
         $stocks = Stock::where('branch_id', $branch_id)
                ->where('quantity', '<=', 'critical_level')
                ->get();
         $data['lows'] = count($stocks);
         $data['total_stock'] = Stock::select('id')->where('branch_id', $branch_id)->count();
-    
         return view('admin', $data);
 
     }

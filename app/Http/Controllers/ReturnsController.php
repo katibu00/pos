@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expense;
+use App\Models\Payment;
 use App\Models\Returns;
 use App\Models\Sale;
 use App\Models\Stock;
@@ -20,6 +22,44 @@ class ReturnsController extends Controller
 
     public function store(Request $request)
     {
+
+        $total_price = 0;
+
+        $productCount = count($request->product_id);
+        if ($productCount != null) {
+            for ($i = 0; $i < $productCount; $i++) 
+            {
+                $total_price += ($request->quantity[$i] * $request->price[$i]) - $request->discount[$i];
+            }
+            
+        }
+        
+
+        $todaySales = Sale::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->where('stock_id','!=',1000)->whereDate('created_at', today())->get();
+        $todayReturns = Returns::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->get();
+        $expenses = Expense::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('amount');
+        $payments = Payment::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('payment_amount');
+
+        $sales =  $todaySales->reduce(function ($total, $sale) {
+            $total += ($sale->price * $sale->quantity) - $sale->discount;
+            return $total;
+        }, 0);
+        $returns =  $todayReturns->reduce(function ($total, $return) {
+            $total += ($return->price * $return->quantity) - $return->discount;
+            return $total;
+        }, 0);
+
+        $net_amount = ((float)$sales+(float)$payments) - (float)$returns - (float)$expenses;
+       
+        if((float)$total_price > (float)$net_amount)
+        {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Low Balance in the Payment Channel.',
+            ]);
+        }
+
+
         $year = date('Y');
         $month = Carbon::now()->format('m');
         $day = Carbon::now()->format('d');

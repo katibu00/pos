@@ -4,7 +4,6 @@
     <section id="content">
         <div class="content-wrap">
             <div class="container">
-
                 <div class="card">
                     <!-- Default panel contents -->
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -29,15 +28,16 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($customers as $key => $user)
+                                   
                                         <tr>
                                             <th scope="row">{{ $key + 1 }}</th>
                                             <td>{{ $user->first_name }}</td>
                                             <td>{{ $user->phone }}</td>
                                             <td>&#8358;{{ number_format($user->balance) }}</td>
                                             @php
-                                                $payment = App\Models\Payment::select('created_at')->where('customer_id',$user->id)->first();
+                                                $payment = App\Models\Payment::select('created_at','payment_amount')->where('customer_id',$user->id)->latest()->first();
                                             @endphp
-                                            <td>{{ @$payment ? $payment->created_at->diffForHumans():'Never' }}</td>
+                                            <td>{!! @$payment ? '&#8358;'.number_format($payment->payment_amount,0).', '.$payment->created_at->diffForHumans():' - ' !!}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary mb-1"
                                                     href="{{ route('customers.profile', $user->id) }}" title="View Profile"> <i

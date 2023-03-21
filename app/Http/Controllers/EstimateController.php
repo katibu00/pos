@@ -142,9 +142,9 @@ class EstimateController extends Controller
             $estimate->delete();
         }
 
-        $customer = User::find($request->customer);
-        $customer->balance += $request->total_amount;
-        $customer->update();
+        // $customer = User::find($request->customer);
+        // $customer->balance += $request->total_amount;
+        // $customer->update();
       
         Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
         return redirect()->route('estimate.all.index'); 

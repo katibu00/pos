@@ -138,13 +138,8 @@ class EstimateController extends Controller
             $data = Stock::find($estimate->product_id);
             $data->quantity -= $estimate->quantity;
             $data->update();
-
             $estimate->delete();
         }
-
-        // $customer = User::find($request->customer);
-        // $customer->balance += $request->total_amount;
-        // $customer->update();
       
         Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
         return redirect()->route('estimate.all.index'); 

@@ -19,6 +19,11 @@ class ReturnsController extends Controller
         $data['recents'] = Returns::select('product_id', 'return_no')->whereDate('created_at', Carbon::today())->where('cashier_id', auth()->user()->id)->groupBy('return_no')->orderBy('created_at', 'desc')->take(4)->get();
         return view('returns.index', $data);
     }
+    public function allIndex()
+    {
+        $data['returns'] = Returns::select('product_id','return_no')->groupBy('return_no')->orderBy('created_at','desc')->paginate(10);
+        return view('returns.all.index', $data);
+    }
 
     public function store(Request $request)
     {

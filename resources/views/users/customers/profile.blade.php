@@ -145,7 +145,53 @@
                                         </tbody>
                                     </table>
                                 </div>
+
+                                @php
+                                    $deposits = App\Models\Payment::where('customer_id',$user->id)->where('payment_type','deposit')->latest()->get();
+                                    $total_deposit = $deposits->sum('payment_amount');
+                                @endphp
+
+                                @if($total_deposit > 1)
+                                <h4 class="mt-2">Active Deposits</h4>
+
+                                <div class="table-responsive border">
+                                    <table class=" table" style="width:100%; font-size: 12px;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Date</th>
+                                                <th scope="col">Amount</th>
+                                                <th scope="col">Method</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        @forelse ($deposits as $key => $deposit)
+                                            <tr>
+                                                <td>{{ $key + 1 }}</td>
+                                                <td>{{ $deposit->created_at->diffForHumans() }}</td>
+                                                <td>{{ number_format($deposit->payment_amount, 0) }}</td>
+                                                <td>{{ ucfirst($deposit->payment_method) }}</td>
+                                                <td>
+                                                    <button type="button"
+                                                        onclick="PrintReceiptContent('{{ $deposit->id }}')"
+                                                        class="btn btn-secondary btn-sm"><i
+                                                            class="fa fa-print text-white"></i></button>
+                                                </td>
+                                            </tr>
+
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="bg-danger text-white"> No Records Found</td>
+                                            </tr>
+                                        @endforelse
+
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @endif
                             </div>
+
                             <div class="col-md-4">
                                 <h4>Summary</h4>
                                 <div class="table-responsive border">
@@ -154,18 +200,32 @@
                                             <th>Purchase Count</th>
                                             <td>{{ @$key3 + 1 }}</td>
                                         </tr>
+                                        @if($total_deposit > 0)
                                         <tr>
-                                            <th>Items Count</th>
-                                            <td>{{ @$key + 1 }}</td>
+                                            <th>Deposits</th>
+                                            <td>&#8358;{{ number_format($total_deposit,0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Credit Balance</th>
+                                            <td>&#8358;{{ number_format($summary_total, 0) }}</td>
                                         </tr>
                                         <tr>
                                             <th>Current Balance</th>
-                                            <td>{{ number_format($summary_total, 2) }}</td>
+                                            <td><strong class="fs-20">&#8358;{{ number_format(abs($summary_total-$total_deposit), 0) }}<strong></td>
                                         </tr>
+                                        @else
+                                        <tr>
+                                            <th>Current Balance</th>
+                                            <td><strong>&#8358;{{ number_format($summary_total, 0) }}</strong></td>
+                                        </tr>
+                                        @endif
                                     </table>
                                 </div>
-                                <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target=".addModal">Add
+                                <div class="d-flex justify-content-between">
+                                <button class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target=".addModal">Add
                                     Payment</button>
+                                <button class="btn btn-secondary mt-2" data-bs-toggle="modal" data-bs-target=".depositModal">New
+                                    Deposit</button></div>
                             </div>
                         </div>
                     </div>
@@ -175,7 +235,6 @@
         </div>
     </section><!-- #content end -->
 
-    <!-- Large Modal -->
     <div class="modal fade addModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -277,6 +336,44 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary ml-2">Add Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade depositModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Add New Deposit</h4>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <form action="{{ route('customers.save.deposit') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="" class="col-form-label">Payment Amount:</label>
+                                <input type="number" step="any" class="form-control" placeholder="Amount" name="amount">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="" class="col-form-label">Payment Method:</label>
+                                <select class="form-select" name="payment_method" required>
+                                    <option value=""></option>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="POS">POS</option>
+                                </select>
+                            </div>
+                        </div>
+                       
+                        <input type="hidden" value="{{ $user->id }}" name="customer_id">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary ml-2">Add Deposit</button>
                     </div>
                 </form>
             </div>

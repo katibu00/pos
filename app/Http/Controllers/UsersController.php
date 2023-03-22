@@ -93,7 +93,7 @@ class UsersController extends Controller
                         ->orderBy('created_at', 'desc')
                         ->get();
         // dd($data['dat÷es']);
-        $data['payments'] = Payment::select('id','payment_amount','payment_method','created_at')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
+        $data['payments'] = Payment::select('id','payment_amount','payment_method','created_at')->where('payment_type','credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
         return view('users.customers.profile', $data);
     }
 
@@ -113,8 +113,6 @@ class UsersController extends Controller
 
     public function savePayment(Request $request)
     {
-
-        // dd($request->all());
         $customer = User::find($request->customer_id);
         $receipt_nos = [];
         $total_amount_paid = 0;
@@ -230,13 +228,28 @@ class UsersController extends Controller
             $record->user_id = auth()->user()->id;
             $record->save();
 
-            Toastr::success('Sales has been Recorded sucessfully', 'Done');
+            Toastr::success('Payment has been Recorded sucessfully', 'Done');
             return redirect()->back();    
 
         }
 
         Toastr::warning('Sales amount is zero. Nothing Recorded', 'Not Recorded');
         return redirect()->back();
+
+    }
+    public function saveDeposit(Request $request)
+    {
+            $record = new Payment();
+            $record->payment_method = $request->payment_method;
+            $record->payment_amount += $request->amount;
+            $record->branch_id = auth()->user()->branch_id;
+            $record->customer_id = $request->customer_id;
+            $record->user_id = auth()->user()->id;
+            $record->payment_type = 'deposit';
+            $record->save();
+
+            Toastr::success('Deposit has been Recorded sucessfully', 'Done');
+            return redirect()->back();    
 
     }
 

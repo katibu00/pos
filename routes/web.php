@@ -141,6 +141,9 @@ Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], functio
     Route::post('/refresh-table-return', [ReturnsController::class, 'refresh'])->name('refresh-table-return');
     Route::post('/refresh-receipt-return', [ReturnsController::class, 'loadReceipt'])->name('refresh-receipt-return');
 
+    Route::get('/all/index', [ReturnsController::class, 'allIndex'])->name('returns.all');
+
+
 });
 Route::group(['prefix' => 'report', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [ReportController::class, 'index'])->name('report.index');
@@ -156,6 +159,7 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::post('/store', [UsersController::class, 'customerStore'])->name('customers.store');
     Route::get('/profile/{id}', [UsersController::class, 'customerProfile'])->name('customers.profile');
     Route::post('/save_payment', [UsersController::class, 'savePayment'])->name('customers.save.payment');
+    Route::post('/save_deposit', [UsersController::class, 'saveDeposit'])->name('customers.save.deposit');
 
     Route::post('/load-receipt', [UsersController::class, 'loadReceipt'])->name('load-receipt');
 

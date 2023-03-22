@@ -12,4 +12,8 @@ class Returns extends Model
     public function product(){
         return $this->belongsTo(Stock::class, 'product_id','id');
     }
+
+    public function customer(){
+        return $this->belongsTo(User::class, 'customer','id');
+    }
 }

@@ -160,9 +160,7 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::get('/profile/{id}', [UsersController::class, 'customerProfile'])->name('customers.profile');
     Route::post('/save_payment', [UsersController::class, 'savePayment'])->name('customers.save.payment');
     Route::post('/save_deposit', [UsersController::class, 'saveDeposit'])->name('customers.save.deposit');
-
     Route::post('/load-receipt', [UsersController::class, 'loadReceipt'])->name('load-receipt');
-
     Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
 
 });

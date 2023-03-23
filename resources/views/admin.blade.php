@@ -138,6 +138,17 @@
                     </div>
                     <div class="col-md-3">
                         <div class="card mb-3" style="max-width: 20rem;">
+                            <div class="card-header">Credit Owed </div>
+                            @php
+                                $owed = App\Models\User::select('balance')->sum('balance');
+                            @endphp
+                            <div class="card-body">
+                                <p class="card-text">{{ number_format($owed,0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Walk-in </div>
                             <div class="card-body">
                                 <p class="card-text">{{ number_format($uniqueSalesCount, 0) }}</p>
@@ -172,7 +183,7 @@
                         <div class="card bg-danger text-white  mb-3" style="max-width: 20rem;">
                             <div class="card-header">Gross Profit </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($grossProfit, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($grossProfit - $totalDiscount, 0) }}</p>
                             </div>
                         </div>
                     </div>

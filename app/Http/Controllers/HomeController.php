@@ -91,7 +91,7 @@ class HomeController extends Controller
             return $total;
         }, 0);
         $data['grossProfit'] = $todaySales->sum(function($sale) {
-            return (($sale->price - $sale->product->buying_price) * $sale->quantity) - $sale->discount;
+            return (($sale->price - $sale->product->buying_price) * $sale->quantity);
         });
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');

@@ -126,6 +126,5 @@
                 <div>All Returns</div>
             </a>
         </li>
-
     </ul>
 </li>

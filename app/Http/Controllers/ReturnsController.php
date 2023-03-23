@@ -40,7 +40,7 @@ class ReturnsController extends Controller
         }
         
 
-        $todaySales = Sale::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->where('stock_id','!=',1000)->whereDate('created_at', today())->get();
+        $todaySales = Sale::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->where('stock_id','!=',1012)->whereDate('created_at', today())->get();
         $todayReturns = Returns::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->get();
         $expenses = Expense::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('amount');
         $payments = Payment::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('payment_amount');

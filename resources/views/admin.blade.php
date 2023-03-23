@@ -63,7 +63,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Discounts </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($totalDiscount, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($totalDiscounts, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -183,7 +183,7 @@
                         <div class="card bg-danger text-white  mb-3" style="max-width: 20rem;">
                             <div class="card-header">Gross Profit </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($grossProfit - $totalDiscount, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($grossProfit - $totalDiscounts, 0) }}</p>
                             </div>
                         </div>
                     </div>

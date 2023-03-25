@@ -177,7 +177,9 @@
                         <div class="card bg-success text-white  mb-3" style="max-width: 20rem;">
                             <div class="card-header">Net Sales </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($grossSales - $totalDiscount - $returnDiscounts, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($grossSales - $totalDiscount - $totalReturn - $returnDiscounts, 0) }}
+                                    ({{ 'Gross Sale: ' . number_format($grossSales, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Total Return: ' . number_format($totalReturn, 0). ' Return Discount: ' . number_format($returnDiscounts, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -185,7 +187,9 @@
                         <div class="card bg-danger text-white  mb-3" style="max-width: 20rem;">
                             <div class="card-header">Gross Profit </div>
                             <div class="card-body">
-                                <p class="card-text">&#8358;{{ number_format($grossProfit - $totalDiscounts - $returnDiscounts, 0) }}</p>
+                                <p class="card-text">&#8358;{{ number_format($grossProfit - $totalDiscounts - $returnProfit - $returnDiscounts, 0) }}
+                                    ({{ 'Sales Profit: ' . number_format($grossProfit, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Return Profit: ' . number_format($returnProfit, 0). ' Return Discount: ' . number_format($returnDiscounts, 0) }})
+                                </p>
                             </div>
                         </div>
                     </div>

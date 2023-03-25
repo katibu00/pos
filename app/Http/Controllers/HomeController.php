@@ -113,6 +113,11 @@ class HomeController extends Controller
             return $total;
         }, 0);
         $data['returnDiscounts'] = $todayReturns->sum('discount');
+
+        $data['returnProfit'] = $todayReturns->sum(function($return) {
+            return (($return->price - $return->product->buying_price) * $return->quantity);
+        });
+       
         //Expenses
         $data['totalExpenses'] = $todayExpenses->sum('amount');
         $data['cashExpenses'] = $todayExpenses->where('payment_method', 'cash')->sum('amount');

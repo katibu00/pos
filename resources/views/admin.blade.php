@@ -140,12 +140,20 @@
                     </div>
                     <div class="col-md-3">
                         <div class="card mb-3" style="max-width: 20rem;">
-                            <div class="card-header">Credit Owed </div>
+                            <div class="card-header">Total Credits </div>
                             @php
                                 $owed = App\Models\User::select('balance')->sum('balance');
                             @endphp
                             <div class="card-body">
                                 <p class="card-text">{{ number_format($owed,0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mb-3" style="max-width: 20rem;">
+                            <div class="card-header">Total Deposits </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ number_format($deposits,0) }}</p>
                             </div>
                         </div>
                     </div>

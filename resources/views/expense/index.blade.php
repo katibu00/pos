@@ -161,9 +161,9 @@
                     </div>
                     <div class="col-md-2 mb-2">
                         <select class="form-select form-select-sm" name="payment_method[]" required>
-                            <option value=""></option>
                             <option value="cash">Cash</option>
                             <option value="transfer">Transfer</option>
+                            <option value="pos">POS</option>
                         </select>
                     </div>
                     <div class="col-md-3 mb-2">

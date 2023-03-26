@@ -123,8 +123,32 @@
                                             </table>
 
                                             <td>
-                                                Previous Balance:
-                                                <input re type="number" name="pre_balance" id="pre_balance" class="form-control mb-2" readonly>
+                                                <div class="col-12 form-group">
+                                                    <label>Pay By:</label><br>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input required" type="radio"
+                                                            name="payment_method" id="credit" value="credit" required>
+                                                        <label class="form-check-label nott" for="credit"><i
+                                                                class="fa fa-moneay text-success"></i> Credit</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="payment_method"
+                                                            id="deposit" value="deposit" required>
+                                                        <label class="form-check-label nott" for="deposit"><i
+                                                                class="fa fa-piggy text-info"></i> Deposit</label>
+                                                    </div>
+                                                   
+                                                </div>
+                                            </td>
+
+
+                                            <td>
+                                                Credit Balance:
+                                                <input type="number" name="pre_balance" id="pre_balance" class="form-control mb-2" readonly>
+                                            </td>
+                                            <td>
+                                                Deposit Balance:
+                                                <input type="number" name="deposit_bal" id="deposit_bal" class="form-control mb-2" readonly>
                                             </td>
                                             <td>
                                                 New Balance:
@@ -192,7 +216,8 @@
             $('.total').html('&#8358;' + total.toLocaleString());
             $('#total_hidden').val(total);
             var pre_balance = $('#pre_balance').val();
-            $('#new_balance').val(parseInt(pre_balance)+parseInt(total));
+            var deposit = $('#deposit_bal').val();
+            $('#new_balance').val(parseInt(pre_balance)+parseInt(total) - parseInt(deposit));
 
         }
 
@@ -392,6 +417,27 @@
                             $(".product_id").val('none').trigger('change');
                             updateTable();
                         }
+                        if (res.status == 400) {
+                            $.LoadingOverlay("hide");
+                            Command: toastr["error"](res.message);
+                            toastr.options = {
+                                closeButton: false,
+                                debug: false,
+                                newestOnTop: false,
+                                progressBar: false,
+                                positionClass: "toast-top-right",
+                                preventDuplicates: false,
+                                onclick: null,
+                                showDuration: "300",
+                                hideDuration: "1000",
+                                timeOut: "5000",
+                                extendedTimeOut: "1000",
+                                showEasing: "swing",
+                                hideEasing: "linear",
+                                showMethod: "fadeIn",
+                                hideMethod: "fadeOut",
+                            };                           
+                        }
                     }
                 })
             });
@@ -471,17 +517,16 @@
                         if(res.status === 200)
                         {
                             $('#pre_balance').val(res.balance);
+                            $('#deposit_bal').val(res.deposits);
 
                         }
                         
                         if(res.status === 404)
                         {
                             $('#pre_balance').val('');
+                            $('#deposit_bal').val('');
 
                         }
-                        
-
-                        console.log(res)
                     }
                 });
             });

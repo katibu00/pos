@@ -72,11 +72,8 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::get('/details/{date}', [PurchasesController::class, 'details'])->name('purchase.details');
     Route::post('/store', [PurchasesController::class, 'store'])->name('purchase.store');
     Route::get('/create', [PurchasesController::class, 'create'])->name('purchase.create');
-
-
     Route::get('/shopping_list/index', [PurchasesController::class, 'shopping_list'])->name('shopping_list.index');
     Route::post('/fetch-shopping_list', [PurchasesController::class, 'fetchShopList'])->name('fetch-shopping-list');
-
     Route::post('/fetch-branch-stocks', [PurchasesController::class, 'fetchStocks'])->name('fetch-branch-stocks');
     Route::post('/fetch-purchases', [PurchasesController::class, 'fetchPurchases'])->name('fetch-purchases');
 });
@@ -88,14 +85,11 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function 
     Route::post('/fetch-sales', [SalesController::class, 'fetchSales'])->name('fetch-sales');
     Route::post('/refresh-table', [SalesController::class, 'refresh'])->name('refresh-table');
     Route::post('/refresh-receipt', [SalesController::class, 'loadReceipt'])->name('refresh-receipt');
-
     Route::get('/credit_sales/index', [SalesController::class, 'creditIndex'])->name('credit.index');
     Route::post('/credit_sales/store', [SalesController::class, 'creditStore'])->name('credit.store');
     Route::post('/fetch-balance', [SalesController::class, 'fetchBalance'])->name('fetch-balance');
-
     Route::get('/credit/index', [SalesController::class, 'index'])->name('sales.credit.index');
     Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
-
     Route::get('/all/index', [SalesController::class, 'allIndex'])->name('sales.all.index');
 
 });
@@ -137,13 +131,9 @@ Route::group(['prefix' => 'branches', 'middleware' => ['auth', 'admin']], functi
 Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], function () {
     Route::get('/index', [ReturnsController::class, 'index'])->name('returns');
     Route::post('/record', [ReturnsController::class, 'store'])->name('returns.record');
-
     Route::post('/refresh-table-return', [ReturnsController::class, 'refresh'])->name('refresh-table-return');
     Route::post('/refresh-receipt-return', [ReturnsController::class, 'loadReceipt'])->name('refresh-receipt-return');
-
     Route::get('/all/index', [ReturnsController::class, 'allIndex'])->name('returns.all');
-
-
 });
 Route::group(['prefix' => 'report', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [ReportController::class, 'index'])->name('report.index');

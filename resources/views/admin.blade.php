@@ -142,7 +142,7 @@
                         <div class="card mb-3" style="max-width: 20rem;">
                             <div class="card-header">Total Credits </div>
                             @php
-                                $owed = App\Models\User::select('balance')->sum('balance');
+                                $owed = App\Models\User::select('balance')->where('branch_id',auth()->user()->branch_id)->sum('balance');
                             @endphp
                             <div class="card-body">
                                 <p class="card-text">{{ number_format($owed,0) }}</p>

@@ -21,7 +21,7 @@ class ReturnsController extends Controller
     }
     public function allIndex()
     {
-        $data['returns'] = Returns::select('product_id','return_no')->groupBy('return_no')->orderBy('created_at','desc')->paginate(10);
+        $data['returns'] = Returns::select('product_id','return_no')->where('branch_id',auth()->user()->branch_id)->groupBy('return_no')->orderBy('created_at','desc')->paginate(10);
         return view('returns.all.index', $data);
     }
 

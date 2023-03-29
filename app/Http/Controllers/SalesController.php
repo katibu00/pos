@@ -261,7 +261,7 @@ class SalesController extends Controller
 
     public function allIndex()
     {
-        $data['sales'] = Sale::select('stock_id', 'receipt_no')->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
+        $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id',auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
         return view('sales.all_index', $data);
     }
 

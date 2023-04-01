@@ -154,7 +154,7 @@ class SalesController extends Controller
                         $discount = $request->discount[$i];
                     }
                     $data->discount = $discount;
-                    $data->payment_method = 'credit';
+                    $data->payment_method = 'deposit';
                     $data->user_id = auth()->user()->id;
                     $data->customer_name = $request->customer;
                     $data->note = $request->note;

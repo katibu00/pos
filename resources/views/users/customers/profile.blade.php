@@ -196,29 +196,21 @@
                                 <h4>Summary</h4>
                                 <div class="table-responsive border">
                                     <table class=" table" style="width:100%; font-size: 12px;">
+                                        <tbody>
                                         <tr>
                                             <th>Purchase Count</th>
                                             <td>{{ @$key3 + 1 }}</td>
                                         </tr>
-                                        @if($total_deposit > 0)
+                                     
                                         <tr>
-                                            <th>Deposits</th>
+                                            <th>Deposit Balance</th>
                                             <td>&#8358;{{ number_format($total_deposit,0) }}</td>
                                         </tr>
                                         <tr>
                                             <th>Credit Balance</th>
                                             <td>&#8358;{{ number_format($summary_total, 0) }}</td>
                                         </tr>
-                                        <tr>
-                                            <th>Current Balance</th>
-                                            <td><strong class="fs-20">&#8358;{{ number_format(abs($summary_total-$total_deposit), 0) }}<strong></td>
-                                        </tr>
-                                        @else
-                                        <tr>
-                                            <th>Current Balance</th>
-                                            <td><strong>&#8358;{{ number_format($summary_total, 0) }}</strong></td>
-                                        </tr>
-                                        @endif
+                                        </tbody>
                                     </table>
                                 </div>
                                 <div class="d-flex justify-content-between">

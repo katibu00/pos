@@ -23,7 +23,7 @@
                                         <th scope="col">Phone</th>
                                         <th scope="col">Credit Bal.</th>
                                         <th scope="col">Deposit Bal.</th>
-                                        <th scope="col">Last Payment</th>
+                                        <th scope="col">Last Credit Payment</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -36,18 +36,26 @@
                                             <td>{{ $user->phone }}</td>
                                             <td>&#8358;{{ number_format($user->balance) }}</td>
                                             @php
-                                                $payment = App\Models\Payment::select('created_at','payment_amount')->where('customer_id',$user->id)->latest()->first();
+                                                $payment = App\Models\Payment::select('created_at','payment_amount')->where('payment_type','credit')->where('customer_id',$user->id)->latest()->first();
                                                 $deposits = App\Models\Payment::select('payment_amount')->where('customer_id',$user->id)->where('payment_type','deposit')->sum('payment_amount');
                                             @endphp
                                                 <td>&#8358;{{ number_format($deposits) }}</td>
-                                            <td>{!! @$payment ? '&#8358;'.number_format($payment->payment_amount,0).', '.$payment->created_at->diffForHumans():' - ' !!}</td>
-                                        
+                                            <td>{!! @$payment ? '&#8358;'.number_format($payment->payment_amount,0).', '.$payment->created_at->diffForHumans():' - ' !!}</td>                                           
                                             <td>
-                                                <a class="btn btn-sm btn-primary mb-1"
-                                                    href="{{ route('customers.profile', $user->id) }}" title="View Profile"> <i
-                                                        class="fa fa-user"></i></a>
-                                                <button class="btn btn-sm btn-danger mb-1 deleteItem" data-id="{{ $user->id }}" data-name="{{ $user->first_name }}"><i class="fa fa-trash"></i></button>
-                                            </td>
+                                                <div class="dropdown">
+                                                  <button class="button text-white button-rounded button-brown button-light dropdoawn-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    &#x22EE;
+                                                  </button>
+                                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <a class="dropdown-item"  href="{{ route('customers.profile', $user->id) }}">View Profile</a>              
+                                                    {{-- <a class="dropdown-item"  href="{{ route('customers.profile', $user->id) }}">Pay Credit with Deposit</a>               --}}
+                                                    <a class="dropdown-item"  href="{{ route('customers.profile', $user->id) }}">SMS Balance</a>              
+                                                    <button class="dropdown-item"  data-bs-toggle="modal" data-bs-target=".depositModal">Add New Deposit</button>              
+                                                    <div class="dropdown-divider"></div>
+                                                    <button class="dropdown-item deleteItem" data-id="{{ $user->id }}" data-name="{{ $user->first_name }}">Delete User</button>              
+                                                </div>
+                                                </div>
+                                              </td>
                                         </tr>
                                     @endforeach
 
@@ -102,10 +110,51 @@
         </div>
     </div>
 
+    <div class="modal fade depositModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Add New Deposit</h4>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <form action="{{ route('customers.save.deposit') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="" class="col-form-label">Payment Amount:</label>
+                                <input type="number" step="any" class="form-control" placeholder="Amount" name="amount">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="" class="col-form-label">Payment Method:</label>
+                                <select class="form-select" name="payment_method" required>
+                                    <option value=""></option>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="POS">POS</option>
+                                </select>
+                            </div>
+                        </div>
+                       
+                        <input type="hidden" value="{{ $user->id }}" name="customer_id">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary ml-2">Add Deposit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
 @endsection
 
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script>
     $(document).on('click', '.deleteItem', function(e) {
         e.preventDefault();

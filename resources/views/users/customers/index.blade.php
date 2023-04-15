@@ -137,7 +137,7 @@
                             </div>
                         </div>
                        
-                        <input type="hidden" value="{{ $user->id }}" name="customer_id">
+                        <input type="hidden" value="{{ @$user->id }}" name="customer_id">
 
                     </div>
                     <div class="modal-footer">

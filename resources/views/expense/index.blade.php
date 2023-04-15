@@ -35,7 +35,7 @@
                                             <td></td>
                                         </tr>
                                         @php
-                                            $items = App\Models\Expense::where('date',$date->date)->get(); 
+                                            $items = App\Models\Expense::where('branch_id', auth()->user()->branch_id)->where('date',$date->date)->get(); 
                                             $total = 0;
                                         @endphp
                                         @foreach ($items as $key => $item)

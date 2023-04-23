@@ -112,6 +112,11 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function 
     Route::get('/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
     Route::post('/update/{id}', [UsersController::class, 'update'])->name('users.update');
 
+    Route::get('/return', [UsersController::class, 'returnIndex'])->name('users.return.index');
+    Route::post('/return', [UsersController::class, 'returnStore']);
+
+
+
 });
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [ReportController::class, 'index'])->name('reports.index');

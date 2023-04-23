@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Payment;
+use App\Models\Returns;
 use App\Models\Sale;
+use App\Models\Stock;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -277,6 +280,87 @@ class UsersController extends Controller
         'status'=>200,
         'message'=>'Customer deleted succesfully'
        ]);
+    }
+
+   
+    public function returnIndex(Request $request)
+    {
+        $id = $request->input('id');
+       
+        $data['sales'] = Sale::select('id','stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
+                            ->where('receipt_no', $id)
+                            ->get();
+                    
+        return view('users.customers.return',$data);
+
+    }
+    public function returnStore(Request $request)
+    {
+   
+
+
+       $productCount = count($request->sale_id);
+       if ($productCount != null) {
+           for ($i = 0; $i < $productCount; $i++) {
+
+               if($request->returned_qty[$i] != '')
+               {
+                    $sale = Sale::find($request->sale_id[$i]);
+                    if($request->returned_qty[$i] <= $sale->quantity)
+                    {
+                        $sale->quantity =  $sale->quantity-$request->returned_qty[$i];
+                        $sale->update();
+
+                        $data = Stock::find($request->product_id[$i]);
+                        $data->quantity += $request->quantity[$i];
+                        $data->update();
+
+
+
+                        $year = date('Y');
+                        $month = Carbon::now()->format('m');
+                        $day = Carbon::now()->format('d');
+                        $last = Returns::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
+                        if ($last == null) {
+                            $last_record = '1/0';
+                        } else {
+                            $last_record = $last->return_no;
+                        }
+                        $exploded = explode("/", $last_record);
+                        $number = $exploded[1] + 1;
+                        $padded = sprintf("%04d", $number);
+                        $stored = $year . $month . $day . '/' . $padded;
+
+                        
+
+                        $data = new Returns();
+                        $data->branch_id = auth()->user()->branch_id;
+                        $data->return_no = $stored;
+                        $data->product_id = $request->product_id[$i];
+                        $data->price = $request->price[$i];
+                        $data->quantity = $request->quantity[$i];
+                        if($request->discount[$i] == null){
+                            $data->discount = 0;
+
+                        }else{
+                            $data->discount = $request->discount[$i];
+                        }  
+                        $data->cashier_id = auth()->user()->id;
+                        $data->customer = null;
+                        $data->note = null;
+                        $data->payment_method = null;
+                        $data->save();
+
+                        Toastr::success('Credit Sales was Updated Successfully');
+                        return redirect()->back();
+
+                    }
+               }
+
+           }
+       }
+     
+
     }
 
 }

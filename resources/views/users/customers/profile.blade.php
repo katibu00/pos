@@ -47,7 +47,7 @@
                                                     <td colspan="2">{{ $date->created_at->format('l, d F') }}</td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td></td>
+                                                    <td><a href="{{ route('users.return.index', ['id' => $date->receipt_no]) }}" class="btn btn-info btn-sm"><i class="fa fa-rotate-left text-white"></i></a></td>
                                                 </tr>
                                                 @foreach ($sales as $key2 => $sale)
                                                     <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>

@@ -39,7 +39,7 @@
                                             <td><input type="number" class="form-control form-control-sm" value="{{ $sale->price }}" name="price[]" readonly></td>
                                             <td><input type="number" class="form-control form-control-sm" value="{{ $sale->discount }}" name="discount[]" readonly></td>
                                             <td><input type="number" class="form-control form-control-sm" value="{{ $sale->quantity }}" name="quantity[]" readonly></td>
-                                            <td><input type="number" class="form-control form-control-sm" name="returned_qty[]"></td>
+                                            <td><input type="number" class="form-control form-control-sm" name="returned_qty[]" {{ $sale->quantity < 1 ? 'readonly': '' }}></td>
                                         </tr>
                                     @endforeach
 

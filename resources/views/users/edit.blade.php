@@ -28,7 +28,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="position">Branch</label>
-                                <select class="form-control" name="branch_id">
+                                <select class="form-select" name="branch_id">
                                     <option value="">Select Branch</option>
                                     @foreach ($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ $user->branch_id == $branch->id ?'selected':''}}>{{ $branch->name }}</option>
@@ -37,7 +37,7 @@
                             </div>
                             <div class="form-group">
                                     <label for="position">Position</label>
-                                    <select class="form-control" id="position" name="position" required>
+                                    <select class="form-select" id="position" name="position" required>
                                         <option value=""></option>
                                         <option value="admin" @if($user->usertype == 'admin') selected @endif>Admin</option>
                                         <option value="cashier"  @if($user->usertype == 'cashier') selected @endif>Cashier</option>

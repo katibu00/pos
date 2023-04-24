@@ -112,11 +112,6 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function 
     Route::get('/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
     Route::post('/update/{id}', [UsersController::class, 'update'])->name('users.update');
 
-    Route::get('/return', [UsersController::class, 'returnIndex'])->name('users.return.index');
-    Route::post('/return', [UsersController::class, 'returnStore']);
-
-
-
 });
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [ReportController::class, 'index'])->name('reports.index');
@@ -157,6 +152,9 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::post('/save_deposit', [UsersController::class, 'saveDeposit'])->name('customers.save.deposit');
     Route::post('/load-receipt', [UsersController::class, 'loadReceipt'])->name('load-receipt');
     Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
+
+    Route::get('/return', [UsersController::class, 'returnIndex'])->name('users.return.index');
+    Route::post('/return', [UsersController::class, 'returnStore']);
 
 });
 Route::get('/post-data', [ApiController::class, 'store'])->name('post-data');

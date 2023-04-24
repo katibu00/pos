@@ -8,7 +8,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="col-4 "><span class="text-bold fs-16">Return a Credit Sale ({{ auth()->user()->branch->name }})</span></div>
-                        <div class="col-md-2 float-right"><a href="{{ route('customers.index') }}" class="btn btn-sm btn-primary me-2"><-- Go back to Users List</a></div>
+                        <div class="col-md-2 float-right"><a href="javascript:void(0)" onclick="history.back();" class="btn btn-sm btn-primary me-2"><-- Go back to User Profile</a></div>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('users.return.index') }}" method="post">

@@ -312,10 +312,8 @@ class UsersController extends Controller
                         $sale->update();
 
                         $data = Stock::find($request->product_id[$i]);
-                        $data->quantity += $request->quantity[$i];
+                        $data->quantity += $request->returned_qty[$i];
                         $data->update();
-
-
 
                         $year = date('Y');
                         $month = Carbon::now()->format('m');
@@ -338,7 +336,7 @@ class UsersController extends Controller
                         $data->return_no = $stored;
                         $data->product_id = $request->product_id[$i];
                         $data->price = $request->price[$i];
-                        $data->quantity = $request->quantity[$i];
+                        $data->quantity = $request->returned_qty[$i];
                         if($request->discount[$i] == null){
                             $data->discount = 0;
 
@@ -352,10 +350,12 @@ class UsersController extends Controller
                         $data->save();
 
                         Toastr::success('Credit Sales was Updated Successfully');
-                        return redirect()->back();
-
+                        return redirect()->route('customers.profile', $sale->customer_name);
                     }
-               }
+                    Toastr::error('Returned Quantity Must not be greater than Purchased quantity');
+                    return redirect()->route('customers.profile', $sale->customer_name);
+                }
+
 
            }
        }

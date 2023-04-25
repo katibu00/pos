@@ -70,7 +70,7 @@
 
 
 <li
-    class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
+    class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }} {{ $route == 'admin.salary_advance.index' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
     <a class="menu-link" href="#">
         <div>Users</div>
     </a>
@@ -86,6 +86,12 @@
             class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('users.index') }}">
                 <div><i class="icon-wpforms"></i>Staff</div>
+            </a>
+        </li>
+        <li
+            class="menu-item {{ $route == 'admin.salary_advance.index' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('admin.salary_advance.index') }}">
+                <div><i class="icon-wpforms"></i>Salary Advance</div>
             </a>
         </li>
     </ul>

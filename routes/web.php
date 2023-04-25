@@ -10,6 +10,7 @@ use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PurchasesController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReturnsController;
+use App\Http\Controllers\SalaryAdvanceController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
@@ -155,6 +156,11 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
 
     Route::get('/return', [UsersController::class, 'returnIndex'])->name('users.return.index');
     Route::post('/return', [UsersController::class, 'returnStore']);
+
+    Route::get('/cashier/salary_advance', [SalaryAdvanceController::class, 'cashierIndex'])->name('cashier.salary_advance.index');
+    Route::post('/cashier/salary_advance', [SalaryAdvanceController::class, 'cashierStore']);
+
+    Route::get('/admin/salary_advance', [SalaryAdvanceController::class, 'adminIndex'])->name('admin.salary_advance.index');
 
 });
 Route::get('/post-data', [ApiController::class, 'store'])->name('post-data');

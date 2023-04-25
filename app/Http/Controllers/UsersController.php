@@ -34,8 +34,8 @@ class UsersController extends Controller
     public function customerStore(Request $request)
     {
         $request->validate([
-            'first_name'=>'required',
-            'phone'=>'required|unique:users,phone',
+            'first_name' => 'required',
+            'phone' => 'required|unique:users,phone',
         ]);
         $user = new User();
         $user->branch_id = auth()->user()->branch_id;
@@ -85,18 +85,18 @@ class UsersController extends Controller
     public function customerProfile($id)
     {
         $data['user'] = User::select('id', 'first_name', 'balance')->where('id', $id)->first();
-        $data['dates'] = Sale::select('stock_id', 'receipt_no', 'created_at','status')
-                        ->where('payment_method', 'credit')
-                        ->where(function ($query) use ($id) {
-                            $query->where('status', '!=', 'paid')
-                                ->orWhereNull('status');
-                        })
-                        ->where('customer_name', $id)
-                        ->groupBy('receipt_no')
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+        $data['dates'] = Sale::select('stock_id', 'receipt_no', 'created_at', 'status')
+            ->where('payment_method', 'credit')
+            ->where(function ($query) use ($id) {
+                $query->where('status', '!=', 'paid')
+                    ->orWhereNull('status');
+            })
+            ->where('customer_name', $id)
+            ->groupBy('receipt_no')
+            ->orderBy('created_at', 'desc')
+            ->get();
         // dd($data['dat÷es']);
-        $data['payments'] = Payment::select('id','payment_amount','payment_method','created_at')->where('payment_type','credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
+        $data['payments'] = Payment::select('id', 'payment_amount', 'payment_method', 'created_at')->where('payment_type', 'credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
         return view('users.customers.profile', $data);
     }
 
@@ -127,18 +127,16 @@ class UsersController extends Controller
                 if ($request->payment_option[$i] == "Full Payment") {
                     $receiptNo = $request->receipt_no[$i];
                     $sales = DB::table('sales')
-                                    ->where('receipt_no', $receiptNo)
-                                    ->get();
+                        ->where('receipt_no', $receiptNo)
+                        ->get();
                     $total_amount = 0;
-                    if($sales[0]->status)
-                    {
-                        foreach($sales as $sale)
-                        {
-                            $total_amount += $sale->price*$sale->quantity-$sale->discount;
+                    if ($sales[0]->status) {
+                        foreach ($sales as $sale) {
+                            $total_amount += $sale->price * $sale->quantity - $sale->discount;
                         }
                         DB::table('sales')
-                        ->where('receipt_no', '=', $request->receipt_no[$i])
-                        ->update(['status' => 'paid']);
+                            ->where('receipt_no', '=', $request->receipt_no[$i])
+                            ->update(['status' => 'paid']);
                         $amount_paid = $total_amount - $sales[0]->payment_amount;
 
                         $customer->balance = $customer->balance - $amount_paid;
@@ -146,9 +144,8 @@ class UsersController extends Controller
 
                         array_push($receipt_nos, $receiptNo);
                         $total_amount_paid += $amount_paid;
-                       
-                    }else
-                    {
+
+                    } else {
                         DB::table('sales')
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
@@ -159,58 +156,56 @@ class UsersController extends Controller
                         array_push($receipt_nos, $request->receipt_no[$i]);
                         $total_amount_paid += $request->full_price[$i];
                     }
-                   
+
                 }
                 if ($request->payment_option[$i] == "Partial Payment") {
 
                     try {
                         DB::beginTransaction();
-                    
+
                         $receiptNo = $request->receipt_no[$i];
                         $partialAmount = $request->partial_amount[$i];
-                    
+
                         $sales = DB::table('sales')
-                                    ->where('receipt_no', $receiptNo)
-                                    ->get();
-                    
+                            ->where('receipt_no', $receiptNo)
+                            ->get();
+
                         if ($sales->count() < 1) {
                             Toastr::error("Sale not found for receipt no: $receiptNo");
-                            return redirect()->back();   
+                            return redirect()->back();
                         }
 
                         $total_amount = 0;
-                       foreach($sales as $sale)
-                       {
-                        $total_amount += $sale->quantity*$sale->price-$sale->discount;
-                       }
-                    
+                        foreach ($sales as $sale) {
+                            $total_amount += $sale->quantity * $sale->price - $sale->discount;
+                        }
+
                         $newPaymentAmount = $sales[0]->payment_amount + $partialAmount;
 
-                        if($newPaymentAmount > $total_amount)
-                        {
-                            Toastr::error('Amount is greater than the total for the Receipt No: '.$receiptNo, 'Amount Exceeded'); 
-                            return redirect()->back();  
+                        if ($newPaymentAmount > $total_amount) {
+                            Toastr::error('Amount is greater than the total for the Receipt No: ' . $receiptNo, 'Amount Exceeded');
+                            return redirect()->back();
                         }
-                    
+
                         DB::table('sales')
                             ->where('receipt_no', $receiptNo)
                             ->update([
                                 'status' => 'partial',
-                                'payment_amount' => $newPaymentAmount
+                                'payment_amount' => $newPaymentAmount,
                             ]);
-                    
+
                         DB::commit();
-                    
+
                         // Success message or redirect
 
                         $customer->balance = $customer->balance - $request->partial_amount[$i];
 
                         array_push($receipt_nos, $request->receipt_no[$i]);
                         $total_amount_paid += $request->partial_amount[$i];
-                        
+
                     } catch (Exception $e) {
                         DB::rollback();
-                    
+
                         // Log error message and return error response
                     }
 
@@ -220,8 +215,7 @@ class UsersController extends Controller
         }
         $customer->update();
 
-        if($total_amount_paid != 0)
-        {
+        if ($total_amount_paid != 0) {
             $record = new Payment();
             $record->payment_method = $request->payment_method;
             $record->payment_amount += $total_amount_paid;
@@ -232,7 +226,7 @@ class UsersController extends Controller
             $record->save();
 
             Toastr::success('Payment has been Recorded sucessfully', 'Done');
-            return redirect()->back();    
+            return redirect()->back();
 
         }
 
@@ -242,17 +236,17 @@ class UsersController extends Controller
     }
     public function saveDeposit(Request $request)
     {
-            $record = new Payment();
-            $record->payment_method = $request->payment_method;
-            $record->payment_amount += $request->amount;
-            $record->branch_id = auth()->user()->branch_id;
-            $record->customer_id = $request->customer_id;
-            $record->user_id = auth()->user()->id;
-            $record->payment_type = 'deposit';
-            $record->save();
+        $record = new Payment();
+        $record->payment_method = $request->payment_method;
+        $record->payment_amount += $request->amount;
+        $record->branch_id = auth()->user()->branch_id;
+        $record->customer_id = $request->customer_id;
+        $record->user_id = auth()->user()->id;
+        $record->payment_type = 'deposit';
+        $record->save();
 
-            Toastr::success('Deposit has been Recorded sucessfully', 'Done');
-            return redirect()->back();    
+        Toastr::success('Deposit has been Recorded sucessfully', 'Done');
+        return redirect()->back();
 
     }
 
@@ -270,45 +264,39 @@ class UsersController extends Controller
         ]);
     }
 
-   
     public function deleteCustomer(Request $request)
-    { 
+    {
         $user = User::find($request->id);
         $user->delete();
         Payment::where('customer_id', $request->id)->delete();
         return response()->json([
-        'status'=>200,
-        'message'=>'Customer deleted succesfully'
-       ]);
+            'status' => 200,
+            'message' => 'Customer deleted succesfully',
+        ]);
     }
 
-   
     public function returnIndex(Request $request)
     {
         $id = $request->input('id');
-       
-        $data['sales'] = Sale::select('id','stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
-                            ->where('receipt_no', $id)
-                            ->get();
-                    
-        return view('users.customers.return',$data);
+
+        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
+            ->where('receipt_no', $id)
+            ->get();
+
+        return view('users.customers.return', $data);
 
     }
     public function returnStore(Request $request)
     {
-   
 
+        $productCount = count($request->sale_id);
+        if ($productCount != null) {
+            for ($i = 0; $i < $productCount; $i++) {
 
-       $productCount = count($request->sale_id);
-       if ($productCount != null) {
-           for ($i = 0; $i < $productCount; $i++) {
-
-               if($request->returned_qty[$i] != '')
-               {
+                if ($request->returned_qty[$i] != '') {
                     $sale = Sale::find($request->sale_id[$i]);
-                    if($request->returned_qty[$i] <= $sale->quantity)
-                    {
-                        $sale->quantity =  $sale->quantity-$request->returned_qty[$i];
+                    if ($request->returned_qty[$i] <= $sale->quantity) {
+                        $sale->quantity = $sale->quantity - $request->returned_qty[$i];
                         $sale->update();
 
                         $data = Stock::find($request->product_id[$i]);
@@ -329,38 +317,30 @@ class UsersController extends Controller
                         $padded = sprintf("%04d", $number);
                         $stored = $year . $month . $day . '/' . $padded;
 
-                        
-
                         $data = new Returns();
                         $data->branch_id = auth()->user()->branch_id;
                         $data->return_no = $stored;
                         $data->product_id = $request->product_id[$i];
                         $data->price = $request->price[$i];
                         $data->quantity = $request->returned_qty[$i];
-                        if($request->discount[$i] == null){
+                        if ($request->discount[$i] == null) {
                             $data->discount = 0;
 
-                        }else{
+                        } else {
                             $data->discount = $request->discount[$i];
-                        }  
+                        }
                         $data->cashier_id = auth()->user()->id;
                         $data->customer = null;
                         $data->note = null;
                         $data->payment_method = null;
                         $data->save();
-
-                        Toastr::success('Credit Sales was Updated Successfully');
-                        return redirect()->route('customers.profile', $sale->customer_name);
                     }
-                    Toastr::error('Returned Quantity Must not be greater than Purchased quantity');
-                    return redirect()->route('customers.profile', $sale->customer_name);
                 }
 
-
-           }
-           return redirect()->route('customers.index');
-       }
-     
+            }
+        }
+        Toastr::success('Credit Sales was Updated Successfully');
+        return redirect()->route('customers.profile', $sale->customer_name);
 
     }
 

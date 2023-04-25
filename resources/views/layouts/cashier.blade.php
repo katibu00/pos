@@ -68,7 +68,23 @@
         </li>
     </ul>
 </li>
-<li class="menu-item {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}"><a
-    class="menu-link" href="{{ route('customers.index') }}">
-    <div>Customers</div>
-</a></li>
+
+<li class="menu-item  {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}">
+    <a class="menu-link" href="#">
+        <div>Customers</div>
+    </a>
+    <ul class="sub-menu-container">
+        <li class="menu-item {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}"><a
+            class="menu-link" href="{{ route('customers.index') }}">
+            <div>Customers</div>
+        </a></li>
+        <li
+            class="menu-item {{ $route == 'cashier.salary_advance.index' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('cashier.salary_advance.index') }}">
+                <div>Salary Advance</div>
+            </a>
+        </li>
+       
+
+    </ul>
+</li>

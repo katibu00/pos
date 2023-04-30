@@ -138,7 +138,7 @@ class UsersController extends Controller
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
                         $amount_paid = $total_amount - $sales[0]->payment_amount;
-
+                        // dd($amount_paid);
                         $customer->balance = $customer->balance - $amount_paid;
                         $customer->update();
 
@@ -149,7 +149,7 @@ class UsersController extends Controller
                         DB::table('sales')
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
-
+                        // dd($request->full_price[$i]);
                         $customer->balance = $customer->balance - $request->full_price[$i];
                         $customer->update();
 

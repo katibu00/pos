@@ -16,15 +16,15 @@ class EstimateController extends Controller
     {
         $user = auth()->user();
         $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $data['recents'] = Estimate::select('product_id','estimate_no','customer')->whereDate('created_at', Carbon::today())->where('cashier_id',auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at','desc')->take(4)->get();
-        return view('estimate.index', $data); 
+        $data['recents'] = Estimate::select('product_id', 'estimate_no', 'customer')->whereDate('created_at', Carbon::today())->where('cashier_id', auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at', 'desc')->take(4)->get();
+        return view('estimate.index', $data);
     }
     public function allIndex()
     {
         $user = auth()->user();
-         $data['estimates'] = Estimate::select('product_id','estimate_no')->where('branch_id',auth()->user()->branch_id)->groupBy('estimate_no')->orderBy('created_at','desc')->paginate(10);
-         $data['customers'] = User::select('id','first_name')->where('branch_id', $user->branch_id)->where('usertype','customer')->orderBy('first_name')->get();
-        return view('estimate.all_index', $data); 
+        $data['estimates'] = Estimate::select('product_id', 'estimate_no')->where('branch_id', auth()->user()->branch_id)->groupBy('estimate_no')->orderBy('created_at', 'desc')->paginate(10);
+        $data['customers'] = User::select('id', 'first_name')->where('branch_id', $user->branch_id)->where('usertype', 'customer')->orderBy('first_name')->get();
+        return view('estimate.all_index', $data);
     }
 
     public function store(Request $request)
@@ -53,10 +53,10 @@ class EstimateController extends Controller
                 $data->product_id = $request->product_id[$i];
                 $data->price = $request->price[$i];
                 $data->quantity = $request->quantity[$i];
-                if($request->discount[$i] == null){
+                if ($request->discount[$i] == null) {
                     $data->discount = 0;
 
-                }else{
+                } else {
                     $data->discount = $request->discount[$i];
                 }
                 $data->cashier_id = auth()->user()->id;
@@ -66,7 +66,6 @@ class EstimateController extends Controller
             }
         }
 
-        
         return response()->json([
             'status' => 201,
             'message' => 'Estimate has been Saved sucessfully',
@@ -76,7 +75,7 @@ class EstimateController extends Controller
 
     public function refresh()
     {
-        $data['recents'] = Estimate::select('product_id','estimate_no')->whereDate('created_at', Carbon::today())->where('cashier_id',auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at','desc')->take(4)->get();
+        $data['recents'] = Estimate::select('product_id', 'estimate_no')->whereDate('created_at', Carbon::today())->where('cashier_id', auth()->user()->id)->groupBy('estimate_no')->orderBy('created_at', 'desc')->take(4)->get();
         return view('estimate.recents_table', $data)->render();
     }
     public function loadReceipt(Request $request)
@@ -107,28 +106,33 @@ class EstimateController extends Controller
         $padded = sprintf("%04d", $number);
         $stored = $year . $month . $day . '/' . $padded;
 
-        foreach($estimates as $estimate)
-        {
+        $total_amount = 0;
+
+        if ($request->payment_method == 'credit') {
+            foreach ($estimates as $estimate) {
+                $total_amount += $estimate->price * $estimate->quantity - $estimate->discount;
+            }
+        }
+
+        foreach ($estimates as $estimate) {
             $data = new Sale();
             $data->branch_id = auth()->user()->branch_id;
             $data->receipt_no = $stored;
             $data->stock_id = $estimate->product_id;
             $data->price = $estimate->price;
             $data->quantity = $estimate->quantity;
-            if($estimate->discount == null){
+            if ($estimate->discount == null) {
                 $data->discount = 0;
 
-            }else{
+            } else {
                 $data->discount = $estimate->discount;
             }
             $data->payment_method = $request->payment_method;
             $data->payment_amount = 0;
             $data->user_id = auth()->user()->id;
-            if($request->payment_method == 'credit')
-            {
+            if ($request->payment_method == 'credit') {
                 $data->customer_name = $request->customer;
-            }else
-            {
+            } else {
                 $data->customer_name = $estimate->customer_name;
             }
             $data->note = null;
@@ -140,10 +144,15 @@ class EstimateController extends Controller
             $data->update();
             $estimate->delete();
         }
-      
-        Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
-        return redirect()->route('estimate.all.index'); 
-    }
 
+        if ($request->payment_method == 'credit') {
+            $user = User::select('id', 'balance')->where('id', $request->customer)->first();
+            $user->balance =  $user->balance + $total_amount;
+            $user->update();
+        } 
+
+        Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
+        return redirect()->route('estimate.all.index');
+    }
 
 }

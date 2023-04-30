@@ -55,7 +55,7 @@
                                                         <td></td>
                                                         <td>{{ $sale['product']['name'] }}</td>
                                                         <td>{{ number_format($sale->price, 0) }}</td>
-                                                        <td>{{ number_format($sale->quantity, 0) }}</td>
+                                                        <td>{{ $sale->quantity }}</td>
                                                         <td>{{ number_format($sale->price * $sale->quantity, 0) }}</td>
                                                     </tr>
                                                     @php

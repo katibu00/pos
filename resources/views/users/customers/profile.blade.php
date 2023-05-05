@@ -41,13 +41,16 @@
                                                     $sales = App\Models\Sale::select('stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
                                                         ->where('receipt_no', $date->receipt_no)
                                                         ->get();
+                                                    $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
+                                                        ->where('return_no', $date->receipt_no)
+                                                        ->get();
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $key3 + 1 }}</td>
                                                     <td colspan="2">{{ $date->created_at->format('l, d F') }}</td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td><a href="{{ route('users.return.index', ['id' => $date->receipt_no]) }}" class="btn btn-info btn-sm"><i class="fa fa-rotate-left text-white"></i></a></td>
+                                                    <td><a href="{{ route('users.return.index', ['id' => $date->receipt_no]) }}" class="btn btn-danger btn-sm"><i class="fa fa-rotate-left text-white"></i></a></td>
                                                 </tr>
                                                 @foreach ($sales as $key2 => $sale)
                                                     <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
@@ -61,6 +64,8 @@
                                                     @php
                                                         $total_amount += $sale->price * $sale->quantity;
                                                         $total_discount += $sale->discount;
+                                                        $total_return = 0;
+                                                        $return_discount = 0;
                                                     @endphp
                                                 @endforeach
                                                 <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
@@ -73,17 +78,49 @@
                                                     <td colspan="2" class="text-center">Discount</td>
                                                     <td>{{ number_format($total_discount, 0) }}</td>
                                                 </tr>
+                                                @if($returns->count() > 0)
+                                                @foreach ($returns as $return)
+                                                    <tr class="bg-danger text-white">
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>{{ $return['product']['name'] }}</td>
+                                                        <td>{{ number_format($return->price, 0) }}</td>
+                                                        <td>{{ $return->quantity }}</td>
+                                                        <td>{{ number_format($return->price * $return->quantity, 0) }}</td>
+                                                    </tr>
+                                                    @php
+                                                        $total_return += $return->price * $return->quantity;
+                                                        $return_discount += $return->discount ;
+                                                    @endphp
+                                                @endforeach
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td colspan="2" class="text-right">Total Return</td>
+                                                    <td>{{ number_format($total_return, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td colspan="2">Return Discount</td>
+                                                    <td>{{ number_format($return_discount, 0) }}</td>
+                                                </tr>
+                                                @endif
                                                 <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
                                                     <td colspan="3"></td>
-                                                    <td colspan="2" class="text-center"><strong>Net Amount</strong></td>
+                                                    <td colspan="2" class="text-right"><strong>Net Amount</strong></td>
                                                     @php
-                                                        $net_amount = $total_amount - $total_discount;
+                                                        $net_amount = $total_amount - $total_discount - $total_return - $return_discount;
                                                         if ($sale->status != 'partial') {
                                                             $summary_total += $net_amount;
                                                         }
                                                     @endphp
+                                                   
                                                     <td><strong>&#8358;{{ number_format($net_amount, 0) }}</strong></td>
                                                 </tr>
+                                              
                                                 @if ($sale->status == 'partial')
                                                     <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
                                                         <td colspan="3"></td>
@@ -95,12 +132,13 @@
                                                         <td colspan="2" class="text-center"><strong>Remaining
                                                                 Balance</strong></td>
                                                         @php
-                                                            $remaining = $total_amount - $total_discount - $sale->payment_amount;
+                                                            $remaining = $total_amount - $total_discount  - $total_return + $return_discount - $sale->payment_amount;
                                                             $summary_total += $remaining;
                                                         @endphp
                                                         <td><strong>&#8358;{{ number_format($remaining, 0) }}</strong></td>
                                                     </tr>
                                                 @endif
+                                               
                                             @endforeach
                                         </tbody>
                                     </table>

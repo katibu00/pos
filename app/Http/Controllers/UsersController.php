@@ -206,7 +206,6 @@ class UsersController extends Controller
                     } catch (Exception $e) {
                         DB::rollback();
 
-                        // Log error message and return error response
                     }
 
                 }
@@ -279,7 +278,7 @@ class UsersController extends Controller
     {
         $id = $request->input('id');
 
-        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
+        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount','customer_name')
             ->where('receipt_no', $id)
             ->get();
 
@@ -296,30 +295,11 @@ class UsersController extends Controller
                 if ($request->returned_qty[$i] != '') {
                     $sale = Sale::find($request->sale_id[$i]);
                     if ($request->returned_qty[$i] <= $sale->quantity) {
-                        $sale->quantity = $sale->quantity - $request->returned_qty[$i];
-                        $sale->update();
-
-                        $data = Stock::find($request->product_id[$i]);
-                        $data->quantity += $request->returned_qty[$i];
-                        $data->update();
-
-                        $year = date('Y');
-                        $month = Carbon::now()->format('m');
-                        $day = Carbon::now()->format('d');
-                        $last = Returns::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
-                        if ($last == null) {
-                            $last_record = '1/0';
-                        } else {
-                            $last_record = $last->return_no;
-                        }
-                        $exploded = explode("/", $last_record);
-                        $number = $exploded[1] + 1;
-                        $padded = sprintf("%04d", $number);
-                        $stored = $year . $month . $day . '/' . $padded;
+                        
 
                         $data = new Returns();
                         $data->branch_id = auth()->user()->branch_id;
-                        $data->return_no = $stored;
+                        $data->return_no = $sale->receipt_no;
                         $data->product_id = $request->product_id[$i];
                         $data->price = $request->price[$i];
                         $data->quantity = $request->returned_qty[$i];
@@ -327,13 +307,30 @@ class UsersController extends Controller
                             $data->discount = 0;
 
                         } else {
-                            $data->discount = $request->discount[$i];
+                            $discount = $request->discount[$i]/$request->quantity[$i]*$request->returned_qty[$i];
+                            $data->discount = $discount;
                         }
                         $data->cashier_id = auth()->user()->id;
                         $data->customer = null;
                         $data->note = null;
                         $data->payment_method = null;
                         $data->save();
+
+
+                        $data = Stock::find($request->product_id[$i]);
+                        $data->quantity += $request->returned_qty[$i];
+                        $data->update();
+
+                        $user = User::find($request->customer_id);
+                        if ($request->discount[$i] == null) 
+                        {
+                         
+                        } else 
+                        {
+                            $user->balance -=  $request->price[$i]*$request->returned_qty[$i] + $discount;
+                           
+                        }
+                        $user->update();
                     }
                 }
 

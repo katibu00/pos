@@ -49,7 +49,8 @@
                                                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                     <a class="dropdown-item"  href="{{ route('customers.profile', $user->id) }}">View Profile</a>              
                                                     {{-- <a class="dropdown-item"  href="{{ route('customers.profile', $user->id) }}">Pay Credit with Deposit</a>               --}}
-                                                    <a class="dropdown-item"  href="{{ route('customers.profile', $user->id) }}">SMS Balance</a>              
+                                                    <a class="dropdown-item"  href="#">SMS Balance</a>              
+                                                    <a class="dropdown-item"  href="#">Transaction History</a>              
                                                     <button class="dropdown-item"  data-bs-toggle="modal" data-bs-target=".depositModal">Add New Deposit</button>              
                                                     <div class="dropdown-divider"></div>
                                                     <button class="dropdown-item deleteItem" data-id="{{ $user->id }}" data-name="{{ $user->first_name }}">Delete User</button>              

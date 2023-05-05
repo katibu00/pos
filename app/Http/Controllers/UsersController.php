@@ -137,24 +137,24 @@ class UsersController extends Controller
                         DB::table('sales')
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
-                        $amount_paid = $total_amount - $sales[0]->payment_amount;
+                        // $amount_paid = $total_amount - $sales[0]->payment_amount;
                         // dd($amount_paid);
-                        $customer->balance = $customer->balance - $amount_paid;
+                        $customer->balance = $customer->balance - $request->full_payment_payable[$i];
                         $customer->update();
 
                         array_push($receipt_nos, $receiptNo);
-                        $total_amount_paid += $amount_paid;
+                        $total_amount_paid += $request->full_payment_payable[$i];
 
                     } else {
                         DB::table('sales')
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
                         // dd($request->full_price[$i]);
-                        $customer->balance = $customer->balance - $request->full_price[$i];
+                        $customer->balance = $customer->balance - $request->full_payment_payable[$i];
                         $customer->update();
 
                         array_push($receipt_nos, $request->receipt_no[$i]);
-                        $total_amount_paid += $request->full_price[$i];
+                        $total_amount_paid += $request->full_payment_payable[$i];
                     }
 
                 }
@@ -299,7 +299,7 @@ class UsersController extends Controller
 
                         $data = new Returns();
                         $data->branch_id = auth()->user()->branch_id;
-                        $data->return_no = $sale->receipt_no;
+                        $data->return_no = $sale->receipt_no.'R';
                         $data->product_id = $request->product_id[$i];
                         $data->price = $request->price[$i];
                         $data->quantity = $request->returned_qty[$i];
@@ -327,7 +327,7 @@ class UsersController extends Controller
                          
                         } else 
                         {
-                            $user->balance -=  $request->price[$i]*$request->returned_qty[$i] + $discount;
+                            $user->balance -=  $request->price[$i]*$request->returned_qty[$i] - $discount;
                            
                         }
                         $user->update();

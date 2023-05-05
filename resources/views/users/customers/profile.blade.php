@@ -42,7 +42,7 @@
                                                         ->where('receipt_no', $date->receipt_no)
                                                         ->get();
                                                     $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
-                                                        ->where('return_no', $date->receipt_no)
+                                                        ->where('return_no', $date->receipt_no.'R')
                                                         ->get();
                                                 @endphp
                                                 <tr>
@@ -112,7 +112,7 @@
                                                     <td colspan="3"></td>
                                                     <td colspan="2" class="text-right"><strong>Net Amount</strong></td>
                                                     @php
-                                                        $net_amount = $total_amount - $total_discount - $total_return - $return_discount;
+                                                        $net_amount = $total_amount -  $total_return - $total_discount + $return_discount;
                                                         if ($sale->status != 'partial') {
                                                             $summary_total += $net_amount;
                                                         }
@@ -306,18 +306,40 @@
                                     @foreach ($dates as $key => $date)
                                         @php
                                             $total_amount = 0;
+                                            $total_return = 0;
+                                            $return_discount = 0;
+
                                             $sales = App\Models\Sale::select('stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
                                                 ->where('receipt_no', $date->receipt_no)
                                                 ->get();
+
+                                            $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
+                                                    ->where('return_no', $date->receipt_no.'R')
+                                                    ->get();
+                                                
                                             foreach ($sales as $sale) {
                                                 $total_amount += $sale->price * $sale->quantity - $sale->discount;
                                             }
+
+                                            $amount_payable = $total_amount - $sale->payment_amount;
+
+                                            if($returns->count() > 0)
+                                            {
+                                                foreach ($returns as $return)
+                                                 {
+                                                    $total_return += $return->price * $return->quantity;
+                                                    $return_discount += $return->discount ;
+                                                 }
+                                                 $amount_payable =  $total_amount - $total_return + $return_discount - $sale->payment_amount;
+                                            }
+                                            
                                             $grand_total += $total_amount;
                                         @endphp
+                                        <input type="hidden" value="{{ $amount_payable }}" name="full_payment_payable[]" />
                                         <tr class="{{ $date->status == 'partial' ? 'bg-info text-white' : '' }}">
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $date->receipt_no }}</td>
-                                            <td>&#8358;{{ number_format($total_amount - $sale->payment_amount, 0) }}</td>
+                                            <td>&#8358;{{ number_format($amount_payable, 0) }}</td>
                                             <td>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio"

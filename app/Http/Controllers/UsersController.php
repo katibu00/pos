@@ -299,7 +299,7 @@ class UsersController extends Controller
 
                         $data = new Returns();
                         $data->branch_id = auth()->user()->branch_id;
-                        $data->return_no = $sale->receipt_no.'R';
+                        $data->return_no = 'R'.$sale->receipt_no;
                         $data->product_id = $request->product_id[$i];
                         $data->price = $request->price[$i];
                         $data->quantity = $request->returned_qty[$i];

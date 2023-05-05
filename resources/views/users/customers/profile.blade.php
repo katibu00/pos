@@ -42,7 +42,7 @@
                                                         ->where('receipt_no', $date->receipt_no)
                                                         ->get();
                                                     $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
-                                                        ->where('return_no', $date->receipt_no.'R')
+                                                        ->where('return_no', 'R'.$date->receipt_no)
                                                         ->get();
                                                 @endphp
                                                 <tr>
@@ -314,7 +314,7 @@
                                                 ->get();
 
                                             $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
-                                                    ->where('return_no', $date->receipt_no.'R')
+                                                    ->where('return_no', 'R'.$date->receipt_no)
                                                     ->get();
                                                 
                                             foreach ($sales as $sale) {

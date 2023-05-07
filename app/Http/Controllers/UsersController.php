@@ -9,7 +9,6 @@ use App\Models\Sale;
 use App\Models\Stock;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -278,7 +277,7 @@ class UsersController extends Controller
     {
         $id = $request->input('id');
 
-        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount','customer_name')
+        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount', 'customer_name', 'returned_qty')
             ->where('receipt_no', $id)
             ->get();
 
@@ -287,19 +286,22 @@ class UsersController extends Controller
     }
     public function returnStore(Request $request)
     {
-
         $productCount = count($request->sale_id);
         if ($productCount != null) {
             for ($i = 0; $i < $productCount; $i++) {
+               
+                $sale = Sale::find($request->sale_id[$i]);
 
                 if ($request->returned_qty[$i] != '') {
-                    $sale = Sale::find($request->sale_id[$i]);
+                   
                     if ($request->returned_qty[$i] <= $sale->quantity) {
-                        
+
+                        $sale->returned_qty += $request->returned_qty[$i];
+                        $sale->update();
 
                         $data = new Returns();
                         $data->branch_id = auth()->user()->branch_id;
-                        $data->return_no = 'R'.$sale->receipt_no;
+                        $data->return_no = 'R' . $sale->receipt_no;
                         $data->product_id = $request->product_id[$i];
                         $data->price = $request->price[$i];
                         $data->quantity = $request->returned_qty[$i];
@@ -307,7 +309,7 @@ class UsersController extends Controller
                             $data->discount = 0;
 
                         } else {
-                            $discount = $request->discount[$i]/$request->quantity[$i]*$request->returned_qty[$i];
+                            $discount = $request->discount[$i] / $request->quantity[$i] * $request->returned_qty[$i];
                             $data->discount = $discount;
                         }
                         $data->cashier_id = auth()->user()->id;
@@ -316,24 +318,20 @@ class UsersController extends Controller
                         $data->payment_method = null;
                         $data->save();
 
-
                         $data = Stock::find($request->product_id[$i]);
                         $data->quantity += $request->returned_qty[$i];
                         $data->update();
 
                         $user = User::find($request->customer_id);
-                        if ($request->discount[$i] == null) 
-                        {
-                         
-                        } else 
-                        {
-                            $user->balance -=  $request->price[$i]*$request->returned_qty[$i] - $discount;
-                           
+                        if ($request->discount[$i] == null) {
+
+                        } else {
+                            $user->balance -= $request->price[$i] * $request->returned_qty[$i] - $discount;
+
                         }
                         $user->update();
                     }
                 }
-
             }
         }
         Toastr::success('Credit Sales was Updated Successfully');

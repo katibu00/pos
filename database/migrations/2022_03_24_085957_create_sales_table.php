@@ -26,6 +26,7 @@ class CreateSalesTable extends Migration
             $table->integer('user_id')->nullable();
             $table->string('customer')->nullable();
             $table->string('note')->nullable();
+            $table->string('returned_qty')->default(0);
             $table->timestamps();
         });
     }

@@ -23,6 +23,7 @@
                                         <th class="text-center">Price</th>
                                         <th class="text-center">Discount</th>
                                         <th scope="col">Purchased Qty</th>
+                                        <th scope="col">Previous</th>
                                         <th scope="col">Returned Qty</th>
                                     </tr>
                                 </thead>
@@ -39,6 +40,7 @@
                                             <td><input type="number" class="form-control form-control-sm" value="{{ $sale->price }}" name="price[]" readonly></td>
                                             <td><input type="number" class="form-control form-control-sm" value="{{ $sale->discount }}" name="discount[]" readonly></td>
                                             <td><input type="number" class="form-control form-control-sm" value="{{ $sale->quantity }}" name="quantity[]" readonly></td>
+                                            <td><input type="number" class="form-control form-control-sm" value="{{ $sale->returned_qty }}" name="pre_returned_qty[]" readonly></td>
                                             <td><input type="number" class="form-control form-control-sm" name="returned_qty[]" {{ $sale->quantity < 1 ? 'readonly': '' }}></td>
                                         </tr>
                                     @endforeach
@@ -60,3 +62,26 @@
    
 
 @endsection
+
+@section('js')
+
+<script>
+    $(document).ready(function() {
+        $('input[name="returned_qty[]"]').keyup(function() {
+            var index = $(this).closest('tr').index(); 
+            var quantity = parseInt($('input[name="quantity[]"]').eq(index).val());
+            var preReturnedQty = parseInt($('input[name="pre_returned_qty[]"]').eq(index).val());
+            var returnedQty = parseInt($(this).val());
+            if (returnedQty + preReturnedQty > quantity) {
+                toastr.error('The amount you entered exceeds the quantity bought.');
+                $(this).val('');
+            }
+        });
+    });
+</script>
+
+
+
+@endsection
+
+

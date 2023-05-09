@@ -143,6 +143,23 @@ class HomeController extends Controller
                ->get();
         $data['lows'] = count($stocks);
         $data['total_stock'] = Stock::select('id')->where('branch_id', $branch_id)->count();
+
+
+
+
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+        
+        $salesData = Sale::whereBetween('created_at', [$startOfWeek, $endOfWeek])
+                        ->selectRaw('date(created_at) as date, sum(price * quantity) as revenue')
+                        ->groupBy('date')
+                        ->get();
+                        
+        $data['dates'] = $salesData->pluck('date');
+        $data['revenues'] = $salesData->pluck('revenue');
+
+
+
         return view('admin', $data);
 
     }

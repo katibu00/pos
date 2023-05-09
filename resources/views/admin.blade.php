@@ -210,9 +210,58 @@
                         </div>
                     </div>
 
+
+
+
+
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
                 </div>
 
             </div>
         </div>
     </section>
+@endsection
+
+
+@section('js')
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+<script>
+var ctx = document.getElementById('salesChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {!! json_encode($dates) !!},
+        datasets: [{
+            label: 'Sales Revenue',
+            data: {!! json_encode($revenues) !!},
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+</script>
+
 @endsection

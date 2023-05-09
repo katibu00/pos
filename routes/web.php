@@ -36,6 +36,7 @@ Route::get('/', function () {
             return redirect()->route('sales.index');
         }
     };
+    // return view('ecom.index');
     return view('auth.login');
 });
 

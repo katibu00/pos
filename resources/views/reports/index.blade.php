@@ -24,8 +24,8 @@
                                     <div class="row row-xs">
                                         <div class="col-md-3">
                                             <label>Branch</label>
-                                            <select class="form-control mb-2" name="branch_id" required>
-                                                <option value="">Select Branch</option>
+                                            <select class="form-select mb-2" name="branch_id" required>
+                                                <option value=""></option>
                                                 @foreach ($branches as $branch)
                                                     <option value="{{ $branch->id }}"
                                                         @if (@$branch_id == $branch->id) selected @endif>
@@ -35,10 +35,13 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label>Report Type</label>
-                                            <select class="form-control mb-2" id="report" name="report" required>
+                                            <select class="form-select mb-2" id="report" name="report" required>
                                                 <option></option>
-                                                <option value="today" @if (@$report == 'today') selected @endif>Today's Report (Summary)
+                                                <option value="today" @if (@$report == 'today') selected @endif>
+                                                    Today's Report (Summary)
                                                 </option>
+                                                <option value="general" @if (@$report == 'general') selected @endif>
+                                                    General Report</option>
                                                 <option value="gross" @if (@$report == 'gross') selected @endif>By
                                                     Gross Sales
                                                 </option>
@@ -52,7 +55,7 @@
                                         </div>
                                         <div class="col-md-3" id="time_div">
                                             <label>Time</label>
-                                            <select class="form-control mb-2" id="date" name="date" required>
+                                            <select class="form-select mb-2" id="date" name="date" required>
                                                 <option></option>
                                                 <option value="today" @if (@$date == 'today') selected @endif>
                                                     Today</option>
@@ -71,12 +74,12 @@
 
                                         <div class="col-md-5 form-group mb-3 d-none" id="date1">
                                             <label>Start Date</label>
-                                            <input type="date" class="form-control" name="start">
+                                            <input type="date" class="form-control" value="{{ @$start_date }}" name="start_date">
                                         </div>
 
                                         <div class="col-md-5 form-group mb-3  d-none" id="date2">
                                             <label>End Date</label>
-                                            <input type="date" class="form-control" name="end">
+                                            <input type="date" class="form-control" value="{{ @$end_date }}" name="end_date">
                                         </div>
 
 
@@ -353,59 +356,123 @@
                                 @endif
 
 
-                                @if(isset($gross))
-                                <div class="table-responsive col-md-5">
-                                    <table class="table table-striped table-bordered col-md-5">
-                                        <tbody class="thead-dark">
-                                            <tr>
-                                                <th>Gross Revenue</th>
-                                                <td class="text-center">&#8358;{{ number_format($gross,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Discounts Amount</th>
-                                                <td class="text-center">&#8358;{{ number_format($discount,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Sales Count</th>
-                                                <td class="text-center">{{ number_format($sales_count,0) }}</td>
-                                            </tr>
-                                            {{-- <tr>
+                                @if (isset($gross))
+                                    <div class="table-responsive col-md-5">
+                                        <table class="table table-striped table-bordered col-md-5">
+                                            <tbody class="thead-dark">
+                                                <tr>
+                                                    <th>Gross Revenue</th>
+                                                    <td class="text-center">&#8358;{{ number_format($gross, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Discounts Amount</th>
+                                                    <td class="text-center">&#8358;{{ number_format($discount, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Sales Count</th>
+                                                    <td class="text-center">{{ number_format($sales_count, 0) }}</td>
+                                                </tr>
+                                                {{-- <tr>
                                                 <th>Discounts Counts</th>
                                                 <td class="text-center">{{ number_format($sales_count,0) }}</td>
                                             </tr> --}}
-                                            <tr>
-                                                <th>Total Items Sold</th>
-                                                <td class="text-center">{{ number_format($items_sold,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Total Expenses</th>
-                                                <td class="text-center">-</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Purchases Amount</th>
-                                                <td class="text-center">&#8358;{{ number_format($todays_purchases,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Estimates Amount</th>
-                                                <td class="text-center">&#8358;{{ number_format($todays_estimate,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Estimates Count</th>
-                                                <td class="text-center">{{ number_format($estimate_count,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Returns Amount</th>
-                                                <td class="text-center">&#8358;{{ number_format($todays_returns,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Returns Count</th>
-                                                <td class="text-center">{{ number_format($returns_count,0) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Low Stock Counts</th>
-                                            <td class="text-center">{{ number_format($lows,0) }} of {{ $total_stock }}</td>
-                                            </tr>
-                                        </tbody>
+                                                <tr>
+                                                    <th>Total Items Sold</th>
+                                                    <td class="text-center">{{ number_format($items_sold, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Expenses</th>
+                                                    <td class="text-center">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Purchases Amount</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($todays_purchases, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Estimates Amount</th>
+                                                    <td class="text-center">&#8358;{{ number_format($todays_estimate, 0) }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Estimates Count</th>
+                                                    <td class="text-center">{{ number_format($estimate_count, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Returns Amount</th>
+                                                    <td class="text-center">&#8358;{{ number_format($todays_returns, 0) }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Returns Count</th>
+                                                    <td class="text-center">{{ number_format($returns_count, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Low Stock Counts</th>
+                                                    <td class="text-center">{{ number_format($lows, 0) }} of
+                                                        {{ $total_stock }}</td>
+                                                </tr>
+                                            </tbody>
+                                            <table>
+                                    </div>
+                                @endif
+
+
+                                @if (@$report == 'general')
+                                    <div class="table-responsive col-md-5">
+                                        <table class="table table-striped table-bordered col-md-5">
+                                            <tbody class="thead-dark">
+                                                <tr>
+                                                    <th>Total Sales Value</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($total_sales_value, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Discount</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($total_discount, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Expenses</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($total_expenses_value, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Expense Count</th>
+                                                    <td class="text-center">
+                                                        {{ number_format($total_expenses_count, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Returns</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($total_returns_value, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Returns Discount</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($total_returns_discount, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Payments</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($total_payments_value, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Stock Value</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($stock_value, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Gross Sales Profit</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($gross_sales_profit, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Credit Owed</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($totalCreditsOwed, 0) }}</td>
+                                                </tr>
+                                            </tbody>
                                         <table>
                                     </div>
                                 @endif
@@ -413,46 +480,50 @@
                             </div>
                         </div>
                     </div>
-                    <!-- end of col -->
                 </div>
             </div>
         </div>
     </section>
-        <!-- ============ Body content End ============= -->
-    @endsection
-    @section('js')
-        <script src="/assets/js/vendor/pickadate/picker.js"></script>
-        <script src="/assets/js/vendor/pickadate/picker.date.js"></script>
-        <script src="/assets/js/form.basic.script.js"></script>
+    <!-- ============ Body content End ============= -->
+@endsection
+@section('js')
+    <script src="/assets/js/vendor/pickadate/picker.js"></script>
+    <script src="/assets/js/vendor/pickadate/picker.date.js"></script>
+    <script src="/assets/js/form.basic.script.js"></script>
 
-        <script type="text/javascript">
-            $(function() {
-                $(document).on('change', '#date', function() {
+    <script type="text/javascript">
+        $(function() {
+            $(document).on('change', '#date', function() {
 
-                    var date = $('#date').val();
+                var date = $('#date').val();
 
-                    if (date === 'range') {
-                        $('#date1').removeClass('d-none');
-                        $('#date2').removeClass('d-none');
-                    } else {
-                        $('#date1').addClass('d-none');
-                        $('#date2').addClass('d-none');
-                    }
+                if (date === 'range') {
+                    $('#date1').removeClass('d-none');
+                    $('#date2').removeClass('d-none');
+                } else {
+                    $('#date1').addClass('d-none');
+                    $('#date2').addClass('d-none');
+                }
 
-                });
-                $(document).on('change', '#report', function() {
-
-                    var report = $('#report').val();
-
-                    if (report === 'today') {
-                        $('#time_div').addClass('d-none');
-                        $('#date').removeAttr('required');
-                    } else {
-                        $('#time_div').removeClass('d-none');
-                        $('#date').addAttr('required');
-                    }
-
-                });
             });
-        </script>
-    @endsection
+            $(document).on('change', '#report', function() {
+
+                var report = $('#report').val();
+
+                if (report === 'today') {
+                    $('#time_div').addClass('d-none');
+                    $('#date').removeAttr('required');
+                } else {
+                    $('#time_div').removeClass('d-none');
+                    $('#date').addAttr('required');
+                }
+
+            });
+        });
+    </script>
+    @if(@$date == 'range')
+    <script type="text/javascript">
+        $('#date1').removeClass('d-none');
+        $('#date2').removeClass('d-none');</script>
+    @endif
+@endsection

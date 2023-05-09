@@ -150,8 +150,9 @@ class HomeController extends Controller
         $endDate = Carbon::today();
         $startDate = $endDate->copy()->subDays(6);
         
-        $salesData = Sale::whereBetween('created_at', [$startDate, $endDate])
-                        ->selectRaw('date(created_at) as date, sum(price * quantity) as revenue')
+        $salesData = Sale::where('branch_id', $branch_id)
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->selectRaw('date(created_at) as date, sum(price * quantity - discount) as revenue')
                         ->groupBy('date')
                         ->orderBy('date')
                         ->get();
@@ -161,7 +162,6 @@ class HomeController extends Controller
         });
         
         $data['revenues'] = $salesData->pluck('revenue');
-
 
 
         return view('admin', $data);

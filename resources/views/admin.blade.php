@@ -40,7 +40,6 @@
                     </div>
 
                 </div>
-                <p>Today's Stats >>></p>
 
                 <div class="row col-mb-50 mb-0">
                     <div class="col-md-6">
@@ -57,11 +56,10 @@
                 </div>
 
 
-                <h3>List Styling</h3>
+                <h3>Today's Stats >>></h3>
                 <div class="row col-mb-50 mb-0">
                   <div class="col-md-6">
                     <ul class="iconlist fw-medium">
-                      
                       
                         <li class="border border-success py-2 px-3 rounded mb-2" style="display: flex; justify-content: space-between; align-items: center;">
                             <span>Gross Sales: <span class="fw-bold" style="margin-left: 5px;">&#8358;{{ number_format($grossSales, 0) }}</span></span>
@@ -79,8 +77,6 @@
                             <span>Expenses: <span class="fw-bold" style="margin-left: 5px;">&#8358;{{ number_format($totalExpenses, 0) }}</span></span>
                             <span style="margin-left: auto;"> ({{ 'Cash: ' . number_format($cashExpenses, 0) . ' POS: ' . number_format($posExpenses, 0) . ' Trans: ' . number_format($transferExpenses, 0) }})</span>
                           </li>
-
-
 
                         <li class="border border-success py-2 px-3 rounded mb-2" style="display: flex; justify-content: space-between; align-items: center;">
                             <span>Credit Payments: <span class="fw-bold" style="margin-left: 5px;">&#8358;{{ number_format($totalCreditPayments, 0) }}</span></span>
@@ -110,17 +106,12 @@
                             <span>Credit Sales: <span class="fw-bold" style="margin-left: 5px;">&#8358;{{ number_format($creditSales, 0) }}</span></span>
                             <span style="margin-left: auto;"></span>
                           </li>
-                          
-                          
-                          
-                          
                        
                       </ul>
                   </div>
                   <div class="col-md-6">
                     <ul class="iconlist fw-medium">
                      
-                       
                         <li class="border border-success py-2 px-3 rounded mb-2" style="display: flex; justify-content: space-between; align-items: center;">
                             <span>Estimates: <span class="fw-bold" style="margin-left: 5px;">&#8358;{{ number_format($totalEstimate, 0) }}</span></span>
                             <span style="margin-left: auto;"></span>
@@ -162,12 +153,9 @@
                             <span>Low Stock Counts: <span class="fw-bold" style="margin-left: 5px;">{{ $lows . ' of ' . $total_stock }}</span></span>
                             <span style="margin-left: auto;"></span>
                           </li>
-
-
                     </ul>
                   </div>
                 </div>
-                
 
             </div>
         </div>

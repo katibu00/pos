@@ -235,8 +235,6 @@
 
 @section('js')
 
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
 <script>
 var ctx = document.getElementById('salesChart').getContext('2d');
@@ -263,5 +261,6 @@ var myChart = new Chart(ctx, {
     }
 });
 </script>
+
 
 @endsection

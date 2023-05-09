@@ -165,6 +165,7 @@ class HomeController extends Controller
         $data['revenues'] = $salesData->pluck('revenue');
 
         $salesData = Sale::where('branch_id', $branch_id)
+                    ->where('stock_id','!=',1012)
                     ->whereBetween('created_at', [$startDate, $endDate])
                     ->select('stock_id', DB::raw('SUM(quantity) as total_quantity'))
                     ->groupBy('stock_id')

@@ -147,20 +147,20 @@ class HomeController extends Controller
 
 
 
-        $endOfWeek = Carbon::now()->endOfWeek();
-    $startOfWeek = $endOfWeek->copy()->subDays(6);
-    
-    $salesData = Sale::whereBetween('created_at', [$startOfWeek, $endOfWeek])
-                    ->selectRaw('date(created_at) as date, sum(price * quantity) as revenue')
-                    ->groupBy('date')
-                    ->orderBy('date')
-                    ->get();
-                    
-    $data['dates'] = $salesData->pluck('date')->map(function ($date) {
-        return Carbon::parse($date)->shortDayName;
-    });
-    
-    $data['revenues'] = $salesData->pluck('revenue');
+        $endDate = Carbon::today();
+        $startDate = $endDate->copy()->subDays(6);
+        
+        $salesData = Sale::whereBetween('created_at', [$startDate, $endDate])
+                        ->selectRaw('date(created_at) as date, sum(price * quantity) as revenue')
+                        ->groupBy('date')
+                        ->orderBy('date')
+                        ->get();
+                        
+        $data['dates'] = $salesData->pluck('date')->map(function ($date) {
+            return Carbon::parse($date)->shortDayName;
+        });
+        
+        $data['revenues'] = $salesData->pluck('revenue');
 
 
 

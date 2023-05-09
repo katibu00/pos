@@ -15,6 +15,7 @@ use Brian2694\Toastr\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -163,6 +164,16 @@ class HomeController extends Controller
         
         $data['revenues'] = $salesData->pluck('revenue');
 
+        $salesData = Sale::where('branch_id', $branch_id)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->select('stock_id', DB::raw('SUM(quantity) as total_quantity'))
+                    ->groupBy('stock_id')
+                    ->orderBy('total_quantity', 'DESC')
+                    ->take(10)
+                    ->get();
+
+        $data['labels'] = $salesData->pluck('product.name');
+        $data['values'] = $salesData->pluck('total_quantity');
 
         return view('admin', $data);
 

@@ -4,7 +4,7 @@
 <head>
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="author" content="SemiColonWeb" />
+    <meta name="author" content="ukmisau" />
     <!-- Stylesheets
  ============================================= -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="/style.css" type="text/css" />
 
     <link rel="stylesheet" href="/css/dark.css" type="text/css" />
-    {{-- <link rel="stylesheet" href="/css/font-icons.css" type="text/css" /> --}}
+    <link rel="stylesheet" href="/css/font-icons.css" type="text/css" />
     <link rel="stylesheet" href="/css/animate.css" type="text/css" />
     <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css"
@@ -25,6 +25,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/colors.php?color=0275d8" type="text/css" />
+    
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {

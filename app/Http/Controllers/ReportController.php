@@ -27,7 +27,7 @@ class ReportController extends Controller
         // dd($request->all());
         if ($request->report == 'general') {
             // Fetch sales data
-            $sales = Sale::where('branch_id', $request->branch_id);
+            $sales = Sale::where('branch_id', $request->branch_id)->where('stock_id','!=',1012);
 
             if ($request->date == 'today') {
                 $sales = $sales->whereDate('created_at', now()->format('Y-m-d'));
@@ -106,15 +106,15 @@ class ReportController extends Controller
             $data['total_payments_value'] = $payments->sum('payment_amount');
 
             // Fetch stocks data
-            $stocks = Stock::where('branch_id', $request->branch_id)->where('quantity', '>', 0)->get();
+            $stocks = Stock::where('branch_id', $request->branch_id)->where('quantity', '>', 0)->where('id','!=',1012)->get();
             $data['stock_value'] = $stocks->sum(function ($stock) {
-                return $stock->quantity * $stock->buying_price;
+                return @$stock->quantity * @$stock->buying_price;
             });
 
 
             $data['gross_sales_profit'] = 0;
             foreach ($sales->get() as $sale) {
-                $data['gross_sales_profit'] += $sale->quantity * ($sale->price - $sale->product->buying_price);
+                $data['gross_sales_profit'] += @$sale->quantity * (@$sale->price - @$sale->product->buying_price);
             }
 
             $data['totalCreditsOwed'] = User::where('branch_id', $request->branch_id)->sum('balance');

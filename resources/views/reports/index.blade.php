@@ -423,7 +423,7 @@
                                         <table class="table table-striped table-bordered col-md-5">
                                             <tbody class="thead-dark">
                                                 <tr>
-                                                    <th>Total Sales Value</th>
+                                                    <th>Gross Revenue</th>
                                                     <td class="text-center">
                                                         &#8358;{{ number_format($total_sales_value, 0) }}</td>
                                                 </tr>
@@ -453,6 +453,11 @@
                                                         &#8358;{{ number_format($total_returns_discount, 0) }}</td>
                                                 </tr>
                                                 <tr>
+                                                    <th>Total Returns Profit</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($returns_profit, 0) }}</td>
+                                                </tr>
+                                                <tr>
                                                     <th>Total Payments</th>
                                                     <td class="text-center">
                                                         &#8358;{{ number_format($total_payments_value, 0) }}</td>
@@ -466,6 +471,11 @@
                                                     <th>Gross Sales Profit</th>
                                                     <td class="text-center">
                                                         &#8358;{{ number_format($gross_sales_profit, 0) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Net Sales Profit</th>
+                                                    <td class="text-center">
+                                                        &#8358;{{ number_format($gross_sales_profit - $returns_profit - $total_discount + $total_returns_discount - $total_expenses_count, 0) }}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Total Credit Owed</th>

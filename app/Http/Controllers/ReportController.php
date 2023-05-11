@@ -13,6 +13,7 @@ use App\Models\Stock;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -41,7 +42,8 @@ class ReportController extends Controller
             } else if ($request->date == 'range' && $request->has('start_date') && $request->has('end_date')) {
                 $sales = $sales->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
-            $data['total_sales_value'] = $sales->sum('price');
+            $data['total_sales_value'] = $sales->sum(DB::raw('(price * quantity) - discount'));
+
             $data['total_discount'] = $sales->sum('discount');
 
             $data['start_date'] = $request->start_date;
@@ -67,7 +69,7 @@ class ReportController extends Controller
             $data['total_expenses_count'] = $expenses->count();
 
 
-           // Fetch returns data
+
             $returns = Returns::where('branch_id', $request->branch_id);
 
             if ($request->date == 'today') {
@@ -83,8 +85,17 @@ class ReportController extends Controller
                 $returns = $returns->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
 
-            $data['total_returns_value'] = $returns->sum('price');
+            $totalValue = $returns->sum(DB::raw('(price * quantity) -discount'));
+
+            $data['total_returns_value'] = $totalValue;
             $data['total_returns_discount'] = $returns->sum('discount');
+
+            $data['returns_profit'] = 0;
+            foreach ($returns->get() as $return) {
+                $data['returns_profit'] += @$return->quantity * (@$return->price - @$return->product->buying_price);
+            }
+
+
 
 
            // Fetch payments data

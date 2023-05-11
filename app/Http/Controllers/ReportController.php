@@ -42,7 +42,7 @@ class ReportController extends Controller
             } else if ($request->date == 'range' && $request->has('start_date') && $request->has('end_date')) {
                 $sales = $sales->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
-            $data['total_sales_value'] = $sales->sum(DB::raw('(price * quantity) - discount'));
+            $data['total_sales_value'] = $sales->sum(DB::raw('(price * quantity)'));
 
             $data['total_discount'] = $sales->sum('discount');
 

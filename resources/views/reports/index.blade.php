@@ -428,7 +428,7 @@
                                                         &#8358;{{ number_format($total_sales_value, 0) }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th>Total Discount</th>
+                                                    <th>Sales Discount</th>
                                                     <td class="text-center">
                                                         &#8358;{{ number_format($total_discount, 0) }}</td>
                                                 </tr>

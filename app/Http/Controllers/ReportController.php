@@ -133,6 +133,26 @@ class ReportController extends Controller
 
         }
 
+
+        if ($request->report == 'best_selling') {
+
+            $products = Stock::where('branch_id', $request->branch_id)->where('id','!=',1012)->withCount(['sales' => function ($query) {
+                $query->whereYear('created_at', now()->year);
+            }])
+            ->orderByDesc('sales_count')
+            ->take($request->amount)
+            ->get();
+
+            foreach ($products as $product) {
+                $product->avg_daily_sales = $product->sales_count / Carbon::now()->dayOfYear;
+            }
+
+            $data['products'] = $products;
+            $data['amount'] = $request->amount;
+
+
+        }
+
         if ($request->report == 'gross' && $request->date == 'today') {
             $data['sales'] = Sale::select('receipt_no')->where('branch_id', $request->branch_id)->whereDate('created_at', Carbon::today())->groupBy('receipt_no')->latest()->get();
         }

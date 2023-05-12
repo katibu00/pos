@@ -38,19 +38,21 @@
                                             <select class="form-select mb-2" id="report" name="report" required>
                                                 <option></option>
                                                 <option value="today" @if (@$report == 'today') selected @endif>
-                                                    Today's Report (Summary)
+                                                    Today's Report
                                                 </option>
                                                 <option value="general" @if (@$report == 'general') selected @endif>
                                                     General Report</option>
-                                                <option value="gross" @if (@$report == 'gross') selected @endif>By
+                                                <option value="best_selling" @if (@$report == 'best_selling') selected @endif>Best Selling Items
+                                                </option>
+                                                {{-- <option value="gross" @if (@$report == 'gross') selected @endif>By
                                                     Gross Sales
-                                                </option>
-                                                <option value="inventory" @if (@$report == 'inventory') selected @endif>
+                                                </option> --}}
+                                                {{-- <option value="inventory" @if (@$report == 'inventory') selected @endif>
                                                     By Inventory
-                                                </option>
-                                                <option value="returns" @if (@$report == 'returns') selected @endif>
+                                                </option> --}}
+                                                {{-- <option value="returns" @if (@$report == 'returns') selected @endif>
                                                     Returns
-                                                </option>
+                                                </option> --}}
                                             </select>
                                         </div>
                                         <div class="col-md-3" id="time_div">
@@ -68,6 +70,17 @@
                                                 <option value="range" @if (@$date == 'range') selected @endif>
                                                     Date Range
                                                 </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 d-none" id="amount_div">
+                                            <label>Amount</label>
+                                            <select class="form-select mb-2" id="amount" name="amount">
+                                                <option></option>
+                                                <option value="10" @if (@$amount == 10) selected @endif>10</option>
+                                                <option value="20" @if (@$amount == 20) selected @endif>20</option>
+                                                <option value="50" @if (@$amount == 50) selected @endif>50</option>
+                                                <option value="100" @if (@$amount == 100) selected @endif>100</option>
+                                               
                                             </select>
                                         </div>
 
@@ -487,6 +500,33 @@
                                     </div>
                                 @endif
 
+
+                                @if (@$report == 'best_selling')
+
+                                <div class="table-responsive col-md-5">
+                                    <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S/N</th>
+                                            <th>Product Name</th>
+                                            <th>Average Daily Sales</th>
+                                            <th>Total Sold This Year</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($products as $key => $product)
+                                        <tr>
+                                            <td>{{ $key +1 }}</td>
+                                            <td>{{ $product->name }}</td>
+                                            <td>{{ round($product->avg_daily_sales, 2) }}</td>
+                                            <td>{{ $product->sales_count }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                </div>
+                                
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -523,9 +563,17 @@
                 if (report === 'today') {
                     $('#time_div').addClass('d-none');
                     $('#date').removeAttr('required');
-                } else {
+                    $('#amount_div').addClass('d-none');
+                }
+                if (report === 'general') {
                     $('#time_div').removeClass('d-none');
-                    $('#date').addAttr('required');
+                    $('#date').removeAttr('required');
+                    $('#amount_div').addClass('d-none');
+                }
+                if (report === 'best_selling') {
+                    $('#time_div').addClass('d-none');
+                    $('#date').removeAttr('required');
+                    $('#amount_div').removeClass('d-none');
                 }
 
             });
@@ -535,5 +583,12 @@
     <script type="text/javascript">
         $('#date1').removeClass('d-none');
         $('#date2').removeClass('d-none');</script>
+    @endif
+    @if(@$report == 'best_selling')
+    <script type="text/javascript">
+         $('#time_div').addClass('d-none');
+        $('#amount_div').removeClass('d-none');
+        $('#date').removeAttr('required');
+    </script>
     @endif
 @endsection

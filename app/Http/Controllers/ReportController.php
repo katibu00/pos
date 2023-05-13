@@ -95,9 +95,6 @@ class ReportController extends Controller
                 $data['returns_profit'] += @$return->quantity * (@$return->price - @$return->product->buying_price);
             }
 
-
-
-
            // Fetch payments data
             $payments = Payment::where('branch_id', $request->branch_id);
 
@@ -185,6 +182,9 @@ class ReportController extends Controller
 
         $data['bestSellingItems'] = $bestSellingItems;
         $data['amount'] = $amount;
+
+        $data['itemNames'] = $bestSellingItems->pluck('product.name');
+        $data['quantitiesSold'] = $bestSellingItems->pluck('total_quantity');
 
 
 

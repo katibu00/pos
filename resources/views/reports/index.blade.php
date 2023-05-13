@@ -432,8 +432,9 @@
 
 
                                 @if (@$report == 'general')
+                                <h3>General Report</h3>
                                     <div class="table-responsive col-md-5">
-                                        <table class="table table-striped table-bordered col-md-5">
+                                        <table class="table table-bordered col-md-5">
                                             <tbody class="thead-dark">
                                                 <tr>
                                                     <th>Gross Revenue</th>
@@ -503,23 +504,27 @@
 
                                 @if (@$report == 'best_selling')
 
-                                <div class="table-responsive col-md-5">
+                                <h3>Best Selling Items Report</h3>
+                                <div class="table-responsive">
                                     <table class="table">
+                                        <tbody class="thead-dark">
                                     <thead>
                                         <tr>
                                             <th>S/N</th>
-                                            <th>Product Name</th>
-                                            <th>Average Daily Sales</th>
-                                            <th>Total Sold This Year</th>
+                                            <th>Item Name</th>
+                                            <th>Quantity Sold</th>
+                                            <th>Revenue Generated</th>
+                                            <th>Percentage of Total Sales</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($products as $key => $product)
+                                        @foreach ($bestSellingItems as $key => $item)
                                         <tr>
-                                            <td>{{ $key +1 }}</td>
-                                            <td>{{ $product->name }}</td>
-                                            <td>{{ round($product->avg_daily_sales, 2) }}</td>
-                                            <td>{{ $product->sales_count }}</td>
+                                            <td>{{ $key+1 }}</td>
+                                            <td>{{ $item->product->name }}</td>
+                                            <td>{{ number_format($item->total_quantity, 0) }}</td>
+                                            <td>{{ number_format($item->total_quantity * $item->product->selling_price, 0) }}</td>
+                                            <td>{{ number_format($item->percentage_of_total_sales, 2) }}%</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -560,6 +565,9 @@
 
                 var report = $('#report').val();
 
+                $('#date1').addClass('d-none');
+                $('#date2').addClass('d-none');
+
                 if (report === 'today') {
                     $('#time_div').addClass('d-none');
                     $('#date').removeAttr('required');
@@ -571,8 +579,8 @@
                     $('#amount_div').addClass('d-none');
                 }
                 if (report === 'best_selling') {
-                    $('#time_div').addClass('d-none');
-                    $('#date').removeAttr('required');
+                    // $('#time_div').addClass('d-none');
+                    // $('#date').removeAttr('required');
                     $('#amount_div').removeClass('d-none');
                 }
 
@@ -586,9 +594,7 @@
     @endif
     @if(@$report == 'best_selling')
     <script type="text/javascript">
-         $('#time_div').addClass('d-none');
         $('#amount_div').removeClass('d-none');
-        $('#date').removeAttr('required');
     </script>
     @endif
 @endsection

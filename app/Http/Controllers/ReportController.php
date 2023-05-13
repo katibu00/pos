@@ -28,7 +28,7 @@ class ReportController extends Controller
         // dd($request->all());
         if ($request->report == 'general') {
             // Fetch sales data
-            $sales = Sale::where('branch_id', $request->branch_id)->where('stock_id','!=',1012);
+            $sales = Sale::where('branch_id', $request->branch_id)->whereNotIn('stock_id', [1093, 1012]);
 
             if ($request->date == 'today') {
                 $sales = $sales->whereDate('created_at', now()->format('Y-m-d'));
@@ -136,19 +136,56 @@ class ReportController extends Controller
 
         if ($request->report == 'best_selling') {
 
-            $products = Stock::where('branch_id', $request->branch_id)->where('id','!=',1012)->withCount(['sales' => function ($query) {
-                $query->whereYear('created_at', now()->year);
-            }])
-            ->orderByDesc('sales_count')
-            ->take($request->amount)
-            ->get();
+            $branchId = $request->input('branch_id');
+            $reportType = $request->input('report');
+            $date = $request->input('date');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $amount = $request->input('amount');
 
-            foreach ($products as $product) {
-                $product->avg_daily_sales = $product->sales_count / Carbon::now()->dayOfYear;
-            }
+            
+            $query = Sale::select('stock_id', DB::raw('SUM(quantity) as total_quantity'))
+            ->where('branch_id', $branchId)
+            ->whereNotIn('stock_id', [1093, 1012])
+            ->groupBy('stock_id')
+            ->orderBy('total_quantity', 'desc');
 
-            $data['products'] = $products;
-            $data['amount'] = $request->amount;
+        // Apply date range if selected
+        if ($date == 'range') {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+            $data['start_date'] = $startDate;
+            $data['end_date'] = $endDate;
+
+        }
+
+        // Apply amount limit if selected
+        if ($amount) {
+            $query->take($amount);
+        }
+
+        $bestSellingItems = $query->get();
+
+        // Calculate total sales
+        $totalSales = Sale::where('branch_id', $branchId)
+                            ->whereNotIn('stock_id', [1093, 1012])
+
+                            ->when($date == 'range', function ($query) use ($startDate, $endDate) {
+                                $query->whereBetween('created_at', [$startDate, $endDate]);
+                            })
+                            ->sum('quantity');
+
+        // Retrieve stock information
+        $bestSellingItems->load('product');
+
+        // Calculate percentage of total sales
+        foreach ($bestSellingItems as $item) {
+            $item->percentage_of_total_sales = ($item->total_quantity / $totalSales) * 100;
+        }
+
+
+        $data['bestSellingItems'] = $bestSellingItems;
+        $data['amount'] = $amount;
+
 
 
         }

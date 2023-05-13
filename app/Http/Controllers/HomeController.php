@@ -54,7 +54,7 @@ class HomeController extends Controller
         //quries
         if(isset($request->date))
         {
-            $todaySales = Sale::where('branch_id', $branch_id)->where('stock_id','!=',1012)->whereDate('created_at', $request->date)->get();
+            $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', $request->date)->get();
             $todayReturns = Returns::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
             $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
             $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
@@ -63,7 +63,7 @@ class HomeController extends Controller
             $data['date'] = $request->date;
         }else
         {
-            $todaySales = Sale::where('branch_id', $branch_id)->where('stock_id','!=',1012)->whereDate('created_at', today())->get();
+            $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
             $todayReturns = Returns::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
@@ -165,14 +165,14 @@ class HomeController extends Controller
         $data['revenues'] = $salesData->pluck('revenue');
 
         $salesData = Sale::where('branch_id', $branch_id)
-                    ->where('stock_id','!=',1012)
+                    ->whereNotIn('stock_id', [1093, 1012])
                     ->whereBetween('created_at', [$startDate, $endDate])
                     ->select('stock_id', DB::raw('SUM(quantity) as total_quantity'))
                     ->groupBy('stock_id')
                     ->orderBy('total_quantity', 'DESC')
                     ->take(10)
                     ->get();
-
+                   
         $data['labels'] = $salesData->pluck('product.name');
         $data['values'] = $salesData->pluck('total_quantity');
 

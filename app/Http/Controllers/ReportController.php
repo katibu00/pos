@@ -25,7 +25,6 @@ class ReportController extends Controller
 
     public function generate(Request $request)
     {
-        // dd($request->all());
         if ($request->report == 'general') {
             // Fetch sales data
             $sales = Sale::where('branch_id', $request->branch_id)->whereNotIn('stock_id', [1093, 1012]);
@@ -49,7 +48,7 @@ class ReportController extends Controller
             $data['start_date'] = $request->start_date;
             $data['end_date'] = $request->end_date;
 
-           // Fetch expenses data
+            // Fetch expenses data
             $expenses = Expense::where('branch_id', $request->branch_id);
 
             if ($request->date == 'today') {
@@ -60,15 +59,13 @@ class ReportController extends Controller
                 $expenses = $expenses->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
             } else if ($request->date == 'month') {
                 $expenses = $expenses->whereYear('created_at', now()->year)
-                                    ->whereMonth('created_at', now()->month);
+                    ->whereMonth('created_at', now()->month);
             } else if ($request->date == 'range' && $request->has('start_date') && $request->has('end_date')) {
                 $expenses = $expenses->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
 
             $data['total_expenses_value'] = $expenses->sum('amount');
             $data['total_expenses_count'] = $expenses->count();
-
-
 
             $returns = Returns::where('branch_id', $request->branch_id);
 
@@ -92,10 +89,10 @@ class ReportController extends Controller
 
             $data['returns_profit'] = 0;
             foreach ($returns->get() as $return) {
-                $data['returns_profit'] += @$return->quantity * (@$return->price - @$return->product->buying_price);
+                $data['returns_profit'] += @$return->quantity * (@$return->price-@$return->product->buying_price);
             }
 
-           // Fetch payments data
+            // Fetch payments data
             $payments = Payment::where('branch_id', $request->branch_id);
 
             if ($request->date == 'today') {
@@ -106,7 +103,7 @@ class ReportController extends Controller
                 $payments = $payments->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
             } else if ($request->date == 'month') {
                 $payments = $payments->whereYear('created_at', now()->year)
-                                    ->whereMonth('created_at', now()->month);
+                    ->whereMonth('created_at', now()->month);
             } else if ($request->date == 'range' && $request->has('start_date') && $request->has('end_date')) {
                 $payments = $payments->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
@@ -114,22 +111,19 @@ class ReportController extends Controller
             $data['total_payments_value'] = $payments->sum('payment_amount');
 
             // Fetch stocks data
-            $stocks = Stock::where('branch_id', $request->branch_id)->where('quantity', '>', 0)->where('id','!=',1012)->get();
+            $stocks = Stock::where('branch_id', $request->branch_id)->where('quantity', '>', 0)->where('id', '!=', 1012)->get();
             $data['stock_value'] = $stocks->sum(function ($stock) {
                 return @$stock->quantity * @$stock->buying_price;
             });
 
-
             $data['gross_sales_profit'] = 0;
             foreach ($sales->get() as $sale) {
-                $data['gross_sales_profit'] += @$sale->quantity * (@$sale->price - @$sale->product->buying_price);
+                $data['gross_sales_profit'] += @$sale->quantity * (@$sale->price-@$sale->product->buying_price);
             }
 
             $data['totalCreditsOwed'] = User::where('branch_id', $request->branch_id)->sum('balance');
 
-
         }
-
 
         if ($request->report == 'best_selling') {
 
@@ -140,53 +134,118 @@ class ReportController extends Controller
             $endDate = $request->input('end_date');
             $amount = $request->input('amount');
 
-            
             $query = Sale::select('stock_id', DB::raw('SUM(quantity) as total_quantity'))
-            ->where('branch_id', $branchId)
-            ->whereNotIn('stock_id', [1093, 1012])
-            ->groupBy('stock_id')
-            ->orderBy('total_quantity', 'desc');
+                ->where('branch_id', $branchId)
+                ->whereNotIn('stock_id', [1093, 1012])
+                ->groupBy('stock_id')
+                ->orderBy('total_quantity', 'desc');
 
-        // Apply date range if selected
-        if ($date == 'range') {
-            $query->whereBetween('created_at', [$startDate, $endDate]);
-            $data['start_date'] = $startDate;
-            $data['end_date'] = $endDate;
+            // Apply date range if selected
+            if ($date == 'range') {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+                $data['start_date'] = $startDate;
+                $data['end_date'] = $endDate;
+
+            }
+
+            // Apply amount limit if selected
+            if ($amount) {
+                $query->take($amount);
+            }
+
+            $bestSellingItems = $query->get();
+
+            // Calculate total sales
+            $totalSales = Sale::where('branch_id', $branchId)
+                ->whereNotIn('stock_id', [1093, 1012])
+                ->when($date == 'range', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                })
+                ->sum('quantity');
+
+            // Retrieve stock information
+            $bestSellingItems->load('product');
+
+            // Calculate percentage of total sales
+            foreach ($bestSellingItems as $item) {
+                $item->percentage_of_total_sales = ($item->total_quantity / $totalSales) * 100;
+            }
+
+            $data['bestSellingItems'] = $bestSellingItems;
+            $data['amount'] = $amount;
+
+            $data['itemNames'] = $bestSellingItems->pluck('product.name');
+            $data['quantitiesSold'] = $bestSellingItems->pluck('total_quantity');
 
         }
 
-        // Apply amount limit if selected
-        if ($amount) {
-            $query->take($amount);
-        }
+        if ($request->report == 'inventory') {
 
-        $bestSellingItems = $query->get();
+            $branchId = $request->input('branch_id');
+            $date = $request->input('date');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $inventoryIds = $request->input('inventory_id');
 
-        // Calculate total sales
-        $totalSales = Sale::where('branch_id', $branchId)
-                            ->whereNotIn('stock_id', [1093, 1012])
+            $query = DB::table('stocks')->where('branch_id', $branchId);
 
-                            ->when($date == 'range', function ($query) use ($startDate, $endDate) {
-                                $query->whereBetween('created_at', [$startDate, $endDate]);
-                            })
-                            ->sum('quantity');
+            if (!empty($inventoryIds)) {
+                $query->whereIn('id', $inventoryIds);
+            }
 
-        // Retrieve stock information
-        $bestSellingItems->load('product');
+            $inventoryItems = $query->get();
 
-        // Calculate percentage of total sales
-        foreach ($bestSellingItems as $item) {
-            $item->percentage_of_total_sales = ($item->total_quantity / $totalSales) * 100;
-        }
+            foreach ($inventoryItems as $item) {
+                $totalQuantitySold = DB::table('sales')
+                    ->where('branch_id', $branchId)
+                    ->where('stock_id', $item->id)
+                    ->when($date === 'today', function ($query) {
+                        return $query->whereDate('created_at', today());
+                    })
+                    ->when($date === 'week', function ($query) {
+                        return $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    })
+                    ->when($date === 'month', function ($query) {
+                        return $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month);
+                    })
+                    ->when($date === 'range', function ($query) use ($startDate, $endDate) {
+                        return $query->whereBetween('created_at', [$startDate, $endDate]);
+                    })
+                    ->sum('quantity');
 
+                $salesRevenue = DB::table('sales')
+                    ->where('branch_id', $branchId)
+                    ->where('stock_id', $item->id)
+                    ->when($date === 'today', function ($query) {
+                        return $query->whereDate('created_at', today());
+                    })
+                    ->when($date === 'week', function ($query) {
+                        return $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    })
+                    ->when($date === 'month', function ($query) {
+                        return $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month);
+                    })
+                    ->when($date === 'range', function ($query) use ($startDate, $endDate) {
+                        return $query->whereBetween('created_at', [$startDate, $endDate]);
+                    })
+                    ->sum(DB::raw('price * quantity'));
 
-        $data['bestSellingItems'] = $bestSellingItems;
-        $data['amount'] = $amount;
+                $costOfGoodsSold = $item->buying_price * $totalQuantitySold;
+                $grossProfit = $salesRevenue - $costOfGoodsSold;
 
-        $data['itemNames'] = $bestSellingItems->pluck('product.name');
-        $data['quantitiesSold'] = $bestSellingItems->pluck('total_quantity');
+                $profitMargin = $salesRevenue != 0 ? ($grossProfit / $salesRevenue) * 100 : 0;
 
-
+                $item->total_quantity_sold = $totalQuantitySold;
+                $item->sales_revenue = $salesRevenue;
+                $item->gross_profit = $grossProfit;
+                $item->profit_margin = $profitMargin;
+                $data['inventoryItems'] = $inventoryItems;
+                if($date == 'range'){
+                    $data['start_date'] = $startDate;
+                $data['end_date'] = $endDate;
+                }
+                
+            }
 
         }
 
@@ -309,5 +368,13 @@ class ReportController extends Controller
         $data['branch_id'] = $request->branch_id;
         return view('reports.index', $data);
 
+    }
+
+    public function fetchStocks(Request $request)
+    {
+        $branchId = $request->input('branch_id');
+        $stocks = Stock::where('branch_id', $branchId)->get();
+
+        return response()->json($stocks);
     }
 }

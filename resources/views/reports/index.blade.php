@@ -45,6 +45,9 @@
                                                 <option value="best_selling"
                                                     @if (@$report == 'best_selling') selected @endif>Best Selling Items
                                                 </option>
+                                                <option value="inventory"
+                                                    @if (@$report == 'inventory') selected @endif>By Inventory
+                                                </option>
                                                 {{-- <option value="gross" @if (@$report == 'gross') selected @endif>By
                                                     Gross Sales
                                                 </option> --}}
@@ -54,6 +57,11 @@
                                                 {{-- <option value="returns" @if (@$report == 'returns') selected @endif>
                                                     Returns
                                                 </option> --}}
+                                            </select>
+                                        </div>
+                                         <div class="col-md-3 d-none" id="inventory_div">
+                                            <label>Inventory</label>
+                                            <select class="form-select mb-2" multiple id="inventory_id" name="inventory_id[]">                    
                                             </select>
                                         </div>
                                         <div class="col-md-3" id="time_div">
@@ -74,7 +82,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-3 d-none" id="amount_div">
-                                            <label>Amount</label>
+                                            <label>Number</label>
                                             <select class="form-select mb-2" id="amount" name="amount">
                                                 <option></option>
                                                 <option value="10" @if (@$amount == 10) selected @endif>10
@@ -88,6 +96,7 @@
 
                                             </select>
                                         </div>
+                                       
 
 
                                         <div class="col-md-5 form-group mb-3 d-none" id="date1">
@@ -215,7 +224,7 @@
                                     </div>
                                 @endif
 
-                                @if (isset($inventories))
+                                {{-- @if (isset($inventories))
 
                                     <div class="table-responsive my-5">
 
@@ -326,7 +335,7 @@
 
                                     </div>
 
-                                @endif
+                                @endif --}}
 
 
                                 @if (isset($returns))
@@ -551,6 +560,40 @@
                                     </div>
 
                                 @endif
+
+
+                                @if (@$report == 'inventory')
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S/N</th>
+                                            <th>Inventory Item Name</th>
+                                            <th>Ending Inventory Quantity</th>
+                                            <th>Total Quantity Sold</th>
+                                            <th>Sales Revenue</th>
+                                            <th>Average Selling Price</th>
+                                            <th>Gross Profit</th>
+                                            <th>Gross Profit Margin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($inventoryItems as $key => $item)
+                                            <tr class="text-center">
+                                                <td>{{ $key+1 }}</td>
+                                                <td>{{ $item->name }}</td>
+                                                <td>{{ number_format($item->quantity,0) }}</td>
+                                                <td>{{ number_format($item->total_quantity_sold,0) }}</td>
+                                                <td>{{ number_format($item->sales_revenue,0) }}</td>
+                                                <td>{{ $item->sales_revenue != 0 ? $item->sales_revenue / $item->total_quantity_sold : 0 }}</td>
+                                                <td>{{ number_format($item->gross_profit,0) }}</td>
+                                                <td>{{ number_format($item->profit_margin,2) }}%</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                
+                                @endif
+
                             </div>
                         </div>
                     </div>
@@ -590,16 +633,53 @@
                     $('#time_div').addClass('d-none');
                     $('#date').removeAttr('required');
                     $('#amount_div').addClass('d-none');
+                   $('#inventory_div').addClass('d-none');
                 }
                 if (report === 'general') {
                     $('#time_div').removeClass('d-none');
                     $('#date').removeAttr('required');
                     $('#amount_div').addClass('d-none');
+                    $('#inventory_div').addClass('d-none');
+                    $('#inventory_div').addClass('d-none');
                 }
                 if (report === 'best_selling') {
                     // $('#time_div').addClass('d-none');
                     // $('#date').removeAttr('required');
                     $('#amount_div').removeClass('d-none');
+                    $('#inventory_div').addClass('d-none');
+
+                }
+                if (report === 'inventory') {
+                    $('#time_div').removeClass('d-none');
+                    $('#amount_div').addClass('d-none');
+                    $('#inventory_div').removeClass('d-none');
+
+                    ////
+
+                        var branchId = $('select[name="branch_id"]').val();
+                        if(branchId === ''){
+                            alert('Please Select a branch and Try again.');
+                            return;
+                        }
+
+                        $.ajax({
+                            url: '/fetch_stocks',
+                            type: 'GET',
+                            data: {
+                                branch_id: branchId
+                            },
+                            success: function(response) {
+                                var select = $('#inventory_id');
+                                select.empty(); // Clear previous options
+
+                                $.each(response, function(index, stock) {
+                                    select.append('<option value="' + stock.id + '">' + stock.name + '</option>');
+                                });
+;
+                            }
+                        });
+
+                    ////
                 }
 
             });
@@ -614,6 +694,11 @@
     @if (@$report == 'best_selling')
         <script type="text/javascript">
             $('#amount_div').removeClass('d-none');
+        </script>
+    @endif
+    @if (@$report == 'inventory')
+        <script type="text/javascript">
+            $('#inventory_div').removeClass('d-none');
         </script>
     @endif
 

@@ -212,3 +212,7 @@ Route::get('/send-data', function () {
     return 'this passed';
 
 })->name('send-data');
+
+
+Route::get('/fetch_stocks',  [ReportController::class, 'fetchStocks'])->name('fetch_stocks');
+

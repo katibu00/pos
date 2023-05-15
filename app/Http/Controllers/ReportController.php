@@ -240,12 +240,36 @@ class ReportController extends Controller
                 $item->gross_profit = $grossProfit;
                 $item->profit_margin = $profitMargin;
                 $data['inventoryItems'] = $inventoryItems;
-                if($date == 'range'){
+                if ($date == 'range') {
                     $data['start_date'] = $startDate;
-                $data['end_date'] = $endDate;
+                    $data['end_date'] = $endDate;
                 }
-                
+
             }
+
+            $datas = [];
+            foreach ($inventoryIds as $inventoryId) {
+                $inventoryData = DB::table('sales')
+                    ->select(DB::raw('MONTH(created_at) as month'), DB::raw('SUM(quantity) as total_quantity_sold'))
+                    ->where('stock_id', $inventoryId)
+                    ->whereYear('created_at', now()->year)
+                    ->groupBy('month')
+                    ->orderBy('month')
+                    ->pluck('total_quantity_sold', 'month')
+                    ->all();
+
+                // Fetch the inventory name
+                $inventoryName = DB::table('stocks')->where('id', $inventoryId)->value('name');
+
+                $datas[] = [
+                    'inventoryName' => $inventoryName,
+                    'inventoryData' => $inventoryData,
+                ];
+
+            }
+
+            $data['datas'] = $datas;
+            $data['year'] = date('Y');
 
         }
 
@@ -373,7 +397,7 @@ class ReportController extends Controller
     public function fetchStocks(Request $request)
     {
         $branchId = $request->input('branch_id');
-        $stocks = Stock::where('branch_id', $branchId)->get();
+        $stocks = Stock::where('branch_id', $branchId)->groupBy('name')->get();
 
         return response()->json($stocks);
     }

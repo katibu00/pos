@@ -45,8 +45,8 @@
                                                 <option value="best_selling"
                                                     @if (@$report == 'best_selling') selected @endif>Best Selling Items
                                                 </option>
-                                                <option value="inventory"
-                                                    @if (@$report == 'inventory') selected @endif>By Inventory
+                                                <option value="inventory" @if (@$report == 'inventory') selected @endif>
+                                                    By Inventory
                                                 </option>
                                                 {{-- <option value="gross" @if (@$report == 'gross') selected @endif>By
                                                     Gross Sales
@@ -59,9 +59,10 @@
                                                 </option> --}}
                                             </select>
                                         </div>
-                                         <div class="col-md-3 d-none" id="inventory_div">
+                                        <div class="col-md-3 d-none" id="inventory_div">
                                             <label>Inventory</label>
-                                            <select class="form-select mb-2" multiple id="inventory_id" name="inventory_id[]">                    
+                                            <select class="form-select mb-2" multiple id="inventory_id"
+                                                name="inventory_id[]">
                                             </select>
                                         </div>
                                         <div class="col-md-3" id="time_div">
@@ -87,7 +88,8 @@
                                                 <option></option>
                                                 <option value="10" @if (@$amount == 10) selected @endif>10
                                                 </option>
-                                                <option value="20" @if (@$amount == 20) selected @endif>20
+                                                <option value="20" @if (@$amount == 20) selected @endif>
+                                                    20
                                                 </option>
                                                 <option value="50" @if (@$amount == 50) selected @endif>
                                                     50</option>
@@ -96,7 +98,7 @@
 
                                             </select>
                                         </div>
-                                       
+
 
 
                                         <div class="col-md-5 form-group mb-3 d-none" id="date1">
@@ -454,64 +456,82 @@
                                         <div class="col-md-5">
                                             <div class="card">
                                                 <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered">
-                                                    <tbody class="thead-dark">
-                                                        <tr>
-                                                            <th>Gross Revenue</th>
-                                                            <td class="text-center">&#8358;{{ number_format($total_sales_value, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Sales Discount</th>
-                                                            <td class="text-center">&#8358;{{ number_format($total_discount, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Expenses</th>
-                                                            <td class="text-center">&#8358;{{ number_format($total_expenses_value, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Expense Count</th>
-                                                            <td class="text-center">{{ number_format($total_expenses_count, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Returns</th>
-                                                            <td class="text-center">&#8358;{{ number_format($total_returns_value, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Returns Discount</th>
-                                                            <td class="text-center">&#8358;{{ number_format($total_returns_discount, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Returns Profit</th>
-                                                            <td class="text-center">&#8358;{{ number_format($returns_profit, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Payments</th>
-                                                            <td class="text-center">&#8358;{{ number_format($total_payments_value, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Stock Value</th>
-                                                            <td class="text-center">&#8358;{{ number_format($stock_value, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Gross Sales Profit</th>
-                                                            <td class="text-center">&#8358;{{ number_format($gross_sales_profit, 0) }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Net Sales Profit</th>
-                                                            <td class="text-center">
-                                                                &#8358;{{ number_format($gross_sales_profit - $returns_profit - $total_discount + $total_returns_discount - $total_expenses_count, 0) }}
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Total Credit Owed</th>
-                                                            <td class="text-center">&#8358;{{ number_format($totalCreditsOwed, 0) }}</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                                
-                                            </div>
-                                            </div>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <tbody class="thead-dark">
+                                                                <tr>
+                                                                    <th>Gross Revenue</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($total_sales_value, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Sales Discount</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($total_discount, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Expenses</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($total_expenses_value, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Expense Count</th>
+                                                                    <td class="text-center">
+                                                                        {{ number_format($total_expenses_count, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Returns</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($total_returns_value, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Returns Discount</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($total_returns_discount, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Returns Profit</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($returns_profit, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Payments</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($total_payments_value, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Stock Value</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($stock_value, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Gross Sales Profit</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($gross_sales_profit, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Net Sales Profit</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($gross_sales_profit - $returns_profit - $total_discount + $total_returns_discount - $total_expenses_count, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Credit Owed</th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ number_format($totalCreditsOwed, 0) }}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-7">
@@ -563,35 +583,43 @@
 
 
                                 @if (@$report == 'inventory')
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>S/N</th>
-                                            <th>Inventory Item Name</th>
-                                            <th>Ending Inventory Quantity</th>
-                                            <th>Total Quantity Sold</th>
-                                            <th>Sales Revenue</th>
-                                            <th>Average Selling Price</th>
-                                            <th>Gross Profit</th>
-                                            <th>Gross Profit Margin</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($inventoryItems as $key => $item)
-                                            <tr class="text-center">
-                                                <td>{{ $key+1 }}</td>
-                                                <td>{{ $item->name }}</td>
-                                                <td>{{ number_format($item->quantity,0) }}</td>
-                                                <td>{{ number_format($item->total_quantity_sold,0) }}</td>
-                                                <td>{{ number_format($item->sales_revenue,0) }}</td>
-                                                <td>{{ $item->sales_revenue != 0 ? $item->sales_revenue / $item->total_quantity_sold : 0 }}</td>
-                                                <td>{{ number_format($item->gross_profit,0) }}</td>
-                                                <td>{{ number_format($item->profit_margin,2) }}%</td>
+
+
+                                    <h3>Inventory Items</h3>
+                                    <div>
+                                        <canvas id="chart-inventory" width="400" height="300"></canvas>
+                                    </div>
+
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>S/N</th>
+                                                <th>Inventory Item Name</th>
+                                                <th>Ending Inventory Quantity</th>
+                                                <th>Total Quantity Sold</th>
+                                                <th>Sales Revenue</th>
+                                                <th>Average Selling Price</th>
+                                                <th>Gross Profit</th>
+                                                <th>Gross Profit Margin</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                                
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($inventoryItems as $key => $item)
+                                                <tr class="text-center">
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $item->name }}</td>
+                                                    <td>{{ number_format($item->quantity, 0) }}</td>
+                                                    <td>{{ number_format($item->total_quantity_sold, 0) }}</td>
+                                                    <td>{{ number_format($item->sales_revenue, 0) }}</td>
+                                                    <td>{{ $item->sales_revenue != 0 ? $item->sales_revenue / $item->total_quantity_sold : 0 }}
+                                                    </td>
+                                                    <td>{{ number_format($item->gross_profit, 0) }}</td>
+                                                    <td>{{ number_format($item->profit_margin, 2) }}%</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+
                                 @endif
 
                             </div>
@@ -604,7 +632,7 @@
     <!-- ============ Body content End ============= -->
 @endsection
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
     <script type="text/javascript">
@@ -633,7 +661,7 @@
                     $('#time_div').addClass('d-none');
                     $('#date').removeAttr('required');
                     $('#amount_div').addClass('d-none');
-                   $('#inventory_div').addClass('d-none');
+                    $('#inventory_div').addClass('d-none');
                 }
                 if (report === 'general') {
                     $('#time_div').removeClass('d-none');
@@ -656,28 +684,31 @@
 
                     ////
 
-                        var branchId = $('select[name="branch_id"]').val();
-                        if(branchId === ''){
-                            alert('Please Select a branch and Try again.');
-                            return;
+                    var branchId = $('select[name="branch_id"]').val();
+                    if (branchId === '') {
+                        alert('Please Select a branch and Try again.');
+                        return;
+                    }
+
+
+
+                    $.ajax({
+                        url: '/fetch_stocks',
+                        type: 'GET',
+                        data: {
+                            branch_id: branchId
+                        },
+                        success: function(response) {
+
+                            var select = $('#inventory_id');
+                            select.append('<option>Loading...</option>');
+                            select.empty();
+                            $.each(response, function(index, stock) {
+                                select.append('<option value="' + stock.id + '">' +
+                                    stock.name + '</option>');
+                            });;
                         }
-
-                        $.ajax({
-                            url: '/fetch_stocks',
-                            type: 'GET',
-                            data: {
-                                branch_id: branchId
-                            },
-                            success: function(response) {
-                                var select = $('#inventory_id');
-                                select.empty(); // Clear previous options
-
-                                $.each(response, function(index, stock) {
-                                    select.append('<option value="' + stock.id + '">' + stock.name + '</option>');
-                                });
-;
-                            }
-                        });
+                    });
 
                     ////
                 }
@@ -741,52 +772,107 @@
 
 
     @if (@$report == 'general')
-    <script>
-        var salesChart = new Chart(document.getElementById('salesChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Gross Revenue', 'Sales Discount', 'Total Returns', 'Total Payments'],
-                datasets: [{
-                    label: 'Amount',
-                    data: [
-                        {{ $total_sales_value }},
-                        {{ $total_discount }},
-                        {{ $total_returns_value }},
-                        {{ $total_payments_value }}
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(54, 162, 235, 0.5)',
-                        'rgba(255, 206, 86, 0.5)',
-                        'rgba(75, 192, 192, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+        <script>
+            var salesChart = new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Gross Revenue', 'Sales Discount', 'Total Returns', 'Total Payments'],
+                    datasets: [{
+                        label: 'Amount',
+                        data: [
+                            {{ $total_sales_value }},
+                            {{ $total_discount }},
+                            {{ $total_returns_value }},
+                            {{ $total_payments_value }}
+                        ],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
                 },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Sales Metrics',
-                        font: {
-                            size: 16
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sales Metrics',
+                            font: {
+                                size: 16
+                            }
                         }
                     }
                 }
-            }
+            });
+        </script>
+    @endif
+
+
+    @if (@$report == 'inventory')
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('chart-inventory').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [
+                        @for($month = 1; $month <= 12; $month++)
+                        '{{ \Carbon\Carbon::parse("{$year}-{$month}")->format("F") }}',
+                        @endfor
+                    ],
+                    datasets: [
+                        @foreach($datas as $item)
+                        {
+                            label: '{{ $item['inventoryName'] }}',
+                            data: [
+                                @for($month = 1; $month <= 12; $month++)
+                                    {{ $item['inventoryData'][$month] ?? 0 }},
+                                @endfor
+                            ],
+                            borderColor: getRandomColor(),
+                            borderWidth: 1,
+                            fill: false,
+                        },
+                        @endforeach
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0,
+                        }
+                    }
+                }
+            });
         });
+    
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
     </script>
     
     @endif
+
 @endsection

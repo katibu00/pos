@@ -411,9 +411,9 @@
                                             @foreach ($worstSellingItems as $key => $item)
                                                 <tr>
                                                     <td>{{ $key+1 }}</td>
-                                                    <td>{{ $item->product->name }}</td>
-                                                    <td>{{ number_format($item->total_quantity,0) }}</td>
-                                                    <td>{{ number_format($item->percentage_of_total_sales,2) }}%</td>
+                                                    <td>{{ @$item->product->name }}</td>
+                                                    <td>{{ number_format(@$item->total_quantity,0) }}</td>
+                                                    <td>{{ number_format(@$item->percentage_of_total_sales,2) }}%</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

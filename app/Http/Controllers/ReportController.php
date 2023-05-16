@@ -13,6 +13,7 @@ use App\Models\Stock;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
@@ -186,6 +187,12 @@ class ReportController extends Controller
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
             $inventoryIds = $request->input('inventory_id');
+
+            if (empty($inventoryIds)) {
+                Toastr::error('Please select at least one inventory item.');
+                return redirect()->route('report.index');
+            }
+            
 
             $query = DB::table('stocks')->where('branch_id', $branchId);
 

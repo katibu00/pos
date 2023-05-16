@@ -45,24 +45,20 @@
                                                 <option value="best_selling"
                                                     @if (@$report == 'best_selling') selected @endif>Best Selling Items
                                                 </option>
+                                                <option value="worst_selling"
+                                                    @if (@$report == 'worst_selling') selected @endif>Worst Selling Items
+                                                </option>
                                                 <option value="inventory" @if (@$report == 'inventory') selected @endif>
                                                     By Inventory
                                                 </option>
-                                                {{-- <option value="gross" @if (@$report == 'gross') selected @endif>By
-                                                    Gross Sales
-                                                </option> --}}
-                                                {{-- <option value="inventory" @if (@$report == 'inventory') selected @endif>
-                                                    By Inventory
-                                                </option> --}}
-                                                {{-- <option value="returns" @if (@$report == 'returns') selected @endif>
-                                                    Returns
-                                                </option> --}}
+                                              
                                             </select>
                                         </div>
                                         <div class="col-md-3 d-none" id="inventory_div">
                                             <label>Inventory</label>
                                             <select class="form-select mb-2" multiple id="inventory_id"
                                                 name="inventory_id[]">
+                                                <option>Loading...</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3" id="time_div">
@@ -86,7 +82,8 @@
                                             <label>Number</label>
                                             <select class="form-select mb-2" id="amount" name="amount">
                                                 <option></option>
-                                                <option value="10" @if (@$amount == 10) selected @endif>10
+                                                <option value="10" @if (@$amount == 10) selected @endif>
+                                                    10
                                                 </option>
                                                 <option value="20" @if (@$amount == 20) selected @endif>
                                                     20
@@ -99,8 +96,6 @@
                                             </select>
                                         </div>
 
-
-
                                         <div class="col-md-5 form-group mb-3 d-none" id="date1">
                                             <label>Start Date</label>
                                             <input type="date" class="form-control" value="{{ @$start_date }}"
@@ -112,9 +107,6 @@
                                             <input type="date" class="form-control" value="{{ @$end_date }}"
                                                 name="end_date">
                                         </div>
-
-
-
 
                                         <div class="col-md-2 mt-4">
                                             <button class="btn btn-primary btn-block">Get Report</button>
@@ -226,229 +218,7 @@
                                     </div>
                                 @endif
 
-                                {{-- @if (isset($inventories))
-
-                                    <div class="table-responsive my-5">
-
-                                        <table class="table table-striped table-bordered text-left">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th scope="col" class="text-center">S/N</th>
-                                                    <th scope="col">Item</th>
-                                                    <th scope="col">Retail Price (&#8358;)</th>
-                                                    <th scope="col">Qty Sold </th>
-                                                    <th scope="col">Amount (&#8358;)</th>
-                                                    <th scope="col">Margin (&#8358;)</th>
-                                                    <th scope="col">Qty Remaining</th>
-
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $total_amount = 0;
-                                                    $total_margin = 0;
-                                                    $total_quantity = 0;
-                                                @endphp
-
-
-                                                @foreach ($inventories as $key => $inventory)
-                                                    <tr>
-                                                        <td>{{ $key + 1 }}</td>
-                                                        <td>{{ $inventory['product']['name'] }}</td>
-                                                        <td>{{ number_format($inventory['product']['selling_price'], 0) }}
-                                                        </td>
-                                                        @php
-                                                            if ($frame == 'today') {
-                                                                (float) ($sold = App\Models\Sale::where('stock_id', $inventory->stock_id)
-                                                                    ->whereDate('created_at', Carbon\Carbon::today())
-                                                                    ->sum('quantity'));
-                                                            }
-                                                            if ($frame == 'week') {
-                                                                (float) ($sold = App\Models\Sale::where('stock_id', $inventory->stock_id)
-                                                                    ->whereDate('created_at', [Carbon\Carbon::now()->startOfWeek(), Carbon\Carbon::now()->endOfWeek()])
-                                                                    ->sum('quantity'));
-                                                            }
-                                                            if ($frame == 'month') {
-                                                                (float) ($sold = App\Models\Sale::where('stock_id', $inventory->stock_id)
-                                                                    ->whereMonth('created_at', Carbon\Carbon::now()->month)
-                                                                    ->sum('quantity'));
-                                                            }
-                                                            if ($frame == 'range') {
-                                                                (float) ($sold = App\Models\Sale::where('stock_id', $inventory->stock_id)
-                                                                    ->whereBetween('created_at', [$start, $end])
-                                                                    ->sum('quantity'));
-                                                            }
-                                                        @endphp
-                                                        <td>{{ $quantity = number_format($sold, 0) }}</td>
-                                                        <td>{{ $amount = $sold * $inventory['product']['selling_price'] }}
-                                                        </td>
-                                                        <td>{{ $margin = $sold * ($inventory['product']['selling_price'] - $inventory['product']['buying_price']) }}
-                                                        </td>
-
-
-                                                        @php
-                                                            $total_quantity += (int) $quantity;
-                                                            $total_margin += (int) $margin;
-                                                            $total_amount += $amount;
-                                                            
-                                                            @$remain = App\Models\Stock::select('quantity')
-                                                                ->where('id', $inventory->stock_id)
-                                                                ->first();
-                                                        @endphp
-                                                        <td>{{ number_format(@$remain->quantity, 0) }}</td>
-                                                    </tr>
-                                                @endforeach
-
-                                                <tr>
-                                                    <td colspan="3" class="text-center"><strong>TOTALS</strong></td>
-                                                    <td><strong>{{ number_format($total_quantity, 0) }}</strong></td>
-                                                    <td><strong>{{ $total_amount }}</strong></td>
-                                                    <td><strong>{{ number_format($total_margin, 0) }}</strong></td>
-                                                    <td></td>
-                                                </tr>
-
-
-                                            </tbody>
-                                        </table>
-
-
-                                        <div class="table-responsive my-5">
-                                            <h4>Summary</h4>
-                                            <table class="table table-striped table-bordered text-left col-md-4">
-                                                <thead class="thead-dalrk">
-
-                                                    <tr>
-                                                        <th scope="col">Total Qty of Items Sold: </th>
-                                                        <td>{{ number_format($total_quantity, 0) }}</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="col">Gross Revenue: </th>
-                                                        </th>
-                                                        <td>&#8358;{{ number_format($total_amount, 0) }}</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="col">Margin</th>
-                                                        <td>&#8358;{{ number_format($total_margin, 0) }}</th>
-                                                    </tr>
-                                                </thead>
-                                            </table>
-                                        </div>
-
-
-                                    </div>
-
-                                @endif --}}
-
-
-                                @if (isset($returns))
-
-                                    <div class="table-responsive my-5">
-
-                                        <table class="table table-striped table-bordered text-left">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th scope="col" class="text-center">S/N</th>
-                                                    <th scope="col">Receipt No.</th>
-                                                    <th scope="col">Item</th>
-                                                    <th scope="col">Qty Sold </th>
-                                                    <th scope="col">Qty Returned</th>
-                                                    <th scope="col">Money Returned (&#8358;)</th>
-                                                </tr>
-                                            </thead>
-                                            @php
-                                                $total_money = 0;
-                                                $total_items = 0;
-                                            @endphp
-                                            <tbody>
-                                                @foreach ($returns as $key => $return)
-                                                    <tr>
-                                                        <td>{{ $key + 1 }}</td>
-                                                        <td>{{ $return->receipt_no }}</td>
-                                                        <td>{{ $return['product']['name'] }}</td>
-                                                        <td>{{ $return->sold_qty }}</td>
-                                                        <td>{{ $return->returned_qty }}</td>
-                                                        <td>{{ $return->money_returned }}</td>
-                                                    </tr>
-                                                    @php
-                                                        $total_money += (int) $return->money_returned;
-                                                        $total_items += (int) $return->returned_qty;
-                                                    @endphp
-                                                @endforeach
-
-                                                <tr>
-                                                    <td colspan="4" class="text-center"><strong>TOTALS</strong></td>
-                                                    <td><strong>{{ number_format($total_items, 0) }}</strong></td>
-                                                    <td><strong>&#8358;{{ number_format($total_money, 0) }}</strong></td>
-                                                </tr>
-
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
-
-
-                                @if (isset($gross))
-                                    <div class="table-responsive col-md-5">
-                                        <table class="table table-striped table-bordered col-md-5">
-                                            <tbody class="thead-dark">
-                                                <tr>
-                                                    <th>Gross Revenue</th>
-                                                    <td class="text-center">&#8358;{{ number_format($gross, 0) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Discounts Amount</th>
-                                                    <td class="text-center">&#8358;{{ number_format($discount, 0) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Sales Count</th>
-                                                    <td class="text-center">{{ number_format($sales_count, 0) }}</td>
-                                                </tr>
-                                                {{-- <tr>
-                                                <th>Discounts Counts</th>
-                                                <td class="text-center">{{ number_format($sales_count,0) }}</td>
-                                            </tr> --}}
-                                                <tr>
-                                                    <th>Total Items Sold</th>
-                                                    <td class="text-center">{{ number_format($items_sold, 0) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Total Expenses</th>
-                                                    <td class="text-center">-</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Purchases Amount</th>
-                                                    <td class="text-center">
-                                                        &#8358;{{ number_format($todays_purchases, 0) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Estimates Amount</th>
-                                                    <td class="text-center">
-                                                        &#8358;{{ number_format($todays_estimate, 0) }}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Estimates Count</th>
-                                                    <td class="text-center">{{ number_format($estimate_count, 0) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Returns Amount</th>
-                                                    <td class="text-center">&#8358;{{ number_format($todays_returns, 0) }}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Returns Count</th>
-                                                    <td class="text-center">{{ number_format($returns_count, 0) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Low Stock Counts</th>
-                                                    <td class="text-center">{{ number_format($lows, 0) }} of
-                                                        {{ $total_stock }}</td>
-                                                </tr>
-                                            </tbody>
-                                            <table>
-                                    </div>
-                                @endif
-
+                           
 
                                 @if (@$report == 'general')
                                     <h3>General Report</h3>
@@ -622,6 +392,35 @@
 
                                 @endif
 
+
+                                @if (@$report == 'worst_selling')
+                                    <h3>Worst Selling Items</h3>
+                                    <div>
+                                        <canvas id="chart-worst-selling" width="400" height="400"></canvas>
+                                    </div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>S/N</th>
+                                                <th>Item Name</th>
+                                                <th>Total Quantity Sold</th>
+                                                <th>Percentage of Total Sales</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($worstSellingItems as $key => $item)
+                                                <tr>
+                                                    <td>{{ $key+1 }}</td>
+                                                    <td>{{ $item->product->name }}</td>
+                                                    <td>{{ number_format($item->total_quantity,0) }}</td>
+                                                    <td>{{ number_format($item->percentage_of_total_sales,2) }}%</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
+
+
                             </div>
                         </div>
                     </div>
@@ -670,7 +469,7 @@
                     $('#inventory_div').addClass('d-none');
                     $('#inventory_div').addClass('d-none');
                 }
-                if (report === 'best_selling') {
+                if (report === 'best_selling' || report === 'worst_selling') {
                     // $('#time_div').addClass('d-none');
                     // $('#date').removeAttr('required');
                     $('#amount_div').removeClass('d-none');
@@ -722,7 +521,7 @@
             $('#date2').removeClass('d-none');
         </script>
     @endif
-    @if (@$report == 'best_selling')
+    @if (@$report == 'best_selling' || @$report == 'worst_selling')
         <script type="text/javascript">
             $('#amount_div').removeClass('d-none');
         </script>
@@ -822,33 +621,72 @@
 
 
     @if (@$report == 'inventory')
-    
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var ctx = document.getElementById('chart-inventory').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [
+                            @for ($month = 1; $month <= 12; $month++)
+                                '{{ \Carbon\Carbon::parse("{$year}-{$month}")->format('F') }}',
+                            @endfor
+                        ],
+                        datasets: [
+                            @foreach ($datas as $item)
+                                {
+                                    label: '{{ $item['inventoryName'] }}',
+                                    data: [
+                                        @for ($month = 1; $month <= 12; $month++)
+                                            {{ $item['inventoryData'][$month] ?? 0 }},
+                                        @endfor
+                                    ],
+                                    borderColor: getRandomColor(),
+                                    borderWidth: 1,
+                                    fill: false,
+                                },
+                            @endforeach
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                precision: 0,
+                            }
+                        }
+                    }
+                });
+            });
+
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+        </script>
+    @endif
+
+    @if (@$report == 'worst_selling')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var ctx = document.getElementById('chart-inventory').getContext('2d');
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('chart-worst-selling').getContext('2d');
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: [
-                        @for($month = 1; $month <= 12; $month++)
-                        '{{ \Carbon\Carbon::parse("{$year}-{$month}")->format("F") }}',
-                        @endfor
-                    ],
-                    datasets: [
-                        @foreach($datas as $item)
-                        {
-                            label: '{{ $item['inventoryName'] }}',
-                            data: [
-                                @for($month = 1; $month <= 12; $month++)
-                                    {{ $item['inventoryData'][$month] ?? 0 }},
-                                @endfor
-                            ],
-                            borderColor: getRandomColor(),
-                            borderWidth: 1,
-                            fill: false,
-                        },
-                        @endforeach
-                    ]
+                    labels: {!! $itemNames !!},
+                    datasets: [{
+                        label: 'Total Quantity Sold',
+                        data: {!! $quantitiesSold !!},
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
                 },
                 options: {
                     responsive: true,
@@ -856,23 +694,12 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            precision: 0,
+                            precision: 0
                         }
                     }
                 }
             });
         });
-    
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
     </script>
-    
-    @endif
-
+@endif
 @endsection

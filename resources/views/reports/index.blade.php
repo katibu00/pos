@@ -22,9 +22,9 @@
                                 <form action="{{ route('report.generate') }}" method="post">
                                     @csrf
                                     <div class="row row-xs">
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" id="branch_div">
                                             <label>Branch</label>
-                                            <select class="form-select mb-2" name="branch_id" required>
+                                            <select class="form-select mb-2" id="branch_id" name="branch_id">
                                                 <option value=""></option>
                                                 @foreach ($branches as $branch)
                                                     <option value="{{ $branch->id }}"
@@ -51,14 +51,15 @@
                                                 <option value="inventory" @if (@$report == 'inventory') selected @endif>
                                                     By Inventory
                                                 </option>
-                                                <option value="compare_branches"
-                                                    @if (@$report == 'compare_branches') selected @endif>
-                                                    Compare Branches (Last 30 days)
-                                                </option>
                                                 <option value="compare_graphs"
                                                     @if (@$report == 'compare_graphs') selected @endif>
                                                     Compare Branches (Graphically)
                                                 </option>
+                                                <option value="compare_branches"
+                                                    @if (@$report == 'compare_branches') selected @endif>
+                                                    Compare Branches (Tabular)
+                                                </option>
+                                               
 
                                             </select>
                                         </div>
@@ -69,9 +70,21 @@
                                                 <option>Loading...</option>
                                             </select>
                                         </div>
+                                        <div class="col-md-3 d-none" id="duration_div">
+                                            <label>Duration</label>
+                                            <select class="form-select mb-2" id="duration"
+                                                name="duration">
+                                                <option value=""></option>
+                                                <option value="5" @if (@$duration == 5) selected @endif>Last 5 Days{{ @$duration }}</option>
+                                                <option value="10" @if (@$duration == 10) selected @endif>Last 10 Days</option>
+                                                <option value="30" @if (@$duration == 30) selected @endif>Last 30 Days</option>
+                                                <option value="50" @if (@$duration == 50) selected @endif>Last 50 Days</option>
+                                                <option value="100" @if (@$duration == 100) selected @endif>Last 100 Days</option>
+                                            </select>
+                                        </div>
                                         <div class="col-md-3" id="time_div">
                                             <label>Time</label>
-                                            <select class="form-select mb-2" id="date" name="date" required>
+                                            <select class="form-select mb-2" id="date" name="date">
                                                 <option></option>
                                                 <option value="today" @if (@$date == 'today') selected @endif>
                                                     Today</option>
@@ -470,209 +483,52 @@
 
 
                                 @if (@$report == 'compare_graphs')
+                                    <div class="container">
+                                        <h1>Branch Metrics Comparison</h1>
 
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h3>Gross Sales</h3>
+                                                <canvas id="grossSalesChart" width="400" height="200"></canvas>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h3>Net Profit</h3>
+                                                <canvas id="netProfitChart" width="400" height="200"></canvas>
+                                            </div>
+                                        </div>
 
-    <div class="container">
-        <h1>Branch Metrics Comparison</h1>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h3>Expenses</h3>
+                                                <div style="width: 100%; height: 400px;">
+                                                    <canvas id="expensesChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h3>Credits Owed</h3>
+                                                <div style="width: 100%; height: 400px;">
+                                                    <canvas id="creditsOwedChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Gross Sales</h3>
-                <canvas id="grossSalesChart" width="400" height="200"></canvas>
-            </div>
-            <div class="col-md-6">
-                <h3>Net Profit</h3>
-                <canvas id="netProfitChart" width="400" height="200"></canvas>
-            </div>
-        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h3>Discounts</h3>
+                                                <div style="width: 100%; height: 400px;">
+                                                    <canvas id="discountsChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h3>Stocks Value Left</h3>
+                                                <div style="width: 100%; height: 400px;">
+                                                    <canvas id="stock-chart"></canvas>
+                                                </div>
+                                            </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Expenses</h3>
-                <canvas id="expensesChart" width="400" height="200"></canvas>
-            </div>
-            <div class="col-md-6">
-                <h3>Credits Owed</h3>
-                <canvas id="creditsOwedChart" width="400" height="200"></canvas>
-            </div>
-        </div>
+                                        </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Discounts</h3>
-                <canvas id="discountsChart" width="400" height="200"></canvas>
-            </div>
-            <!-- Add more metrics charts here -->
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Retrieve the metrics data from the PHP variable
-            var metrics = @json($metrics);
-
-            // Prepare the data for the charts
-            var branchLabels = metrics.map(function(metric) {
-                return metric.branch.name;
-            });
-
-            var grossSalesData = metrics.map(function(metric) {
-                return metric.grossSales;
-            });
-
-            var netProfitData = metrics.map(function(metric) {
-                return metric.netProfit;
-            });
-
-            var expensesData = metrics.map(function(metric) {
-                return metric.expenses;
-            });
-
-            var creditsOwedData = metrics.map(function(metric) {
-                return metric.creditsOwed;
-            });
-
-            var discountsData = metrics.map(function(metric) {
-                return metric.discounts;
-            });
-
-            // Create the charts
-            var grossSalesChart = new Chart(document.getElementById('grossSalesChart'), {
-                type: 'line',
-                data: {
-                    labels: branchLabels,
-                    datasets: [{
-                        label: 'Gross Sales',
-                        data: grossSalesData,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            var netProfitChart = new Chart(document.getElementById('netProfitChart'), {
-                type: 'line',
-                data: {
-                    labels: branchLabels,
-                    datasets: [{
-                        label: 'Net Profit',
-                        data: netProfitData,
-                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                        borderColor: 'rgba(255, 159, 64, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            var expensesChart = new Chart(document.getElementById('expensesChart'), {
-                type: 'pie',
-                data: {
-                    labels: branchLabels,
-                    datasets: [{
-                        label: 'Expenses',
-                        data: expensesData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {}
-            });
-
-            var creditsOwedChart = new Chart(document.getElementById('creditsOwedChart'), {
-                type: 'pie',
-                data: {
-                    labels: branchLabels,
-                    datasets: [{
-                        label: 'Credits Owed',
-                        data: creditsOwedData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {}
-            });
-
-            var discountsChart = new Chart(document.getElementById('discountsChart'), {
-                type: 'pie',
-                data: {
-                    labels: branchLabels,
-                    datasets: [{
-                        label: 'Discounts',
-                        data: discountsData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {}
-            });
-
-            // Add more charts here for additional metrics
-
-        });
-    </script>
-
-
+                                    </div>
                                 @endif
 
                             </div>
@@ -715,6 +571,9 @@
                     $('#date').removeAttr('required');
                     $('#amount_div').addClass('d-none');
                     $('#inventory_div').addClass('d-none');
+                    $('#duration_div').addClass('d-none');
+                    $('#branch_div').removeClass('d-none');
+                    $('#branch_id').addAttr('required');
                 }
                 if (report === 'general') {
                     $('#time_div').removeClass('d-none');
@@ -722,18 +581,43 @@
                     $('#amount_div').addClass('d-none');
                     $('#inventory_div').addClass('d-none');
                     $('#inventory_div').addClass('d-none');
+                    $('#time_div').removeClass('d-none');
+                    $('#date').addAttr('required');
+                    $('#duration_div').addClass('d-none');
+                    $('#branch_div').removeClass('d-none');
+                    $('#branch_id').addAttr('required');
+
                 }
+                if (report === 'compare_graphs' || report === 'compare_branches') {
+                    $('#time_div').addClass('d-none');
+                    $('#date').removeAttr('required');
+                    $('#amount_div').addClass('d-none');
+                    $('#inventory_div').addClass('d-none');
+                    $('#inventory_div').addClass('d-none');
+                    $('#branch_div').addClass('d-none');
+                    $('#duration_div').removeClass('d-none');
+                    $('#duration').addAttr('required');
+                }
+
                 if (report === 'best_selling' || report === 'worst_selling') {
-                    // $('#time_div').addClass('d-none');
-                    // $('#date').removeAttr('required');
+                    $('#branch_div').removeClass('d-none');
                     $('#amount_div').removeClass('d-none');
                     $('#inventory_div').addClass('d-none');
+                    $('#time_div').removeClass('d-none');
+                    $('#duration_div').addClass('d-none');
+                  
+
 
                 }
                 if (report === 'inventory') {
+                    $('#branch_div').removeClass('d-none');
                     $('#time_div').removeClass('d-none');
                     $('#amount_div').addClass('d-none');
                     $('#inventory_div').removeClass('d-none');
+                    $('#time_div').removeClass('d-none');
+                    $('#duration_div').addClass('d-none');
+                 
+
 
                     ////
 
@@ -783,6 +667,21 @@
     @if (@$report == 'inventory')
         <script type="text/javascript">
             $('#inventory_div').removeClass('d-none');
+        </script>
+    @endif
+    @if (@$report == 'compare_graphs' || @$report == 'compare_branches')
+        <script type="text/javascript">
+            $('#time_div').addClass('d-none');
+            $('#date').removeAttr('required');
+            $('#amount_div').addClass('d-none');
+            $('#inventory_div').addClass('d-none');
+            $('#inventory_div').addClass('d-none');
+            $('#branch_div').addClass('d-none');
+            $('#branch_id').removeAttr('required');
+            $('#duration_div').removeClass('d-none');
+            $('#duration').addAttr('required');
+
+
         </script>
     @endif
 
@@ -958,57 +857,224 @@
     @endif
 
 
-    @if (@$report == 'comparge_branches')
-        <canvas id="grossSalesChart" width="400" height="100"></canvas>
-
+    @if (@$report == 'compare_graphs')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var ctx = document.getElementById('chart').getContext('2d');
-                new Chart(ctx, {
+                // Retrieve the metrics data from the PHP variable
+                var metrics = @json($metrics);
+
+                // Prepare the data for the charts
+                var branchLabels = metrics.map(function(metric) {
+                    return metric.branch.name;
+                });
+
+                var grossSalesData = metrics.map(function(metric) {
+                    return metric.grossSales;
+                });
+
+                var netProfitData = metrics.map(function(metric) {
+                    return metric.netProfit;
+                });
+
+                var expensesData = metrics.map(function(metric) {
+                    return metric.expenses;
+                });
+
+                var creditsOwedData = metrics.map(function(metric) {
+                    return metric.creditsOwed;
+                });
+
+                var discountsData = metrics.map(function(metric) {
+                    return metric.discounts;
+                });
+
+                // Create the charts
+                var grossSalesChart = new Chart(document.getElementById('grossSalesChart'), {
                     type: 'line',
                     data: {
-                        labels: [
-                            @foreach ($months as $month)
-                                '{{ $month }}',
-                            @endforeach
-                        ],
-                        datasets: [
-                            @foreach ($branches as $branch)
-                                {
-                                    label: '{{ $branch->name }}',
-                                    data: [
-                                        @foreach ($grossSales[$branchId] as $sales)
-                                            {{ $sales }},
-                                        @endforeach
-                                    ],
-                                    borderColor: getRandomColor(),
-                                    borderWidth: 1,
-                                    fill: false,
-                                },
-                            @endforeach
-                        ]
+                        labels: branchLabels,
+                        datasets: [{
+                            label: 'Gross Sales',
+                            data: grossSalesData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true,
-                                precision: 0,
+                                beginAtZero: true
                             }
                         }
                     }
                 });
-            });
 
-            function getRandomColor() {
-                var letters = '0123456789ABCDEF';
-                var color = '#';
-                for (var i = 0; i < 6; i++) {
-                    color += letters[Math.floor(Math.random() * 16)];
-                }
-                return color;
-            }
+                var netProfitChart = new Chart(document.getElementById('netProfitChart'), {
+                    type: 'line',
+                    data: {
+                        labels: branchLabels,
+                        datasets: [{
+                            label: 'Net Profit',
+                            data: netProfitData,
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                var expensesChart = new Chart(document.getElementById('expensesChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: branchLabels,
+                        datasets: [{
+                            label: 'Expenses',
+                            data: expensesData,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {}
+                });
+
+                var creditsOwedChart = new Chart(document.getElementById('creditsOwedChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: branchLabels,
+                        datasets: [{
+                            label: 'Credits Owed',
+                            data: creditsOwedData,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {}
+                });
+
+                var discountsChart = new Chart(document.getElementById('discountsChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: branchLabels,
+                        datasets: [{
+                            label: 'Discounts',
+                            data: discountsData,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {}
+                });
+
+                // Add more charts here for additional metrics
+
+            });
+        </script>
+
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var data = [
+                    @foreach ($metrics as $metric)
+                        {
+                            label: "{{ $metric['branch']->name }}",
+                            value: {{ $metric['stockValueLeft'] }}
+                        },
+                    @endforeach
+                ];
+
+                var ctx = document.getElementById('stock-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.map(item => item.label),
+                        datasets: [{
+                            data: data.map(item => item.value),
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        legend: {
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Stock Value Left in Each Branch'
+                        }
+                    }
+                });
+            });
         </script>
     @endif
 

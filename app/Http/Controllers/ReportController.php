@@ -11,9 +11,9 @@ use App\Models\Returns;
 use App\Models\Sale;
 use App\Models\Stock;
 use App\Models\User;
+use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
@@ -192,7 +192,6 @@ class ReportController extends Controller
                 Toastr::error('Please select at least one inventory item.');
                 return redirect()->route('report.index');
             }
-            
 
             $query = DB::table('stocks')->where('branch_id', $branchId);
 
@@ -280,33 +279,32 @@ class ReportController extends Controller
 
         }
 
-
         if ($request->report == 'worst_selling') {
-            
+
             $branchId = $request->input('branch_id');
             $date = $request->input('date');
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
             $amount = $request->input('amount');
-        
+
             $query = Sale::select('stock_id', DB::raw('SUM(quantity) as total_quantity'))
                 ->where('branch_id', $branchId)
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->groupBy('stock_id')
                 ->orderBy('total_quantity');
-        
+
             // Apply date range if selected
             if ($date == 'range') {
                 $query->whereBetween('created_at', [$startDate, $endDate]);
             }
-        
+
             // Apply amount limit if selected
             if ($amount) {
                 $query->take($amount);
             }
-        
+
             $worstSellingItems = $query->get();
-        
+
             // Calculate total sales
             $totalSales = Sale::where('branch_id', $branchId)
                 ->whereNotIn('stock_id', [1093, 1012])
@@ -314,150 +312,144 @@ class ReportController extends Controller
                     $query->whereBetween('created_at', [$startDate, $endDate]);
                 })
                 ->sum('quantity');
-        
+
             // Retrieve stock information
             $worstSellingItems->load('product');
-        
+
             // Calculate percentage of total sales
             foreach ($worstSellingItems as $item) {
                 $item->percentage_of_total_sales = ($item->total_quantity / $totalSales) * 100;
             }
-        
+
             $data['worstSellingItems'] = $worstSellingItems;
             $data['amount'] = $amount;
-        
+
             $data['itemNames'] = $worstSellingItems->pluck('product.name');
             $data['quantitiesSold'] = $worstSellingItems->pluck('total_quantity');
         }
-        
 
         if ($request->report == 'compare_branches') {
 
-                // Retrieve all branches
-                $branches = Branch::all();
-            
-                // Get the date 30 days ago from today
-                $startDate = Carbon::now()->subDays(30)->startOfDay();
-                
-            
-                // Initialize arrays to store comparison data
-                $grossSales = [];
-                $expenses = [];
-                $returns = [];
-                $creditsOwed = [];
-                $discounts = [];
-                $netProfit = [];
-                $avgTransactionValue = [];
-                $inventoryTurnover = [];
-            
-                // Calculate and store data for each branch
-                foreach ($branches as $branch) {
-                    $branchId = $branch->id;
-            
-                    // Calculate gross sales
-                    $grossSales[$branchId] = Sale::where('branch_id', $branchId)
-                        ->whereBetween('created_at', [$startDate, Carbon::now()])
-                        ->sum(DB::raw('price * quantity'));
-            
-                    // Calculate expenses
-                    $expenses[$branchId] = Expense::where('branch_id', $branchId)
-                        ->whereBetween('date', [$startDate->format('Y-m-d'), Carbon::now()->format('Y-m-d')])
-                        ->sum('amount');
-            
-                    // Calculate returns
-                    $returns[$branchId] = Returns::where('branch_id', $branchId)
-                        ->whereBetween('created_at', [$startDate, Carbon::now()])
-                        ->sum(DB::raw('price * quantity'));
-            
-                   // Retrieve all users in a specific branch
-                    $users = User::where('branch_id', $branchId)->get();
+            // Retrieve all branches
+            $branches = Branch::all();
 
-                    // Sum the balances of all users
-                    $creditsOwed[$branchId] = $users->sum('balance');
-            
-                    // Calculate discounts
-                    $discounts[$branchId] = Sale::where('branch_id', $branchId)
-                        ->whereBetween('created_at', [$startDate, Carbon::now()])
-                        ->sum('discount');
-            
-                    // Calculate net profit
-                    $netProfit[$branchId] = Sale::with('product')
+            // Get the date 30 days ago from today
+            $startDate = Carbon::now()->subDays($request->duration)->startOfDay();
+
+            // Initialize arrays to store comparison data
+            $grossSales = [];
+            $expenses = [];
+            $returns = [];
+            $creditsOwed = [];
+            $discounts = [];
+            $netProfit = [];
+            $avgTransactionValue = [];
+            $inventoryTurnover = [];
+
+            // Calculate and store data for each branch
+            foreach ($branches as $branch) {
+                $branchId = $branch->id;
+
+                // Calculate gross sales
+                $grossSales[$branchId] = Sale::where('branch_id', $branchId)
+                    ->whereBetween('created_at', [$startDate, Carbon::now()])
+                    ->sum(DB::raw('price * quantity'));
+
+                // Calculate expenses
+                $expenses[$branchId] = Expense::where('branch_id', $branchId)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), Carbon::now()->format('Y-m-d')])
+                    ->sum('amount');
+
+                // Calculate returns
+                $returns[$branchId] = Returns::where('branch_id', $branchId)
+                    ->whereBetween('created_at', [$startDate, Carbon::now()])
+                    ->sum(DB::raw('price * quantity'));
+
+                // Retrieve all users in a specific branch
+                $users = User::where('branch_id', $branchId)->get();
+
+                // Sum the balances of all users
+                $creditsOwed[$branchId] = $users->sum('balance');
+
+                // Calculate discounts
+                $discounts[$branchId] = Sale::where('branch_id', $branchId)
+                    ->whereBetween('created_at', [$startDate, Carbon::now()])
+                    ->sum('discount');
+
+                // Calculate net profit
+                $netProfit[$branchId] = Sale::with('product')
                     ->where('branch_id', $branchId)
                     ->whereBetween('created_at', [$startDate, Carbon::now()])
                     ->get()
                     ->sum(function ($sale) {
-                        return $sale->quantity * ($sale->price - $sale->product->buying_price) - $sale->discount;
+                        return @$sale->quantity * (@$sale->price-@$sale->product->buying_price)-@$sale->discount;
                     });
-            
-                    // Calculate average transaction value
-                    $avgTransactionValue[$branchId] = Sale::where('branch_id', $branchId)
-                        ->whereBetween('created_at', [$startDate, Carbon::now()])
-                        ->avg('price');
-            
-                    // Calculate inventory turnover
-                    $inventoryTurnover[$branchId] = Sale::where('branch_id', $branchId)
-                        ->whereBetween('created_at', [$startDate, Carbon::now()])
-                        ->sum('quantity');
-                }
-            
-                $data = [
-                    'branches' => $branches,
-                    'grossSales' => $grossSales,
-                    'expenses' => $expenses,
-                    'returns' => $returns,
-                    'creditsOwed' => $creditsOwed,
-                    'discounts' => $discounts,
-                    'netProfit' => $netProfit,
-                    'avgTransactionValue' => $avgTransactionValue,
-                    'inventoryTurnover' => $inventoryTurnover,
-                ];
-            
-           
+
+                // Calculate average transaction value
+                $avgTransactionValue[$branchId] = Sale::where('branch_id', $branchId)
+                    ->whereBetween('created_at', [$startDate, Carbon::now()])
+                    ->avg('price');
+
+                // Calculate inventory turnover
+                $inventoryTurnover[$branchId] = Sale::where('branch_id', $branchId)
+                    ->whereBetween('created_at', [$startDate, Carbon::now()])
+                    ->sum('quantity');
+            }
+
+            $data = [
+                'branches' => $branches,
+                'grossSales' => $grossSales,
+                'expenses' => $expenses,
+                'returns' => $returns,
+                'creditsOwed' => $creditsOwed,
+                'discounts' => $discounts,
+                'netProfit' => $netProfit,
+                'avgTransactionValue' => $avgTransactionValue,
+                'inventoryTurnover' => $inventoryTurnover,
+                'duration'=> $request->duration,
+            ];
 
         }
-
 
         if ($request->report == 'compare_graphs') {
 
+            // Retrieve the metrics for each branch
+            $branches = Branch::all();
+            $startDate = Carbon::now()->subDays($request->duration);
 
-    // Retrieve the metrics for each branch
-    $branches = Branch::all();
-    $startDate = Carbon::now()->subDays(30);
-    $metrics = [];
+            $metrics = [];
 
-    foreach ($branches as $branch) {
-        $branchMetrics = [
-            'branch' => $branch,
-            'grossSales' => Sale::join('stocks', 'sales.stock_id', '=', 'stocks.id')
-                ->where('sales.branch_id', $branch->id)
-                ->whereBetween('sales.created_at', [$startDate, Carbon::now()])
-                ->sum(DB::raw('sales.price * sales.quantity')),
-            'netProfit' => Sale::join('stocks', 'sales.stock_id', '=', 'stocks.id')
-                ->where('sales.branch_id', $branch->id)
-                ->whereBetween('sales.created_at', [$startDate, Carbon::now()])
-                ->sum(DB::raw('sales.quantity * (sales.price - stocks.buying_price) - sales.discount')),
-            'expenses' => Expense::where('branch_id', $branch->id)
-                ->whereBetween('date', [$startDate, Carbon::now()])
-                ->sum('amount'),
-            'creditsOwed' => User::where('branch_id', $branch->id)->sum('balance'),
-            'discounts' => Sale::where('branch_id', $branch->id)
-                ->whereBetween('created_at', [$startDate, Carbon::now()])
-                ->sum('discount'),
-        ];
+            foreach ($branches as $branch) {
+                $branchMetrics = [
+                    'branch' => $branch,
+                    'grossSales' => Sale::join('stocks', 'sales.stock_id', '=', 'stocks.id')
+                        ->where('sales.branch_id', $branch->id)
+                        ->whereBetween('sales.created_at', [$startDate, Carbon::now()])
+                        ->sum(DB::raw('sales.price * sales.quantity')),
+                    'netProfit' => Sale::join('stocks', 'sales.stock_id', '=', 'stocks.id')
+                        ->where('sales.branch_id', $branch->id)
+                        ->whereBetween('sales.created_at', [$startDate, Carbon::now()])
+                        ->sum(DB::raw('sales.quantity * (sales.price - stocks.buying_price) - sales.discount')),
+                    'expenses' => Expense::where('branch_id', $branch->id)
+                        ->whereBetween('date', [$startDate, Carbon::now()])
+                        ->sum('amount'),
+                    'creditsOwed' => User::where('branch_id', $branch->id)->sum('balance'),
+                    'discounts' => Sale::where('branch_id', $branch->id)
+                        ->whereBetween('created_at', [$startDate, Carbon::now()])
+                        ->sum('discount'),
+                    'stockValueLeft' => Stock::where('branch_id', $branch->id)->sum(DB::raw('quantity * buying_price')),
 
-        $metrics[] = $branchMetrics;
-    }
+                ];
 
-    $data = [
-        'metrics' => $metrics,
-    ];
+                $metrics[] = $branchMetrics;
+            }
 
-
-
+            $data = [
+                'metrics' => $metrics,
+                'duration'=> $request->duration,
+            ];
 
         }
-       
-        
 
         if ($request->report == 'today') {
 

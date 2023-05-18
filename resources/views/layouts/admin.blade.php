@@ -20,7 +20,7 @@
         <li
             class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('purchase.index') }}">
-                <div><i class="icon-wpforms"></i>Purchases</div>
+                <div>Purchases</div>
             </a>
         </li>
         <li class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }}">
@@ -51,7 +51,7 @@
     <ul class="sub-menu-container">
         <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('sales.index') }}">
-                <div><i class="icon-wpforms"></i>Sales</div>
+                <div>Sales</div>
             </a>
         </li>
         <li class="menu-item {{ $route == 'credit.index' ? 'current' : '' }}">
@@ -85,13 +85,13 @@
         <li
             class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('users.index') }}">
-                <div><i class="icon-wpforms"></i>Staff</div>
+                <div>Staff</div>
             </a>
         </li>
         <li
             class="menu-item {{ $route == 'admin.salary_advance.index' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('admin.salary_advance.index') }}">
-                <div><i class="icon-wpforms"></i>Salary Advance</div>
+                <div>Salary Advance</div>
             </a>
         </li>
     </ul>
@@ -105,7 +105,7 @@
     <ul class="sub-menu-container">
         <li class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('estimate.index') }}">
-                <div><i class="icon-wpforms"></i>Estimate</div>
+                <div>Estimate</div>
             </a>
         </li>
         <li class="menu-item {{ $route == 'estimate.all.index' ? 'current' : '' }}">

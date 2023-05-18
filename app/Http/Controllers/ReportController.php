@@ -352,6 +352,7 @@ class ReportController extends Controller
 
                 // Calculate gross sales
                 $grossSales[$branchId] = Sale::where('branch_id', $branchId)
+                    ->whereNotIn('stock_id', [1093, 1012])
                     ->whereBetween('created_at', [$startDate, Carbon::now()])
                     ->sum(DB::raw('price * quantity'));
 
@@ -379,6 +380,7 @@ class ReportController extends Controller
                 // Calculate net profit
                 $netProfit[$branchId] = Sale::with('product')
                     ->where('branch_id', $branchId)
+                    ->whereNotIn('stock_id', [1093, 1012])
                     ->whereBetween('created_at', [$startDate, Carbon::now()])
                     ->get()
                     ->sum(function ($sale) {
@@ -387,6 +389,7 @@ class ReportController extends Controller
 
                 // Calculate average transaction value
                 $avgTransactionValue[$branchId] = Sale::where('branch_id', $branchId)
+                    ->whereNotIn('stock_id', [1093, 1012])
                     ->whereBetween('created_at', [$startDate, Carbon::now()])
                     ->avg('price');
 
@@ -424,10 +427,12 @@ class ReportController extends Controller
                     'branch' => $branch,
                     'grossSales' => Sale::join('stocks', 'sales.stock_id', '=', 'stocks.id')
                         ->where('sales.branch_id', $branch->id)
+                        ->whereNotIn('stock_id', [1093, 1012])
                         ->whereBetween('sales.created_at', [$startDate, Carbon::now()])
                         ->sum(DB::raw('sales.price * sales.quantity')),
                     'netProfit' => Sale::join('stocks', 'sales.stock_id', '=', 'stocks.id')
                         ->where('sales.branch_id', $branch->id)
+                        ->whereNotIn('stock_id', [1093, 1012])
                         ->whereBetween('sales.created_at', [$startDate, Carbon::now()])
                         ->sum(DB::raw('sales.quantity * (sales.price - stocks.buying_price) - sales.discount')),
                     'expenses' => Expense::where('branch_id', $branch->id)
@@ -435,6 +440,7 @@ class ReportController extends Controller
                         ->sum('amount'),
                     'creditsOwed' => User::where('branch_id', $branch->id)->sum('balance'),
                     'discounts' => Sale::where('branch_id', $branch->id)
+                        ->whereNotIn('stock_id', [1093, 1012])
                         ->whereBetween('created_at', [$startDate, Carbon::now()])
                         ->sum('discount'),
                     'stockValueLeft' => Stock::where('branch_id', $branch->id)->sum(DB::raw('quantity * buying_price')),

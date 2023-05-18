@@ -51,7 +51,15 @@
                                                 <option value="inventory" @if (@$report == 'inventory') selected @endif>
                                                     By Inventory
                                                 </option>
-                                              
+                                                <option value="compare_branches"
+                                                    @if (@$report == 'compare_branches') selected @endif>
+                                                    Compare Branches (Last 30 days)
+                                                </option>
+                                                <option value="compare_graphs"
+                                                    @if (@$report == 'compare_graphs') selected @endif>
+                                                    Compare Branches (Graphically)
+                                                </option>
+
                                             </select>
                                         </div>
                                         <div class="col-md-3 d-none" id="inventory_div">
@@ -218,7 +226,7 @@
                                     </div>
                                 @endif
 
-                           
+
 
                                 @if (@$report == 'general')
                                     <h3>General Report</h3>
@@ -410,16 +418,262 @@
                                         <tbody>
                                             @foreach ($worstSellingItems as $key => $item)
                                                 <tr>
-                                                    <td>{{ $key+1 }}</td>
+                                                    <td>{{ $key + 1 }}</td>
                                                     <td>{{ @$item->product->name }}</td>
-                                                    <td>{{ number_format(@$item->total_quantity,0) }}</td>
-                                                    <td>{{ number_format(@$item->percentage_of_total_sales,2) }}%</td>
+                                                    <td>{{ number_format(@$item->total_quantity, 0) }}</td>
+                                                    <td>{{ number_format(@$item->percentage_of_total_sales, 2) }}%</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
                                 @endif
 
+
+                                @if (@$report == 'compare_branches')
+
+
+                                    <div class="table-responsive">
+
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Branch</th>
+                                                    <th>Gross Sales</th>
+                                                    <th>Expenses</th>
+                                                    <th>Returns</th>
+                                                    <th>Credits Owed</th>
+                                                    <th>Discounts</th>
+                                                    <th>Net Profit</th>
+                                                    <th>Avg Transaction Value</th>
+                                                    <th>Inventory Turnover</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($branches as $branch)
+                                                    <tr>
+                                                        <td>{{ $branch->name }}</td>
+                                                        <td>{{ number_format($grossSales[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($expenses[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($returns[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($creditsOwed[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($discounts[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($netProfit[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($avgTransactionValue[$branch->id], 0) }}</td>
+                                                        <td>{{ number_format($inventoryTurnover[$branch->id], 0) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                @endif
+
+
+                                @if (@$report == 'compare_graphs')
+
+
+    <div class="container">
+        <h1>Branch Metrics Comparison</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Gross Sales</h3>
+                <canvas id="grossSalesChart" width="400" height="200"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h3>Net Profit</h3>
+                <canvas id="netProfitChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Expenses</h3>
+                <canvas id="expensesChart" width="400" height="200"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h3>Credits Owed</h3>
+                <canvas id="creditsOwedChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Discounts</h3>
+                <canvas id="discountsChart" width="400" height="200"></canvas>
+            </div>
+            <!-- Add more metrics charts here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Retrieve the metrics data from the PHP variable
+            var metrics = @json($metrics);
+
+            // Prepare the data for the charts
+            var branchLabels = metrics.map(function(metric) {
+                return metric.branch.name;
+            });
+
+            var grossSalesData = metrics.map(function(metric) {
+                return metric.grossSales;
+            });
+
+            var netProfitData = metrics.map(function(metric) {
+                return metric.netProfit;
+            });
+
+            var expensesData = metrics.map(function(metric) {
+                return metric.expenses;
+            });
+
+            var creditsOwedData = metrics.map(function(metric) {
+                return metric.creditsOwed;
+            });
+
+            var discountsData = metrics.map(function(metric) {
+                return metric.discounts;
+            });
+
+            // Create the charts
+            var grossSalesChart = new Chart(document.getElementById('grossSalesChart'), {
+                type: 'line',
+                data: {
+                    labels: branchLabels,
+                    datasets: [{
+                        label: 'Gross Sales',
+                        data: grossSalesData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            var netProfitChart = new Chart(document.getElementById('netProfitChart'), {
+                type: 'line',
+                data: {
+                    labels: branchLabels,
+                    datasets: [{
+                        label: 'Net Profit',
+                        data: netProfitData,
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            var expensesChart = new Chart(document.getElementById('expensesChart'), {
+                type: 'pie',
+                data: {
+                    labels: branchLabels,
+                    datasets: [{
+                        label: 'Expenses',
+                        data: expensesData,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {}
+            });
+
+            var creditsOwedChart = new Chart(document.getElementById('creditsOwedChart'), {
+                type: 'pie',
+                data: {
+                    labels: branchLabels,
+                    datasets: [{
+                        label: 'Credits Owed',
+                        data: creditsOwedData,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {}
+            });
+
+            var discountsChart = new Chart(document.getElementById('discountsChart'), {
+                type: 'pie',
+                data: {
+                    labels: branchLabels,
+                    datasets: [{
+                        label: 'Discounts',
+                        data: discountsData,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {}
+            });
+
+            // Add more charts here for additional metrics
+
+        });
+    </script>
+
+
+                                @endif
 
                             </div>
                         </div>
@@ -673,33 +927,89 @@
     @endif
 
     @if (@$report == 'worst_selling')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var ctx = document.getElementById('chart-worst-selling').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: {!! $itemNames !!},
-                    datasets: [{
-                        label: 'Total Quantity Sold',
-                        data: {!! $quantitiesSold !!},
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            precision: 0
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var ctx = document.getElementById('chart-worst-selling').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {!! $itemNames !!},
+                        datasets: [{
+                            label: 'Total Quantity Sold',
+                            data: {!! $quantitiesSold !!},
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                precision: 0
+                            }
                         }
                     }
-                }
+                });
             });
-        });
-    </script>
-@endif
+        </script>
+    @endif
+
+
+    @if (@$report == 'comparge_branches')
+        <canvas id="grossSalesChart" width="400" height="100"></canvas>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var ctx = document.getElementById('chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [
+                            @foreach ($months as $month)
+                                '{{ $month }}',
+                            @endforeach
+                        ],
+                        datasets: [
+                            @foreach ($branches as $branch)
+                                {
+                                    label: '{{ $branch->name }}',
+                                    data: [
+                                        @foreach ($grossSales[$branchId] as $sales)
+                                            {{ $sales }},
+                                        @endforeach
+                                    ],
+                                    borderColor: getRandomColor(),
+                                    borderWidth: 1,
+                                    fill: false,
+                                },
+                            @endforeach
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                precision: 0,
+                            }
+                        }
+                    }
+                });
+            });
+
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+        </script>
+    @endif
+
 @endsection

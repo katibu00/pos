@@ -112,7 +112,7 @@ class ReportController extends Controller
             $data['total_payments_value'] = $payments->sum('payment_amount');
 
             // Fetch stocks data
-            $stocks = Stock::where('branch_id', $request->branch_id)->where('quantity', '>', 0)->where('id', '!=', 1012)->get();
+            $stocks = Stock::where('branch_id', $request->branch_id)->where('quantity', '>', 0)->whereNotIn('id', [1093, 1012])->get();
             $data['stock_value'] = $stocks->sum(function ($stock) {
                 return @$stock->quantity * @$stock->buying_price;
             });

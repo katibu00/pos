@@ -443,7 +443,7 @@ class ReportController extends Controller
                         ->whereNotIn('stock_id', [1093, 1012])
                         ->whereBetween('created_at', [$startDate, Carbon::now()])
                         ->sum('discount'),
-                    'stockValueLeft' => Stock::where('branch_id', $branch->id)->sum(DB::raw('quantity * buying_price')),
+                    'stockValueLeft' => Stock::where('branch_id', $branch->id)->whereNotIn('id', [1093, 1012])->sum(DB::raw('quantity * buying_price')),
 
                 ];
 

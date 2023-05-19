@@ -59,7 +59,15 @@
                                                     @if (@$report == 'compare_branches') selected @endif>
                                                     Compare Branches (Tabular)
                                                 </option>
-                                               
+                                                <option value="best_customers"
+                                                    @if (@$report == 'best_customers') selected @endif>
+                                                    Top Customers
+                                                </option>
+                                                <option value="best_debtors"
+                                                    @if (@$report == 'best_debtors') selected @endif>
+                                                    Top Debtors
+                                                </option>
+
 
                                             </select>
                                         </div>
@@ -72,14 +80,18 @@
                                         </div>
                                         <div class="col-md-3 d-none" id="duration_div">
                                             <label>Duration</label>
-                                            <select class="form-select mb-2" id="duration"
-                                                name="duration">
+                                            <select class="form-select mb-2" id="duration" name="duration">
                                                 <option value=""></option>
-                                                <option value="5" @if (@$duration == 5) selected @endif>Last 5 Days{{ @$duration }}</option>
-                                                <option value="10" @if (@$duration == 10) selected @endif>Last 10 Days</option>
-                                                <option value="30" @if (@$duration == 30) selected @endif>Last 30 Days</option>
-                                                <option value="50" @if (@$duration == 50) selected @endif>Last 50 Days</option>
-                                                <option value="100" @if (@$duration == 100) selected @endif>Last 100 Days</option>
+                                                <option value="5" @if (@$duration == 5) selected @endif>
+                                                    Last 5 Days{{ @$duration }}</option>
+                                                <option value="10" @if (@$duration == 10) selected @endif>
+                                                    Last 10 Days</option>
+                                                <option value="30" @if (@$duration == 30) selected @endif>
+                                                    Last 30 Days</option>
+                                                <option value="50" @if (@$duration == 50) selected @endif>
+                                                    Last 50 Days</option>
+                                                <option value="100" @if (@$duration == 100) selected @endif>
+                                                    Last 100 Days</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3" id="time_div">
@@ -531,6 +543,64 @@
                                     </div>
                                 @endif
 
+
+                                @if (@$report == 'best_customers')
+
+                                    <h1>Best Customers</h1>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rank</th>
+                                                <th>Customer</th>
+                                                <th>Total Purchases</th>
+                                                <th>Total Payments</th>
+                                                <th>Total Discounts</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($rankedCustomers as $key => $rankedCustomer)
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $rankedCustomer['customer']->first_name }}
+                                                        {{ $rankedCustomer['customer']->last_name }}</td>
+                                                    <td>{{ number_format($rankedCustomer['total_purchases'], 0) }}</td>
+                                                    <td>{{ number_format($rankedCustomer['total_payments'], 0) }}</td>
+                                                    <td>{{ number_format($rankedCustomer['total_discounts'], 0) }}</td>
+                                                    <td>{{ number_format($rankedCustomer['balance'], 0) }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+
+                                @endif
+
+
+                                @if (@$report == 'best_debtors')
+
+                                    <h1>Best Debtors</h1>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rank</th>
+                                                <th>Customer</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($debtors as $key => $debtor)
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $debtor->first_name }} {{ $debtor->last_name }}</td>
+                                                    <td>{{ number_format($debtor->balance,0) }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+
+
+                                @endif
+
                             </div>
                         </div>
                     </div>
@@ -575,7 +645,7 @@
                     $('#branch_div').removeClass('d-none');
                     $('#branch_id').addAttr('required');
                 }
-                if (report === 'general') {
+                if (report === 'general' || report === 'best_customers') {
                     $('#time_div').removeClass('d-none');
                     $('#date').removeAttr('required');
                     $('#amount_div').addClass('d-none');
@@ -605,7 +675,7 @@
                     $('#inventory_div').addClass('d-none');
                     $('#time_div').removeClass('d-none');
                     $('#duration_div').addClass('d-none');
-                  
+
 
 
                 }
@@ -616,7 +686,7 @@
                     $('#inventory_div').removeClass('d-none');
                     $('#time_div').removeClass('d-none');
                     $('#duration_div').addClass('d-none');
-                 
+
                     ////
 
                     var branchId = $('select[name="branch_id"]').val();
@@ -676,8 +746,6 @@
             $('#branch_id').removeAttr('required');
             $('#duration_div').removeClass('d-none');
             $('#duration').addAttr('required');
-
-
         </script>
     @endif
 

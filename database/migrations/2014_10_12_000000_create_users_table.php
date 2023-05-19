@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('branch_id');
             $table->string('first_name');
             $table->string('last_name');
+            $table->float('balance')->default(0);
             $table->string('usertype')->default('customer');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

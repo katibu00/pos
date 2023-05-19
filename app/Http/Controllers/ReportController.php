@@ -409,7 +409,7 @@ class ReportController extends Controller
                 'netProfit' => $netProfit,
                 'avgTransactionValue' => $avgTransactionValue,
                 'inventoryTurnover' => $inventoryTurnover,
-                'duration'=> $request->duration,
+                'duration' => $request->duration,
             ];
 
         }
@@ -452,8 +452,66 @@ class ReportController extends Controller
 
             $data = [
                 'metrics' => $metrics,
-                'duration'=> $request->duration,
+                'duration' => $request->duration,
             ];
+
+        }
+
+        if ($request->report == 'best_customers') {
+
+            $branchId = $request->input('branch_id');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            $customers = User::where('branch_id', $branchId)->get();
+
+            $rankedCustomers = [];
+            foreach ($customers as $customer) {
+                $totalPurchases = DB::table('sales')
+                    ->where('customer_name', $customer->id)
+                    ->where('branch_id', $branchId)
+                    ->sum(DB::raw('price * quantity'));
+
+                $totalPayments = DB::table('payments')
+                    ->where('customer_id', $customer->id)
+                    ->where('branch_id', $branchId)
+                    ->sum('payment_amount');
+
+                $totalDiscounts = DB::table('sales')
+                    ->where('customer_name', $customer->id)
+                    ->where('branch_id', $branchId)
+                    ->sum('discount');
+
+                $balance = $customer->balance;
+
+                $rankedCustomers[] = [
+                    'customer' => $customer,
+                    'total_purchases' => $totalPurchases,
+                    'total_payments' => $totalPayments,
+                    'total_discounts' => $totalDiscounts,
+                    'balance' => $balance,
+                ];
+            }
+
+            usort($rankedCustomers, function ($a, $b) {
+                return $b['total_purchases'] <=> $a['total_purchases'];
+            });
+
+            $rankedCustomers = array_slice($rankedCustomers, 0, 20);
+
+            $data['rankedCustomers'] = $rankedCustomers;
+
+        }
+
+
+        if ($request->report == 'best_debtors') {
+            $branchId = $request->input('branch_id');
+            $debtors = User::where('branch_id', $branchId)
+            ->orderBy('balance', 'desc')
+            ->take(20) 
+            ->get();
+
+            $data['debtors'] = $debtors;
 
         }
 
@@ -532,4 +590,27 @@ class ReportController extends Controller
 
         return response()->json($stocks);
     }
+
+    private function applySalesFilters($query, $date, $branchId, $startDate, $endDate)
+    {
+        $today = Carbon::now()->startOfDay();
+
+        if ($date === 'today') {
+            $query->whereDate('created_at', $today);
+        } elseif ($date === 'this_week') {
+            $query->whereBetween('created_at', [$today->startOfWeek(), $today->endOfWeek()]);
+        } elseif ($date === 'this_month') {
+            $query->whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month);
+        } elseif ($date === 'range') {
+            $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        if (!is_null($branchId)) {
+            $query->whereHas('sales', function ($query) use ($branchId) {
+                $query->where('branch_id', $branchId);
+            });
+        }
+    }
+
 }

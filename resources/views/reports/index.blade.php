@@ -488,24 +488,24 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <h3>Gross Sales</h3>
+                                                <h3>Gross Sales:</h3>
                                                 <canvas id="grossSalesChart" width="400" height="200"></canvas>
                                             </div>
                                             <div class="col-md-6">
-                                                <h3>Net Profit</h3>
+                                                <h3>Net Profit:</h3>
                                                 <canvas id="netProfitChart" width="400" height="200"></canvas>
                                             </div>
                                         </div>
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <h3>Expenses</h3>
+                                                <h3>Expenses:</h3>
                                                 <div style="width: 100%; height: 400px;">
                                                     <canvas id="expensesChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <h3>Credits Owed</h3>
+                                                <h3>Credits Owed:</h3>
                                                 <div style="width: 100%; height: 400px;">
                                                     <canvas id="creditsOwedChart"></canvas>
                                                 </div>
@@ -514,13 +514,13 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <h3>Discounts</h3>
+                                                <h3>Discounts:</h3>
                                                 <div style="width: 100%; height: 400px;">
                                                     <canvas id="discountsChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <h3>Stocks Value Left</h3>
+                                                <h3>Stocks Value Left:</h3>
                                                 <div style="width: 100%; height: 400px;">
                                                     <canvas id="stock-chart"></canvas>
                                                 </div>
@@ -617,8 +617,6 @@
                     $('#time_div').removeClass('d-none');
                     $('#duration_div').addClass('d-none');
                  
-
-
                     ////
 
                     var branchId = $('select[name="branch_id"]').val();
@@ -626,8 +624,6 @@
                         alert('Please Select a branch and Try again.');
                         return;
                     }
-
-
 
                     $.ajax({
                         url: '/fetch_stocks',

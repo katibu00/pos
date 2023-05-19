@@ -56,19 +56,19 @@
                                                     <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
                                                         <td></td>
                                                         <td></td>
-                                                        <td>{{ $sale['product']['name'] }}</td>
-                                                        <td>{{ number_format($sale->price, 0) }}</td>
-                                                        <td>{{ $sale->quantity }}</td>
-                                                        <td>{{ number_format($sale->price * $sale->quantity, 0) }}</td>
+                                                        <td>{{ @$sale->product->name }}</td>
+                                                        <td>{{ number_format(@$sale->price, 0) }}</td>
+                                                        <td>{{ @$sale->quantity }}</td>
+                                                        <td>{{ number_format(@$sale->price * @$sale->quantity, 0) }}</td>
                                                     </tr>
                                                     @php
-                                                        $total_amount += $sale->price * $sale->quantity;
-                                                        $total_discount += $sale->discount;
+                                                        $total_amount += @$sale->price * @$sale->quantity;
+                                                        $total_discount += @$sale->discount;
                                                         $total_return = 0;
                                                         $return_discount = 0;
                                                     @endphp
                                                 @endforeach
-                                                <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
+                                                <tr @if (@$sale->status == 'partial') class="bg-info text-white" @endif>
                                                     <td colspan="3"></td>
                                                     <td colspan="2" class="text-center">Sub Total</td>
                                                     <td>{{ number_format($total_amount, 0) }}</td>

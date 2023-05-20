@@ -33,17 +33,17 @@
                                             <tr>
                                                 <td>1</td>
                                                 <td>
-
                                                     <select class="form-select product_id" id="product_id"
-                                                        name="product_id[]" required>
-                                                        <option value=""></option>
-                                                        @foreach ($products as $product)
-                                                            <option data-price="{{ $product->selling_price }}"
-                                                                value="{{ $product->id }}">{{ $product->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-
+                                                    name="product_id[]" required>
+                                                    <option value=""></option>
+                                                    @foreach ($products as $product)
+                                                        <option data-price="{{ $product->selling_price }}"
+                                                            data-quantity="{{ $product->quantity }}"
+                                                            value="{{ $product->id }}">{{ $product->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                    <input type="hidden" class="product_qty" value="">
                                                 </td>
                                                 <td>
                                                     <input type="number" name="quantity[]" step="any" id="quantity"
@@ -133,7 +133,7 @@
             var numberofrow = ($('.addMoreRow tr').length - 0) + 1;
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
-                '</select></td>' +
+                '</select><input type="hidden" class="product_qty" value=""></td>' +
                 '<td><input type="number" name="quantity[]" class="form-control quantity" required></td>' +
                 '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
                 '<td><input type="number" name="discount[]" class="form-control discount"></td>' +
@@ -159,27 +159,100 @@
             $('#total_hidden').val(total);
         }
 
+        // $('.addMoreRow').delegate('.product_id', 'change', function() {
+        //     var tr = $(this).parent().parent();
+        //     var price = tr.find('.product_id option:selected').attr('data-price');
+        //     tr.find('.price').val(price);
+        //     var qty = tr.find('.quantity').val() - 0;
+        //     var disc = tr.find('.discount').val() - 0;
+        //     var price = tr.find('.price').val() - 0;
+        //     var total_amount = (qty * price) - ((qty * price * disc) / 100);
+        //     tr.find('.total_amount').val(total_amount);
+        //     TotalAmount();
+        // });
+
+        // $('.addMoreRow').delegate('.quantity, .discount', 'keyup', function() {
+        //     var tr = $(this).parent().parent();
+        //     var qty = tr.find('.quantity').val() - 0;
+        //     var disc = tr.find('.discount').val() - 0;
+        //     var price = tr.find('.price').val() - 0;
+        //     var total_amount = (qty * price - disc);
+        //     tr.find('.total_amount').val(total_amount);
+        //     TotalAmount();
+        // });
+
         $('.addMoreRow').delegate('.product_id', 'change', function() {
             var tr = $(this).parent().parent();
             var price = tr.find('.product_id option:selected').attr('data-price');
+            var quantity = tr.find('.product_id option:selected').attr('data-quantity');
             tr.find('.price').val(price);
             var qty = tr.find('.quantity').val() - 0;
+
+            if (quantity < 1) {
+                Command: toastr["error"](quantity + ' Remaining')
+                toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                tr.find('.quantity').val('');
+            }
+
+
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price) - ((qty * price * disc) / 100);
             tr.find('.total_amount').val(total_amount);
+            tr.find('.product_qty').val(quantity);
             TotalAmount();
         });
+
 
         $('.addMoreRow').delegate('.quantity, .discount', 'keyup', function() {
             var tr = $(this).parent().parent();
             var qty = tr.find('.quantity').val() - 0;
+            var product_qty = tr.find('.product_qty').val() - 0;
+            if (qty > product_qty) {
+                Command: toastr["error"](product_qty + ' Product Quantity Remaining Only.')
+                toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                tr.find('.quantity').val('');
+                
+            }
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price - disc);
             tr.find('.total_amount').val(total_amount);
             TotalAmount();
         });
+
         $('#paid_amount').keyup(function() {
             var total = $('#total_hidden').val();
             var paid_amount = $(this).val();

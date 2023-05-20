@@ -350,7 +350,6 @@
 
 
                                 @if (@$report == 'best_selling')
-
                                     <h3>Best Selling Items Report</h3>
                                     <div>
                                         <canvas id="best-selling-chart"></canvas>
@@ -363,7 +362,7 @@
                                                         <th>S/N</th>
                                                         <th>Item Name</th>
                                                         <th>Quantity Sold</th>
-                                                        <th>Revenue Generated</th>
+                                                        <th>Revenue Generated (&#8358;)</th>
                                                         <th>Percentage of Total Sales</th>
                                                     </tr>
                                                 </thead>
@@ -387,7 +386,6 @@
 
                                 @if (@$report == 'inventory')
 
-
                                     <h3>Inventory Items</h3>
                                     <div>
                                         <canvas id="chart-inventory" width="400" height="300"></canvas>
@@ -400,9 +398,9 @@
                                                 <th>Inventory Item Name</th>
                                                 <th>Ending Inventory Quantity</th>
                                                 <th>Total Quantity Sold</th>
-                                                <th>Sales Revenue</th>
-                                                <th>Average Selling Price</th>
-                                                <th>Gross Profit</th>
+                                                <th>Sales Revenue (&#8358;)</th>
+                                                <th>Average Selling Price (&#8358;)</th>
+                                                <th>Gross Profit (&#8358;)</th>
                                                 <th>Gross Profit Margin</th>
                                             </tr>
                                         </thead>
@@ -431,13 +429,14 @@
                                     <div>
                                         <canvas id="chart-worst-selling" width="400" height="400"></canvas>
                                     </div>
+                                    <div class="table-responsive">
                                     <table class="table">
                                         <thead>
                                             <tr>
                                                 <th>S/N</th>
                                                 <th>Item Name</th>
-                                                <th>Total Quantity Sold</th>
-                                                <th>Percentage of Total Sales</th>
+                                                <th>Total Quantity Sold (&#8358;)</th>
+                                                <th>Percentage of Total Sales (&#8358;)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -451,6 +450,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                    </div>
                                 @endif
 
 
@@ -458,19 +458,18 @@
 
 
                                     <div class="table-responsive">
-
                                         <table class="table">
                                             <thead>
                                                 <tr>
                                                     <th>Branch</th>
-                                                    <th>Gross Sales</th>
-                                                    <th>Expenses</th>
-                                                    <th>Returns</th>
-                                                    <th>Credits Owed</th>
-                                                    <th>Discounts</th>
-                                                    <th>Net Profit</th>
-                                                    <th>Avg Transaction Value</th>
-                                                    <th>Inventory Turnover</th>
+                                                    <th>Gross Sales (&#8358;)</th>
+                                                    <th>Expenses (&#8358;)</th>
+                                                    <th>Returns (&#8358;)</th>
+                                                    <th>Credits Owed (&#8358;)</th>
+                                                    <th>Discounts (&#8358;)</th>
+                                                    <th>Net Profit (&#8358;)</th>
+                                                    <th>Avg Transaction Value (&#8358;)</th>
+                                                    <th>Inventory Turnover (&#8358;)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -546,16 +545,17 @@
 
                                 @if (@$report == 'best_customers')
 
-                                    <h1>Best Customers</h1>
+                                    <h1>Top Customers</h1>
+                                    <div class="table-responsive">
                                     <table class="table">
                                         <thead>
                                             <tr>
                                                 <th>Rank</th>
                                                 <th>Customer</th>
-                                                <th>Total Purchases</th>
-                                                <th>Total Payments</th>
-                                                <th>Total Discounts</th>
-                                                <th>Balance</th>
+                                                <th>Total Purchases (&#8358;)</th>
+                                                <th>Total Payments (&#8358;)</th>
+                                                <th>Total Discounts (&#8358;)</th>
+                                                <th>Balance (&#8358;)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -572,19 +572,21 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                    </div>
 
                                 @endif
 
 
                                 @if (@$report == 'best_debtors')
 
-                                    <h1>Best Debtors</h1>
+                                    <h1>Top Debtors</h1>
+                                    <div class="table-responsive">
                                     <table class="table">
                                         <thead>
                                             <tr>
                                                 <th>Rank</th>
                                                 <th>Customer</th>
-                                                <th>Balance</th>
+                                                <th>Balance (&#8358;)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -597,8 +599,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-
-
+                                    </div>
                                 @endif
 
                             </div>

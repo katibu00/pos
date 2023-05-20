@@ -196,8 +196,14 @@ class UsersController extends Controller
                         DB::commit();
 
                         // Success message or redirect
-
-                        $customer->balance = $customer->balance - $request->partial_amount[$i];
+                        if($request->payment_method == 'deposit')
+                        {
+                            $customer->balance = $customer->balance - $request->partial_amount[$i];
+                        }else
+                        {
+                            $customer->balance = $customer->balance - $request->partial_amount[$i];
+                        }
+                       
 
                         array_push($receipt_nos, $request->receipt_no[$i]);
                         $total_amount_paid += $request->partial_amount[$i];

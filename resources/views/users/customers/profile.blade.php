@@ -284,6 +284,7 @@
                                     <option value="cash">Cash</option>
                                     <option value="transfer">Transfer</option>
                                     <option value="POS">POS</option>
+                                    <option value="deposit">Deposit</option>
                                 </select>
                             </div>
                         </div>

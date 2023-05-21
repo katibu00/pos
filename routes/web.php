@@ -163,6 +163,11 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
 
     Route::get('/admin/salary_advance', [SalaryAdvanceController::class, 'adminIndex'])->name('admin.salary_advance.index');
 
+    Route::post('/admin/salary_advance/approve', [SalaryAdvanceController::class, 'approve'])->name('cashier.salary_advance.approve');
+    Route::post('/admin/salary_advance/reject', [SalaryAdvanceController::class, 'reject'])->name('cashier.salary_advance.reject');
+    Route::post('/admin/salary_advance/reject', [SalaryAdvanceController::class, 'delete'])->name('cashier.salary_advance.delete');
+
+
 });
 Route::get('/post-data', [ApiController::class, 'store'])->name('post-data');
 

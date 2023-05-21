@@ -18,7 +18,7 @@
                 @php
                     $total_amount = 0;
                     $total_discount = 0;
-                    $estimated = App\Models\Estimate::select('price','quantity','discount','customer','created_at','estimate_no')
+                    $estimated = App\Models\Estimate::select('price','quantity','discount','customer','created_at','estimate_no','note')
                                             ->where('estimate_no', $row->estimate_no)
                                             ->get();
                     foreach ($estimated as $estimate) {

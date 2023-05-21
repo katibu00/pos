@@ -10,56 +10,7 @@
                         <div class="col-4 "><span class="text-bold fs-16">Salary Advance This Month ({{ auth()->user()->branch->name }} Branch)</span></div>
                     </div>
                     <div class="card-body">
-
-                        <div class="table-responsive">
-                            <table class=" table"
-                                style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Cashier</th>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Amount</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($staffs as $key => $staff)
-                                   
-                                        <tr>
-                                            <th scope="row">{{ $key + 1 }}</th>
-                                            <td>{{ $staff->first_name.' '. $staff->last_name }}</td>
-                                             <td colspan="4"></td>
-                                        </tr>
-                                        @php
-                                            $requests = App\Models\SalaryAdvance::where('cashier_id',$staff->id)->whereMonth('created_at',  \Carbon\Carbon::now()->month)->get();
-                                        @endphp
-
-                                        @foreach ($requests as $key2 => $request)
-                                        <tr>
-                                            <td></td>
-                                            <th scope="row">{{ $key + 1 }}</th>
-                                            <td>{{ $request->created_at->diffForHumans() }}</td>
-                                            <td>&#8358;{{ number_format($request->amount, 0) }}</td>
-                                            <td>{{ ucfirst($request->status) }}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-success mb-1" data-toggle="modal"
-                                                    data-target="#delete{{ $key }}"><i
-                                                        class="fa fa-check"></i></button>
-                                                <button class="btn btn-sm btn-danger mb-1" data-toggle="modal"
-                                                    data-target="#delete{{ $key }}"><i
-                                                        class="fa fa-times"></i></button>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-                        </div>
-
+                        @include('users.salary_advance.admin_index_table')
                     </div>
 
                 </div>
@@ -112,18 +63,16 @@
 @endsection
 
 @section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script>
-    $(document).on('click', '.deleteItem', function(e) {
+    $(document).on('click', '.reject', function(e) {
         e.preventDefault();
 
         let id = $(this).data('id');
-        let name = $(this).data('name');
+        let amount = $(this).data('amount');
 
         swal({
-                title: "Delete "+name+"?",
-                text: "Once deleted, all Payments by the user will also be deleted and you will no able to restore it!",
+                title: "Reject Request of NGN"+amount+"?",
+                text: "Only Approved Request will be deducted from staff Salaries",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
@@ -142,16 +91,14 @@
                     });
                     $.ajax({
                         type: "POST",
-                        url: "{{ route('customers.delete') }}",
+                        url: "{{ route('cashier.salary_advance.reject') }}",
                         data: data,
                         dataType: "json",
                         success: function(res) {
 
                             if(res.status == 200)
                             {
-                                Command: toastr["success"](
-                                        "User deleted Successfully."
-                                    );
+                                Command: toastr["success"](res.message);
                                     toastr.options = {
                                         closeButton: false,
                                         debug: false,
@@ -169,7 +116,93 @@
                                         showMethod: "fadeIn",
                                         hideMethod: "fadeOut",
                                     };
-                                    window.location.replace('{{ route('customers.index') }}');
+                                    $('.table').load(location.href + ' .table');
+
+                            }else
+                            {
+
+                            Command: toastr["error"](
+                            "Error Occured"
+                                );
+                                toastr.options = {
+                                    closeButton: false,
+                                    debug: false,
+                                    newestOnTop: false,
+                                    progressBar: false,
+                                    positionClass: "toast-top-right",
+                                    preventDuplicates: false,
+                                    onclick: null,
+                                    showDuration: "300",
+                                    hideDuration: "1000",
+                                    timeOut: "5000",
+                                    extendedTimeOut: "1000",
+                                    showEasing: "swing",
+                                    hideEasing: "linear",
+                                    showMethod: "fadeIn",
+                                    hideMethod: "fadeOut",
+                                };
+                            }
+                            
+
+                        }
+                    });
+
+                }
+            });
+    });
+    $(document).on('click', '.approve', function(e) {
+        e.preventDefault();
+
+        let id = $(this).data('id');
+        let amount = $(this).data('amount');
+
+        swal({
+                title: "Approve Request of NGN"+amount+"?",
+                text: "Only Approved Request will be deducted from staff Salaries",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+
+                    var data = {
+                        'id': id,
+                    }
+
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('cashier.salary_advance.approve') }}",
+                        data: data,
+                        dataType: "json",
+                        success: function(res) {
+
+                            if(res.status == 200)
+                            {
+                                Command: toastr["success"](res.message);
+                                    toastr.options = {
+                                        closeButton: false,
+                                        debug: false,
+                                        newestOnTop: false,
+                                        progressBar: false,
+                                        positionClass: "toast-top-right",
+                                        preventDuplicates: false,
+                                        onclick: null,
+                                        showDuration: "300",
+                                        hideDuration: "1000",
+                                        timeOut: "5000",
+                                        extendedTimeOut: "1000",
+                                        showEasing: "swing",
+                                        hideEasing: "linear",
+                                        showMethod: "fadeIn",
+                                        hideMethod: "fadeOut",
+                                    };
+                                    $('.table').load(location.href + ' .table');
 
                             }else
                             {

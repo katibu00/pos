@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('salary_advances', function (Blueprint $table) {
             $table->id();
             $table->string('cashier_id');
+            $table->string('staff_id');
             $table->integer('amount');
             $table->string('status')->default('pending');
             $table->timestamps();

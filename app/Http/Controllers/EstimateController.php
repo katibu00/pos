@@ -115,39 +115,46 @@ class EstimateController extends Controller
         }
 
         foreach ($estimates as $estimate) {
-            $data = new Sale();
-            $data->branch_id = auth()->user()->branch_id;
-            $data->receipt_no = $stored;
-            $data->stock_id = $estimate->product_id;
-            $data->price = $estimate->price;
-            $data->quantity = $estimate->quantity;
-            if ($estimate->discount == null) {
-                $data->discount = 0;
 
-            } else {
-                $data->discount = $estimate->discount;
+            $product = Stock::select('id','quantity')->where('id', $estimate->product_id)->first();
+
+            if($product->quantity >= $estimate->quantity)
+            {
+                $data = new Sale();
+                $data->branch_id = auth()->user()->branch_id;
+                $data->receipt_no = $stored;
+                $data->stock_id = $estimate->product_id;
+                $data->price = $estimate->price;
+                $data->quantity = $estimate->quantity;
+                if ($estimate->discount == null) {
+                    $data->discount = 0;
+
+                } else {
+                    $data->discount = $estimate->discount;
+                }
+                $data->payment_method = $request->payment_method;
+                $data->payment_amount = 0;
+                $data->user_id = auth()->user()->id;
+                if ($request->payment_method == 'credit') {
+                    $data->customer_name = $request->customer;
+                } else {
+                    $data->customer_name = $estimate->customer_name;
+                }
+                $data->note = null;
+                $data->save();
+                $data = Stock::find($estimate->product_id);
+                $data->quantity -= $estimate->quantity;
+                $data->update();
+                $estimate->delete();
+            }else
+            {
+                Toastr::error('Out of Stock occured in one or more items');
             }
-            $data->payment_method = $request->payment_method;
-            $data->payment_amount = 0;
-            $data->user_id = auth()->user()->id;
-            if ($request->payment_method == 'credit') {
-                $data->customer_name = $request->customer;
-            } else {
-                $data->customer_name = $estimate->customer_name;
-            }
-            $data->note = null;
-
-            $data->save();
-
-            $data = Stock::find($estimate->product_id);
-            $data->quantity -= $estimate->quantity;
-            $data->update();
-            $estimate->delete();
         }
 
         if ($request->payment_method == 'credit') {
             $user = User::select('id', 'balance')->where('id', $request->customer)->first();
-            $user->balance =  $user->balance + $total_amount;
+            $user->balance +=  $total_amount;
             $user->update();
         } 
 

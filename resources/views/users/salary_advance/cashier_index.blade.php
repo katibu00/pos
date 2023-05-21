@@ -14,32 +14,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class=" table" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Amount</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($advances as $key => $advance)
-                                        <tr>
-                                            <th scope="row">{{ $key + 1 }}</th>
-                                            <td>{{ $advance->created_at->diffForHumans() }}</td>
-                                            <td>{{ number_format($advance->amount, 0) }}</td>
-                                            <td>{{ ucfirst($advance->status) }}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-danger mb-1" data-toggle="modal"
-                                                    data-target="#delete{{ $key }}"><i
-                                                        class="fa fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                          @include('users.salary_advance.cashier_index_table')
                         </div>
                     </div>
                 </div>
@@ -59,6 +34,15 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
+                            <label for="first_name" class="col-form-label">Staff:</label>
+                            <select class="form-select" name="staff_id">
+                                <option value=""></option>
+                                @foreach ($staffs as $staff)
+                                <option value="{{ $staff->id }}">{{ $staff->first_name.' '.$staff->last_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="first_name" class="col-form-label">Amount:</label>
                             <input type="number" class="form-control" id="first_name" name="amount" required>
                         </div>
@@ -73,4 +57,99 @@
     </div>
 
 
+@endsection
+
+@section('js')
+<script>
+    $(document).on('click', '.delete', function(e) {
+        e.preventDefault();
+
+        let id = $(this).data('id');
+        let amount = $(this).data('amount');
+
+        swal({
+                title: "Delete Request of NGN"+amount+"?",
+                text: "Once delete, You cannot be able to restore it.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+
+                    var data = {
+                        'id': id,
+                    }
+
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('cashier.salary_advance.delete') }}",
+                        data: data,
+                        dataType: "json",
+                        success: function(res) {
+
+                            if(res.status == 200)
+                            {
+                                Command: toastr["success"](res.message);
+                                    toastr.options = {
+                                        closeButton: false,
+                                        debug: false,
+                                        newestOnTop: false,
+                                        progressBar: false,
+                                        positionClass: "toast-top-right",
+                                        preventDuplicates: false,
+                                        onclick: null,
+                                        showDuration: "300",
+                                        hideDuration: "1000",
+                                        timeOut: "5000",
+                                        extendedTimeOut: "1000",
+                                        showEasing: "swing",
+                                        hideEasing: "linear",
+                                        showMethod: "fadeIn",
+                                        hideMethod: "fadeOut",
+                                    };
+                                    $('.table').load(location.href + ' .table');
+
+                            }else
+                            {
+
+                            Command: toastr["error"](
+                            "Error Occured"
+                                );
+                                toastr.options = {
+                                    closeButton: false,
+                                    debug: false,
+                                    newestOnTop: false,
+                                    progressBar: false,
+                                    positionClass: "toast-top-right",
+                                    preventDuplicates: false,
+                                    onclick: null,
+                                    showDuration: "300",
+                                    hideDuration: "1000",
+                                    timeOut: "5000",
+                                    extendedTimeOut: "1000",
+                                    showEasing: "swing",
+                                    hideEasing: "linear",
+                                    showMethod: "fadeIn",
+                                    hideMethod: "fadeOut",
+                                };
+                            }
+                            
+
+                        }
+                    });
+
+                }
+            });
+    });
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
+integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
+crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @endsection

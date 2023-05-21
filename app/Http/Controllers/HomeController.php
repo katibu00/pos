@@ -21,6 +21,7 @@ class HomeController extends Controller
 {
     public function cashier()
     {
+        return redirect()->route('sales.index');
 
         $todays = Sale::where('branch_id', Auth::user()->branch_id)->whereDate('created_at', Carbon::today())->get();
 

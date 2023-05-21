@@ -127,6 +127,8 @@
                                     <option value=""></option>
                                     <option value="admin">Admin</option>
                                     <option value="cashier">Cashier</option>
+                                    <option value="clerk">Clerk</option>
+                                    <option value="security">Security</option>
                                 </select>
                         </div>
                         <div class="form-group">

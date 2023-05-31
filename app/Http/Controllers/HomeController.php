@@ -179,13 +179,10 @@ class HomeController extends Controller
 
 
 
-        //////////////////////////
-
-
-
         $salesByTime = DB::table('sales')
         ->select(DB::raw('HOUR(created_at) AS hour'), DB::raw('SUM(price*quantity - discount) AS amount'))
         ->whereDate('created_at', Carbon::today())
+        ->where('branch_id', $branch_id)
         ->groupBy(DB::raw('HOUR(created_at)'))
         ->orderBy(DB::raw('HOUR(created_at)'))
         ->get();

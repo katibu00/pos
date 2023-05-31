@@ -12,7 +12,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReturnsController;
 use App\Http\Controllers\SalaryAdvanceController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -74,10 +76,14 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::get('/details/{date}', [PurchasesController::class, 'details'])->name('purchase.details');
     Route::post('/store', [PurchasesController::class, 'store'])->name('purchase.store');
     Route::get('/create', [PurchasesController::class, 'create'])->name('purchase.create');
-    Route::get('/shopping_list/index', [PurchasesController::class, 'shopping_list'])->name('shopping_list.index');
-    Route::post('/fetch-shopping_list', [PurchasesController::class, 'fetchShopList'])->name('fetch-shopping-list');
-    Route::post('/fetch-branch-stocks', [PurchasesController::class, 'fetchStocks'])->name('fetch-branch-stocks');
-    Route::post('/fetch-purchases', [PurchasesController::class, 'fetchPurchases'])->name('fetch-purchases');
+
+
+    Route::get('/shopping_list/index', [ShoppingListController::class, 'index'])->name('shopping_list.index');
+    Route::post('/shopping_list/store', [ShoppingListController::class, 'store'])->name('shopping_list.store');
+    Route::get('/shopping_list/edit/{id}', [ShoppingListController::class, 'edit'])->name('shopping_list.edit');
+    Route::post('/shopping_list/update/{id}', [ShoppingListController::class, 'update'])->name('shopping_list.update');
+    Route::post('/shopping_list/delete', [ShoppingListController::class, 'delete'])->name('shopping_list.delete');
+    Route::post('/shopping_list/fetch-shopping_list', [ShoppingListController::class, 'fetchList'])->name('fetch-shopping_list');
 });
 
 Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function () {
@@ -113,8 +119,18 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function 
     Route::post('/delete', [UsersController::class, 'delete'])->name('users.delete');
     Route::get('/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
     Route::post('/update/{id}', [UsersController::class, 'update'])->name('users.update');
-
 });
+
+Route::group(['prefix' => 'suppliers', 'middleware' => ['auth', 'admin']], function () {
+    Route::get('/index', [SuppliersController::class, 'index'])->name('suppliers.index');
+    Route::post('/store', [SuppliersController::class, 'store'])->name('suppliers.store');
+    Route::post('/delete', [SuppliersController::class, 'delete'])->name('suppliers.delete');
+    Route::get('/edit/{id}', [SuppliersController::class, 'edit'])->name('suppliers.edit');
+    Route::post('/update/{id}', [SuppliersController::class, 'update'])->name('suppliers.update');
+});
+
+
+
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [ReportController::class, 'index'])->name('reports.index');
     Route::post('/generate', [ReportController::class, 'generate'])->name('reports.generate');

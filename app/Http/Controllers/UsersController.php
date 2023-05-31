@@ -19,7 +19,7 @@ class UsersController extends Controller
 {
     public function index()
     {
-        $data['users'] = User::where('usertype', '!=', 'customer')->get();
+        $data['users'] = User::whereNotIn('usertype', ['customer', 'supplier'])->get();
         $data['branches'] = Branch::all();
         return view('users.index', $data);
     }

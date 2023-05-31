@@ -29,7 +29,7 @@
             </a>
         </li>
         <li class="menu-item">
-            <a class="menu-link" href="#">
+            <a class="menu-link" href="{{ route('shopping_list.index') }}">
                 <div>Shopping List</div>
             </a>
         </li>
@@ -70,7 +70,7 @@
 
 
 <li
-    class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }} {{ $route == 'admin.salary_advance.index' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
+    class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'suppliers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }} {{ $route == 'admin.salary_advance.index' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
     <a class="menu-link" href="#">
         <div>Users</div>
     </a>
@@ -86,6 +86,12 @@
             class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('users.index') }}">
                 <div>Staff</div>
+            </a>
+        </li>
+        <li
+            class="menu-item {{ $route == 'suppliers.index' ? 'current' : '' }} {{ $route == 'suppliers.edit' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('suppliers.index') }}">
+                <div>Suppliers</div>
             </a>
         </li>
         <li

@@ -49,8 +49,8 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h5>Best Selling Items over the last 7 days</h5>
-                        <canvas id="bestSellersChart" width="400" height="250"></canvas>
+                        <h5>Today's Sales by the Time of the Day</h5>
+                        <canvas id="salesByTimeChart" width="400" height="200"></canvas>
 
                     </div>
                 </div>
@@ -157,6 +157,21 @@
                   </div>
                 </div>
 
+
+                <div class="row col-mb-50 mb-0">
+                    <div class="col-md-6">
+                        <h5>Best Selling Items over the last 7 days</h5>
+                        <canvas id="bestSellersChart" width="400" height="250"></canvas>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5>Yesterday's Sales by Branches</h5>
+                        <canvas id="salesByBranchChart" width="400" height="250"></canvas>
+                    </div>
+
+                   
+                </div>
+
             </div>
         </div>
     </section>
@@ -228,7 +243,67 @@
         });
     </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var chartData = @json($chartData);
 
+        new Chart(document.getElementById('salesByTimeChart'), {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Sales',
+                    data: chartData.data,
+                    fill: false,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Time of Day (Hour)'
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1,
+                            max: 23
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Amount'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var pieChartData = @json($pieChartData);
+
+        var salesByBranchChart = new Chart(document.getElementById('salesByBranchChart'), {
+            type: 'pie',
+            data: {
+                labels: pieChartData.labels,
+                datasets: [{
+                    data: pieChartData.data,
+                    backgroundColor: pieChartData.backgroundColor
+                }]
+            },
+            options: {}
+        });
+    });
+</script>
 
 
 @endsection

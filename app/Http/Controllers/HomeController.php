@@ -177,6 +177,63 @@ class HomeController extends Controller
         $data['labels'] = $salesData->pluck('product.name');
         $data['values'] = $salesData->pluck('total_quantity');
 
+
+
+        //////////////////////////
+
+
+
+        $salesByTime = DB::table('sales')
+        ->select(DB::raw('HOUR(created_at) AS hour'), DB::raw('SUM(price*quantity - discount) AS amount'))
+        ->whereDate('created_at', Carbon::today())
+        ->groupBy(DB::raw('HOUR(created_at)'))
+        ->orderBy(DB::raw('HOUR(created_at)'))
+        ->get();
+
+    $chartData = [
+        'labels' => [],
+        'data' => [],
+    ];
+
+    // Prepare chart data
+    foreach ($salesByTime as $sale) {
+        $hour = Carbon::createFromFormat('H', $sale->hour)->format('ga');
+        $chartData['labels'][] = $hour;
+        $chartData['data'][] = $sale->amount;
+    }
+
+    $data['chartData'] = $chartData;
+
+
+    //////////////
+
+
+    $yesterday = Carbon::yesterday();
+
+    $salesByBranch = DB::table('sales')
+        ->join('branches', 'sales.branch_id', '=', 'branches.id')
+        ->select('branches.name', DB::raw('SUM(price * quantity - discount) AS revenue'))
+        ->whereDate('sales.created_at', $yesterday)
+        ->groupBy('sales.branch_id')
+        ->get();
+
+    $pieChartData = [
+        'labels' => [],
+        'data' => [],
+        'backgroundColor' => [],
+    ];
+
+    // Prepare chart data
+    foreach ($salesByBranch as $sale) {
+        $pieChartData['labels'][] = $sale->name;
+        $pieChartData['data'][] = $sale->revenue;
+        $pieChartData['backgroundColor'][] = '#' . substr(md5(rand()), 0, 6); // Generate random color for each branch
+    }
+
+
+    $data['pieChartData'] = $pieChartData;
+
+
         return view('admin', $data);
 
     }

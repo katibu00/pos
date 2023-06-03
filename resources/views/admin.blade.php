@@ -50,7 +50,7 @@
 
                     <div class="col-md-6">
                         <h5>Today's Sales by the Time of the Day</h5>
-                        <canvas id="salesByTimeChart" width="400" height="200"></canvas>
+                        <canvas id="salesByTimeChart" width="400" height="230"></canvas>
 
                     </div>
                 </div>

@@ -17,11 +17,11 @@ class ExpensesController extends Controller
         $data['expense_cats'] = ExpenseCategory::all();
         if(auth()->user()->usertype == 'admin')
         {
-            $data['dates'] = Expense::select('date')->where('branch_id', auth()->user()->branch_id)->distinct('date')->orderBy('date','desc')->limit(15)->get();
+            $data['dates'] = Expense::select('date')->where('branch_id', auth()->user()->branch_id)->distinct('date')->orderBy('date','desc')->paginate(15);
         }
         else
         {
-            $data['dates'] = Expense::select('date')->where('branch_id', auth()->user()->branch_id)->where('payer_id',auth()->user()->id)->distinct('date')->orderBy('date','desc')->limit(15)->get();
+            $data['dates'] = Expense::select('date')->where('branch_id', auth()->user()->branch_id)->where('payer_id',auth()->user()->id)->distinct('date')->orderBy('date','desc')->paginate(15);
         }
         return view('expense.index',$data);
     }

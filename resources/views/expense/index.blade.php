@@ -62,6 +62,7 @@
                                 </tbody>
 
                             </table>
+                            {{ $dates->links() }}
                         </div>
 
                     </div>

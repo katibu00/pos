@@ -8,6 +8,8 @@
                     <!-- Default panel contents -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="col-4 "><span class="text-bold fs-16">Salary Advance This Month ({{ auth()->user()->branch->name }} Branch)</span></div>
+                        <div class="col-md-2 float-right"><button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal"
+                            data-bs-target=".addModal">+ New Salary Advance</button></div>
                     </div>
                     <div class="card-body">
                         @include('users.salary_advance.admin_index_table')
@@ -18,46 +20,39 @@
         </div>
     </section><!-- #content end -->
 
-
-
-    <div class="modal fade depositModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Add New Deposit</h4>
-                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
-                </div>
-                <form action="{{ route('customers.save.deposit') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-
-                        <div class="row">
-                            <div class="form-group col-md-6">
-                                <label for="" class="col-form-label">Payment Amount:</label>
-                                <input type="number" step="any" class="form-control" placeholder="Amount" name="amount">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="" class="col-form-label">Payment Method:</label>
-                                <select class="form-select" name="payment_method" required>
+        <!-- Large Modal -->
+        <div class="modal fade addModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">New Salary Advance</h4>
+                        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
+                    </div>
+                    <form action="{{ route('cashier.salary_advance.index') }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="first_name" class="col-form-label">Staff:</label>
+                                <select class="form-select" name="staff_id">
                                     <option value=""></option>
-                                    <option value="cash">Cash</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="POS">POS</option>
+                                    @foreach ($staffs as $staff)
+                                    <option value="{{ $staff->id }}">{{ $staff->first_name.' '.$staff->last_name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="first_name" class="col-form-label">Amount:</label>
+                                <input type="number" class="form-control" id="first_name" name="amount" required>
+                            </div>
                         </div>
-                       
-                        <input type="hidden" value="{{ @$user->id }}" name="customer_id">
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary ml-2">Add Deposit</button>
-                    </div>
-                </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary ml-2">Apply</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
 
 @endsection

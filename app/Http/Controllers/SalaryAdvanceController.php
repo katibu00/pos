@@ -31,13 +31,19 @@ class SalaryAdvanceController extends Controller
         $new->save();
 
         Toastr::success('Salary Advance Applied Successfully');
-        return redirect()->route('cashier.salary_advance.index');
+
+        if(auth()->user()->usertype == 'admin')
+        {
+            return redirect()->route('admin.salary_advance.index');
+        }else
+        {
+            return redirect()->route('cashier.salary_advance.index');
+        }
     }
 
     public function adminIndex()
     {
         $data['staffs'] = User::whereNotIn('usertype', ['admin', 'customer'])
-                            ->where('branch_id', auth()->user()->branch_id)
                             ->orderBy('first_name')
                             ->get();
         return view('users.salary_advance.admin_index', $data);

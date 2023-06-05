@@ -4,7 +4,7 @@
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Cashier</th>
+                <th scope="col">Staff</th>
                 <th scope="col">Date</th>
                 <th scope="col">Amount</th>
                 <th scope="col">Status</th>
@@ -38,8 +38,8 @@
                 @endphp
                 <tr>
                     <td></td>
-                    <th scope="row">{{ $key + 1 }}</th>
-                    <td>{{ $request->created_at->diffForHumans() }}</td>
+                    <th scope="row">{{ $key2 + 1 }}</th>
+                    <td>{{ $request->created_at->format('d-M-y') }}</td>
                     <td>&#8358;{{ number_format($request->amount, 0) }}</td>
                     <td>
                         @php

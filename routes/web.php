@@ -84,6 +84,11 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::post('/shopping_list/update/{id}', [ShoppingListController::class, 'update'])->name('shopping_list.update');
     Route::post('/shopping_list/delete', [ShoppingListController::class, 'delete'])->name('shopping_list.delete');
     Route::post('/shopping_list/fetch-shopping_list', [ShoppingListController::class, 'fetchList'])->name('fetch-shopping_list');
+
+
+    Route::post('/fetch-branch-stocks', [PurchasesController::class, 'fetchStocks'])->name('fetch-branch-stocks');
+    Route::post('/fetch-purchases', [PurchasesController::class, 'fetchPurchases'])->name('fetch-purchases');
+
 });
 
 Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function () {

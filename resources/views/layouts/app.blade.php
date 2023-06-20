@@ -25,7 +25,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/colors.php?color=0275d8" type="text/css" />
-    
+    @yield('css')
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {

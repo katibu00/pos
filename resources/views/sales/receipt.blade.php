@@ -26,13 +26,13 @@
         }
 
         .business-name {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             margin-top: 5px;
         }
 
         .contact-details {
-            font-size: 11px;
+            font-size: 9px;
             margin-top: 3px;
         }
 
@@ -58,7 +58,7 @@
 <body>
     <div class="header">
         <div class="logo">
-            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="60.000000pt" height="60.000000pt"
+            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="40.000000pt" height="40.000000pt"
                 viewBox="0 0 669.000000 597.000000" preserveAspectRatio="xMidYMid meet">
                 <g transform="translate(0.000000,597.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
                     <path
@@ -110,7 +110,7 @@
             Website: www.elhabibplumbing.com
         </div>
         @endif
-        <div style="font-size: 13px; margin-top: 10px;">Transaction ID: <span class="tran_id">></span></div> <!-- Added Transaction ID -->
+        <div style="font-size: 12px; margin-top: 10px;">Ref ID: <span class="tran_id">></span></div> <!-- Added Transaction ID -->
     </div>
 
     <table>

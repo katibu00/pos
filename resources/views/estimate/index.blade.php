@@ -1,5 +1,92 @@
 @extends('layouts.app')
 @section('PageTitle', 'Give Estimate')
+@section('css')
+    <style>
+        .radio-item input[type="radio"]::before {
+            position: relative;
+            margin: 4px -25px -4px 0;
+            display: inline-block;
+            visibility: visible;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            border: 2px inset rgba(150, 150, 150, 0.7);
+            background: radial-gradient(ellipse at top)
+        }
+        @media (max-width: 767px) {
+            table.table thead {
+                display: none;
+            }
+
+            table.table tbody td {
+                display: block;
+                width: 100%;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+
+            table.table tbody td:before {
+                content: attr(data-label);
+                float: left;
+                font-weight: bold;
+            }
+        }
+
+        .select2-container {
+            width: 100% !important;
+            font-family: Arial, sans-serif;
+        }
+
+        .select2-selection--single {
+            height: 38px !important;
+            border-radius: 4px !important;
+            border: 1px solid #ced4da !important;
+            padding: 6px 12px !important;
+            background-color: #fff !important;
+        }
+
+        .select2-selection__arrow {
+            height: 36px !important;
+            width: 36px !important;
+            top: 1px !important;
+        }
+
+        .select2-selection__rendered {
+            line-height: 24px !important;
+        }
+
+        .select2-results__option {
+            padding: 8px 12px !important;
+        }
+
+        .select2-results__option--highlighted {
+            background-color: #e0e0e0 !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            text-align: left;
+        }
+
+        ::placeholder {
+            visibility: hidden;
+        }
+
+        @media (max-width: 767px) {
+            ::placeholder {
+                visibility: visible;
+            }
+        }
+        .button-group {
+            white-space: nowrap;
+        }
+
+        .button-group a {
+            display: inline-block;
+        }
+
+    </style>
+
+@endsection
 @section('content')
 <section id="content">
     <div class="content-wraap mt-3">
@@ -24,8 +111,6 @@
                                                 <th>Discount</th>
                                                 <th>Amount</th>
                                                 <th>
-                                                    <a href="#" class="btn btn-success add_row rounded-circle"><i
-                                                            class="fa fa-plus"></i></a>
                                                 </th>
                                             </tr>
                                         </thead>
@@ -60,10 +145,13 @@
                                                     <input type="number" readonly name="total_amount[]"
                                                         id="total_amount" class="form-control total_amount">
                                                 </td>
-                                                <td>
+                                                <td class="button-group">
                                                     <a href="#"
-                                                        class="btn btn-danger btn-sm remove_row rounded-circle"><i
+                                                        class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
                                                             class="fa fa-times-circle"></i></a>
+                                                    <a href="#"
+                                                        class="btn btn-success btn-sm add_row rounded-circle"><i
+                                                            class="fa fa-plus"></i></a>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -127,24 +215,29 @@
 
 @section('js')
     <script>
-        $('.add_row').on('click', function() {
+        $('.product_id').select2();
+
+        $('.sales-table').on('click', '.add_row', function() {
             var product = $('.product_id').html();
             var numberofrow = ($('.addMoreRow tr').length - 0) + 1;
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
                 '</select><input type="hidden" class="product_qty" value=""></td>' +
-                '<td><input type="number" name="quantity[]" step="0.5" class="form-control quantity" required></td>' +
+                '<td><input type="number" name="quantity[]" placeholder="Qty" step="any" class="form-control quantity" required></td>' +
                 '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
-                '<td><input type="number" name="discount[]" class="form-control discount"></td>' +
+                '<td><input type="number" name="discount[]" placeholder="Dicount" class="form-control discount"></td>' +
                 '<td><input type="number" readonly name="total_amount[]" class="form-control total_amount"></td>' +
-                '<td><a class="btn btn-danger btn-sm remove_row rounded-circle"><i class="fa fa-times-circle"></i></a></td></tr>';
-            $('.product_id').select2();
+                '<td class="button-group"><a class="btn btn-danger btn-sm mx-1 remove_row rounded-circle"><i class="fa fa-times-circle"></i></a> <a href="#" class="btn btn-success btn-sm add_row rounded-circle"><i class="fa fa-plus"></i></a></td></tr>';
             $('.addMoreRow').append(tr);
+            $('.product_id').select2();
         });
 
+
+       
         $('.addMoreRow').delegate('.remove_row', 'click', function() {
             $(this).parent().parent().remove();
         });
+
 
         $('.product_id').select2();
 
@@ -161,18 +254,35 @@
         $('.addMoreRow').delegate('.product_id', 'change', function() {
             var tr = $(this).parent().parent();
             var price = tr.find('.product_id option:selected').attr('data-price');
+            var quantity = tr.find('.product_id option:selected').attr('data-quantity');
             tr.find('.price').val(price);
             var qty = tr.find('.quantity').val() - 0;
+
+            if (quantity < 1) {
+                Command: toastr["error"](quantity + ' Remaining')
+
+                tr.find('.quantity').val('');
+            }
+
+
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price) - ((qty * price * disc) / 100);
             tr.find('.total_amount').val(total_amount);
+            tr.find('.product_qty').val(quantity);
             TotalAmount();
         });
 
         $('.addMoreRow').delegate('.quantity, .discount', 'keyup', function() {
             var tr = $(this).parent().parent();
             var qty = tr.find('.quantity').val() - 0;
+            var product_qty = tr.find('.product_qty').val() - 0;
+            if (qty > product_qty) {
+                Command: toastr["error"](product_qty + ' Product Quantity Remaining Only.')
+
+                tr.find('.quantity').val('');
+
+            }
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price - disc);

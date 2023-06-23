@@ -140,6 +140,9 @@
         </tfoot>
     </table>
 
-    <div style="text-align: center; margin-bottom: 15px;">*** Thank you for your purchase! ***</div>
+    <div style="text-align: center; margin-bottom: 15px;">*** Thank you! ***</div>
+    <p></p><br>
+    <p></p><br>
+    <p></p><br>
 </body>
 </html>

@@ -360,7 +360,6 @@
 
                         html +=
                             '<tr style="text-align: center">' +
-                            '<td style="font-size: 12px;">' + (key + 1) + '</td>' +
                             '<td style="text-align: left"><span style="font-size: 12px;" >' + item
                             .product.name +
                             '</span></td>' +
@@ -370,16 +369,11 @@
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                    // html +=
-                    //     '<tr style="text-align: center">' +
-                    //     '<td></td>' +
-                    //     '<td colspan="2"><b>Total Amount</b></td>' +
-                    //     '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                    //     '</tr>';
+                  
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
-                    $('#total').html(total.toLocaleString());
+                    $('#total').html('₦'+total.toLocaleString());
 
                     var data = document.getElementById('print').innerHTML;
 

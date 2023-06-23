@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
-
     <style>
         /* Reset default browser styles */
         * {
@@ -13,102 +11,54 @@
 
         /* Body styles */
         body {
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.4;
-            padding: 10px;
-            background-color: #f5f5f5;
-        }
-
-        /* Receipt container styles */
-        .receipt-container {
-            max-width: 300px;
-            margin: 5 15;
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+            font-size: 12px;
         }
 
         /* Header styles */
         .header {
             text-align: center;
             margin-bottom: 10px;
-            padding: 15px 0;
-            border-bottom: 1px solid #dddddd;
-            background-color: #f9f9f9;
         }
 
         .logo {
-            
-            text-align: center;
+           text-align: center;
         }
 
         .business-name {
             font-size: 14px;
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         .contact-details {
-            font-size: 14px;
-            margin-top: 5px;
-            color: #555555;
-            text-align: left;
+            font-size: 11px;
+            margin-top: 3px;
         }
 
         /* Table styles */
         table {
             width: 100%;
-            margin-bottom: 10px;
             border-collapse: collapse;
+            margin-bottom: 10px;
         }
 
         th, td {
-            padding: 10px;
+            padding: 5px;
             text-align: left;
-            font-size: 14px;
-            border-bottom: 1px solid #dddddd;
+            border-bottom: 1px solid #000;
+            font-size: 12px;
         }
 
         th {
             font-weight: bold;
-            background-color: #f9f9f9;
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tfoot th {
-            border-top: 1px solid #dddddd;
-        }
-
-        /* Footer styles */
-
-
-        .footer {
-            text-align: center;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #dddddd;
-            background-color: #f9f9f9;
-        }
-
-        /* Utility classes */
-        .text-right {
-            text-align: right;
-        }
-        td.item-column {
-            width: 40%;
         }
     </style>
 </head>
 <body>
-    <div class="receipt-container">
-        <div class="header">
-            <div class="logo">
-                <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="80.000000pt" height="80.000000pt"
+    <div class="header">
+        <div class="logo">
+            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="60.000000pt" height="60.000000pt"
                 viewBox="0 0 669.000000 597.000000" preserveAspectRatio="xMidYMid meet">
                 <g transform="translate(0.000000,597.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
                     <path
@@ -142,50 +92,54 @@
            191 342 244 485 35 96 94 314 109 403 l7 42 -221 0 c-121 0 -222 -3 -224 -7z" />
                 </g>
             </svg>
-            </div>
-            <div class="business-name">EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch</div>
-            @if (auth()->user()->branch->name == 'Azare')
-            <div class="contact-details">
-                <p><strong>Address:</strong> Along Ali Kwara Hospital, Azare.</p>
-                <p><strong>Phone:</strong> 0916-844-3058</p>
-                <p><strong>Email:</strong> support@elhabibplumbing.com</p>
-                <p><strong>Website:</strong> www.elhabibplumbing.com</p>
-            </div>
-            @endif
-            @if (auth()->user()->branch->name == 'Misau')
-            <div class="contact-details">
-                <p><strong>Address:</strong> Kofar Yamma, Misau, Bauchi State</p>
-                <p><strong>Phone:</strong> 0901-782-0678</p>
-                <p><strong>Email:</strong> support@elhabibplumbing.com</p>
-                <p><strong>Website:</strong> www.elhabibplumbing.com</p>
-            </div>
-            @endif
         </div>
-        <em>Tranx ID:</em>  <em class="tran_id"></em>
-
-        <table style="margin-top: 10px;">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th  class="item-column">Item Name</th>
-                    <th class="text-right">Qty</th>
-                    <th class="text-right">Price</th>
-                    <th class="text-right">Amount</th>
-                </tr>
-            </thead>
-            <tbody id="receipt_body">
-               
-            </tbody>
-            <tfoot>
-               
-                <tr>
-                    <th colspan="4" class="text-right">Total:</th>
-                    <td class="text-right" id="total"></td>
-                </tr>
-            </tfoot>
-        </table>
-
-        <div class="footer" style="margin-bottom: 15px;">Thank you for your purchase!</div>
+        <div class="business-name">EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch</div>
+        @if (auth()->user()->branch->name == 'Azare')
+        <div class="contact-details">
+            Address: Along Ali Kwara Hospital, Azare.<br>
+            Phone: 0916-844-3058<br>
+            Email: support@elhabibplumbing.com<br>
+            Website: www.elhabibplumbing.com
+        </div>
+        @endif
+        @if (auth()->user()->branch->name == 'Misau')
+        <div class="contact-details">
+            Address: Kofar Yamma, Misau, Bauchi State<br>
+            Phone: 0901-782-0678<br>
+            Email: support@elhabibplumbing.com<br>
+            Website: www.elhabibplumbing.com
+        </div>
+        @endif
+        <div style="font-size: 13px; margin-top: 10px;">Transaction ID: <span class="tran_id">></span></div> <!-- Added Transaction ID -->
     </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="receipt_body">
+        </tbody>
+        <tfoot>
+            {{-- <tr>
+                <td colspan="3" style="text-align: right;">Subtotal:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: right;">Tax (%):</td>
+                <td>0.00</td>
+            </tr> --}}
+            <tr>
+                <td colspan="3" style="text-align: right;">Total:</td>
+                <td id="total"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div style="text-align: center; margin-bottom: 15px;">*** Thank you for your purchase! ***</div>
 </body>
 </html>

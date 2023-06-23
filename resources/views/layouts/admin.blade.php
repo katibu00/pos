@@ -12,25 +12,26 @@
     </a></li>
 
 <li
-    class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'shopping_list.index' ? 'current' : '' }}">
+    class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'reorder.index' ? 'current' : '' }}">
     <a class="menu-link" href="#">
-        <div>Purchases</div>
+        <div>Reorder</div>
     </a>
     <ul class="sub-menu-container">
         <li
             class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('purchase.index') }}">
-                <div>Purchases</div>
+                <div>Self-Fulfilled</div>
             </a>
         </li>
-        <li class="menu-item {{ $route == 'shopping_list.index' ? 'current' : '' }}">
-            <a class="menu-link" href="{{ route('shopping_list.index') }}">
-                <div>Low Stocks</div>
+       
+        <li class="menu-item">
+            <a class="menu-link" href="{{ route('reorder.index') }}">
+                <div>New Reorder</div>
             </a>
         </li>
         <li class="menu-item">
-            <a class="menu-link" href="{{ route('shopping_list.index') }}">
-                <div>Shopping List</div>
+            <a class="menu-link" href="{{ route('reorder.all.index') }}">
+                <div>All Reorders</div>
             </a>
         </li>
 

@@ -78,12 +78,19 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::get('/create', [PurchasesController::class, 'create'])->name('purchase.create');
 
 
-    Route::get('/shopping_list/index', [ShoppingListController::class, 'index'])->name('shopping_list.index');
-    Route::post('/shopping_list/store', [ShoppingListController::class, 'store'])->name('shopping_list.store');
-    Route::get('/shopping_list/edit/{id}', [ShoppingListController::class, 'edit'])->name('shopping_list.edit');
-    Route::post('/shopping_list/update/{id}', [ShoppingListController::class, 'update'])->name('shopping_list.update');
-    Route::post('/shopping_list/delete', [ShoppingListController::class, 'delete'])->name('shopping_list.delete');
-    Route::post('/shopping_list/fetch-shopping_list', [ShoppingListController::class, 'fetchList'])->name('fetch-shopping_list');
+    Route::get('/reorder/new', [ShoppingListController::class, 'index'])->name('reorder.index');
+    Route::post('/reorder/store', [ShoppingListController::class, 'store'])->name('reorder.store');
+    Route::post('/fetch-products', [ShoppingListController::class, 'filterProducts'])->name('fetch-products');
+
+    Route::get('/reorder/all', [ShoppingListController::class, 'allIndex'])->name('reorder.all.index');
+    Route::post('/reorder/fetch',  [ShoppingListController::class, 'fetchReorders'])->name('reorders.fetch');
+
+    Route::get('/reorder/complete/{reorder_no}', [ShoppingListController::class, 'complete'])->name('complete.reorder')->where('reorder_no', '.*');
+    Route::post('/reorder/complete', [ShoppingListController::class, 'completeSubmit'])->name('complete.reorder.submit');
+    Route::post('/reorder/download-pdf', [ShoppingListController::class, 'downloadPDF'])->name('reorder.download-pdf');
+    Route::post('/reorder/delete', [ShoppingListController::class, 'destroyReorders'])->name('reorder.delete');
+    Route::post('/reorder/update-supplier', [ShoppingListController::class, 'updateSupplier'])->name('reorder.update-supplier');
+
 
 
     Route::post('/fetch-branch-stocks', [PurchasesController::class, 'fetchStocks'])->name('fetch-branch-stocks');

@@ -97,24 +97,20 @@
 
                         html +=
                             '<tr style="text-align: center">' +
-                            '<td style="font-size: 12px;">' + (key + 1) + '</td>' +
                             '<td style="text-align: left"><span style="font-size: 12px;" >' + item
                             .product.name +
                             '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                            '<td style="font-size: 12px;">' + item.quantity * item.price + '</td>' +
+                            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                    html +=
-                        '<tr style="text-align: center">' +
-                        '<td></td>' +
-                        '<td colspan="2"><b>Total Amount</b></td>' +
-                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                        '</tr>';
+                  
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
+                    $('#total').html('₦'+total.toLocaleString());
 
                     var data = document.getElementById('print').innerHTML;
 

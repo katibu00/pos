@@ -12,7 +12,7 @@
     </a></li>
 
 <li
-    class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'reorder.index' ? 'current' : '' }}">
+    class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{  $route == 'reorder.all.index' ? 'current' : ''  }} {{ $route == 'reorder.index' ? 'current' : '' }}">
     <a class="menu-link" href="#">
         <div>Reorder</div>
     </a>
@@ -24,12 +24,12 @@
             </a>
         </li>
        
-        <li class="menu-item">
-            <a class="menu-link" href="{{ route('reorder.index') }}">
+        <li class="menu-item {{  $route == 'reorder.index' ? 'current' : ''  }}">
+            <a class="menu-link " href="{{ route('reorder.index') }}">
                 <div>New Reorder</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item {{  $route == 'reorder.all.index' ? 'current' : ''  }}">
             <a class="menu-link" href="{{ route('reorder.all.index') }}">
                 <div>All Reorders</div>
             </a>

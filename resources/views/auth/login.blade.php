@@ -14,73 +14,87 @@
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <meta name="theme-color" content="#712cf9">
 
-
     <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
+        body {
+            background-color: #f8f9fa;
         }
 
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
+        .card {
+            width: 300px;
+            margin: 0 auto;
+            margin-top: 100px;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
         }
 
-        .b-example-divider {
-            height: 3rem;
-            background-color: rgba(0, 0, 0, .1);
-            border: solid rgba(0, 0, 0, .15);
-            border-width: 1px 0;
-            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        .card h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
-        .b-example-vr {
-            flex-shrink: 0;
-            width: 1.5rem;
-            height: 100vh;
+        .card form {
+            margin-bottom: 20px;
         }
 
-        .bi {
-            vertical-align: -.125em;
-            fill: currentColor;
+        .card .form-floating {
+            margin-bottom: 10px;
         }
 
-        .nav-scroller {
-            position: relative;
-            z-index: 2;
-            height: 2.75rem;
-            overflow-y: hidden;
+        .card .checkbox {
+            margin-bottom: 10px;
         }
 
-        .nav-scroller .nav {
-            display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
-            text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
+        .card .btn-primary {
+            background-color: #712cf9;
+            border-color: #712cf9;
+        }
+
+        .card .btn-primary:hover {
+            background-color: #5d23d4;
+            border-color: #5d23d4;
+        }
+
+        .card .btn-primary:focus {
+            box-shadow: none;
+        }
+
+        .card .mt-5 {
+            margin-top: 20px;
+        }
+
+        .card input[type="email"],
+        .card input[type="password"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f1f3f5;
+        }
+
+        .card input[type="email"]:focus,
+        .card input[type="password"]:focus {
+            outline: none;
+            box-shadow: none;
+            background-color: #e9ecef;
+        }
+
+        .card label {
+            margin-bottom: 5px;
+        }
+
+        .card .alert {
+            margin-bottom: 10px;
         }
     </style>
-
-
-    <!-- Custom styles for this template -->
-    <link href="/sign-in.css" rel="stylesheet">
 </head>
 
-<body class="text-center">
+<body>
 
-    <main class="form-signin w-100 m-auto">
+    <div class="card">
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+        <ul id="error_list"></ul>
         <form id="loginForm">
-            {{-- <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72"
-                height="57"> --}}
-            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-            <ul id="error_list"></ul>
             <div class="form-floating">
                 <input type="email" class="form-control" id="email" placeholder="name@example.com">
                 <label for="email">Email address</label>
@@ -96,9 +110,10 @@
                 </label>
             </div>
             <button class="w-100 btn btn-lg btn-primary" type="submit" id="submit_btn">Sign in</button>
-            <p class="mt-5 mb-3 text-muted">&copy; El-habib Plumbing Services and Materials</p>
         </form>
-    </main>
+        <p class="mt-5 mb-3 text-muted">&copy; El-habib Plumbing Services and Materials</p>
+    </div>
+
     <script src="/jquery-3.6.3.min.js"></script>
     <script>
         $(document).ready(function() {

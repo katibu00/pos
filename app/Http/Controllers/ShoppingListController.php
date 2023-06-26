@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Reorder;
+use App\Models\ReorderExpense;
 use App\Models\Stock;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -24,15 +25,49 @@ class ShoppingListController extends Controller
 
         return view('purchases.reorder.index', $data);
     }
+
+
     public function allIndex()
     {
-
         $data['branches'] = Branch::all();
         $data['suppliers'] = User::where('usertype', 'supplier')->get();
-        $data['stocks'] = [];
+    
+        $reorders = Reorder::select('reorder_no', DB::raw('MIN(created_at) as date'), 'supplier_id', 'status')
+            ->groupBy('reorder_no', 'supplier_id', 'status')
+            ->orderBy('date', 'desc')
+            ->limit(20)
+            ->get();
+    
+            $reorderGroups = [];
 
+            foreach ($reorders as $reorder) {
+                $reorderItems = Reorder::where('reorder_no', $reorder->reorder_no)->get();
+            
+                $total = $reorderItems->sum(function ($item) {
+                    return $item->quantity * $item->buying_price;
+                });
+            
+                $supplier = $reorderItems->first()->supplier;
+                $supplierName = $supplier ? $supplier->first_name . ' ' . $supplier->last_name : 'Unknown Supplier';
+            
+                $reorderGroup = [
+                    'reorder_no' => $reorder->reorder_no,
+                    'date' => date('l, d F', strtotime($reorder->date)),
+                    'supplier' => $supplierName,
+                    'total' => $total,
+                    'status' => $reorder->status,
+                ];
+            
+                $reorderGroups[] = $reorderGroup;
+            }
+            
+            $data['reorderGroups'] = $reorderGroups;
+            
+    
         return view('purchases.reorder.all_reorders', $data);
     }
+    
+
 
     public function store(Request $request)
     {
@@ -128,6 +163,7 @@ class ShoppingListController extends Controller
                 }
             })
             ->groupBy('reorder_no', 'supplier_id', 'status')
+            ->latest()
             ->get();
 
         $reorderGroups = [];
@@ -135,9 +171,11 @@ class ShoppingListController extends Controller
         foreach ($reorders as $reorder) {
             $reorderItems = Reorder::where('reorder_no', $reorder->reorder_no)->get();
 
-            $total = $reorderItems->sum(function ($item) {
-                return $item->quantity * $item->buying_price;
-            });
+            $total = 0;
+
+            foreach ($reorderItems as $item) {
+                $total += $item->quantity * $item->product->buying_price;
+            }
 
             $supplier = $reorderItems->first()->supplier;
             $supplierName = $supplier ? $supplier->first_name . ' ' . $supplier->last_name : 'Unknown Supplier';
@@ -214,39 +252,103 @@ class ShoppingListController extends Controller
         return $pdf->download($filename);
     }
 
-
     public function destroyReorders(Request $request)
     {
         $reorderNo = $request->input('reorder_no');
-    
+
         if (empty($reorderNo)) {
             return response()->json(['message' => 'No reorder number provided'], 400);
         }
-    
+
         $deletedRows = Reorder::where('reorder_no', $reorderNo)->delete();
-    
+
         if ($deletedRows === 0) {
             return response()->json(['message' => 'No reorders found'], 404);
         }
-    
+
         return response()->json(['message' => 'Reorders deleted successfully']);
     }
-    
 
-
-    
     public function updateSupplier(Request $request)
     {
         $reorderNo = $request->input('reorder_no');
         $supplierId = $request->input('supplier_id');
-    
+
         Reorder::where('reorder_no', $reorderNo)
-               ->update(['supplier_id' => $supplierId]);
-    
+            ->update(['supplier_id' => $supplierId]);
+
         return response()->json(['message' => 'Supplier updated successfully. Refresh the page to see changes.']);
     }
-    
 
+    public function details(Request $request)
+    {
+        $reorderNo = $request->input('reorder_no');
+
+        $data = Reorder::with('product')->where('reorder_no', $reorderNo)->get();
+
+        return response()->json($data);
+    }
+
+    public function saveExpenses(Request $request)
+    {
+
+        $validatedData = $request->validate([
+            'reorderNumber' => 'required',
+            'category' => 'required',
+            'amount' => 'required|array',
+            'description' => 'nullable|array',
+        ]);
+
+        $reorderNo = $validatedData['reorderNumber'];
+        $categories = $validatedData['category'];
+        $amounts = $validatedData['amount'];
+        $descriptions = $validatedData['description'];
+
+        for ($i = 0; $i < count($categories); $i++) {
+            $expense = new ReorderExpense();
+            $expense->reorder_no = $reorderNo;
+            $expense->category = $categories[$i];
+            $expense->amount = $amounts[$i];
+            $expense->description = isset($descriptions[$i]) ? $descriptions[$i] : null;
+            $expense->save();
+        }
+
+        return response()->json(['message' => 'Expenses saved successfully.']);
+    }
+
+
+    public function profitabilityForecast(Request $request)
+    {
+        $reorderNo = $request->input('reorderNo'); 
+    
+        // Fetch reorder items for the given reorder number
+        $reorderItems = Reorder::with('product')->where('reorder_no', $reorderNo)->get();
+    
+        // Calculate the total inventory cost
+        $totalInventoryCost = $reorderItems->sum(function ($item) {
+            return $item->quantity * $item->buying_price;
+        });
+    
+        // Fetch reorder expenses for the given reorder number
+        $reorderExpenses = ReorderExpense::where('reorder_no', $reorderNo)->get();
+    
+        // Calculate the total expenses
+        $totalExpenses = $reorderExpenses->sum('amount');
+    
+      
+    
+      
+        // Prepare the response data
+        $responseData = [
+            'reorderItems' => $reorderItems,
+            'reorderExpenses' => $reorderExpenses,
+            'totalInventoryCost' => $totalInventoryCost,
+            'totalExpenses' => $totalExpenses,
+        ];
+    
+        return response()->json($responseData);
+    }
+    
 
 
 }

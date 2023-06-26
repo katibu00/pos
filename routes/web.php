@@ -89,7 +89,11 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::post('/reorder/complete', [ShoppingListController::class, 'completeSubmit'])->name('complete.reorder.submit');
     Route::post('/reorder/download-pdf', [ShoppingListController::class, 'downloadPDF'])->name('reorder.download-pdf');
     Route::post('/reorder/delete', [ShoppingListController::class, 'destroyReorders'])->name('reorder.delete');
+    Route::post('/reorder/details', [ShoppingListController::class, 'details'])->name('reorder.details');
     Route::post('/reorder/update-supplier', [ShoppingListController::class, 'updateSupplier'])->name('reorder.update-supplier');
+    Route::post('/reorder/save-expenses', [ShoppingListController::class, 'saveExpenses'])->name('reorder.save-expenses');
+    Route::post('/reorder/fetch-profitability-forecast', [ShoppingListController::class, 'profitabilityForecast'])->name('reorder.fetch-profitability-forecast');
+
 
 
 

@@ -14,6 +14,7 @@
             border: 2px inset rgba(150, 150, 150, 0.7);
             background: radial-gradient(ellipse at top)
         }
+
         @media (max-width: 767px) {
             table.table thead {
                 display: none;
@@ -77,6 +78,7 @@
                 visibility: visible;
             }
         }
+
         .button-group {
             white-space: nowrap;
         }
@@ -85,15 +87,36 @@
             display: inline-block;
         }
 
+        .disabled-input {
+            opacity: 0.6;
+            pointer-events: none;
+            background-color: #f9f9f9;
+        }
+        .card-header {
+            padding: 0.5rem;
+            background-color: #f5f5f5; 
+        }
+
+        .card-header p {
+            margin-bottom: 0;
+        }
+
+        .card-header .total {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff0000; 
+        }
+
+        .card-header .amount {
+            display: block;
+            font-size: 2.5em;
+        }
     </style>
 
 @endsection
 @section('content')
 
-
-
-
-    <!-- ============ Body content start ============= -->
+    <!--Body content start -->
     <section id="content">
         <div class="content-wraap mt-3">
             <div class="container clearfix">
@@ -112,17 +135,26 @@
                                             <thead>
                                                 <tr>
                                                     <th style="width: 2%"></th>
+                                                    <th> </th>
                                                     <th style="width: 30%">Product</th>
                                                     <th>Qty</th>
                                                     <th>Price</th>
                                                     <th>Discount</th>
                                                     <th>Amount</th>
-                                                    <th> </th>
+
                                                 </tr>
                                             </thead>
                                             <tbody class="addMoreRow">
                                                 <tr>
                                                     <td>1</td>
+                                                    <td class="button-group">
+                                                        <a href="#"
+                                                            class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
+                                                                class="fa fa-times-circle"></i></a>
+                                                        <a href="#"
+                                                            class="btn btn-success btn-sm add_row rounded-circle"><i
+                                                                class="fa fa-plus-circle"></i></a>
+                                                    </td>
                                                     <td>
 
                                                         <select class="form-select product_id" id="product_id"
@@ -144,7 +176,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" readonly name="price[]" id="price"
-                                                            class="form-control price">
+                                                            class="form-control disabled-input price">
                                                     </td>
                                                     <td>
                                                         <input type="number" name="discount[]" placeholder="Discount"
@@ -152,16 +184,10 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" readonly name="total_amount[]"
-                                                            id="total_amount" class="form-control total_amount">
+                                                            id="total_amount"
+                                                            class="form-control disabled-input total_amount">
                                                     </td>
-                                                    <td class="button-group">
-                                                        <a href="#"
-                                                            class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
-                                                                class="fa fa-times-circle"></i></a>
-                                                        <a href="#"
-                                                            class="btn btn-success btn-sm add_row rounded-circle"><i
-                                                                class="fa fa-plus"></i></a>
-                                                    </td>
+
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -173,10 +199,10 @@
 
                         <div class="col-md-4 mb-4">
                             <div class="card">
-                                <div class="card-header bg-transparent">
-                                    <p>Total: <b class="total"> 0.00 </b></p>
+                                <div class="card-header bg-transparent text-center">
+                                    <p>Total: <b class="total">0.00</b></p>
                                 </div>
-
+                            
                                 <input type="hidden" id="total_hidden">
                                 <div class="card-body">
                                     <div class="panel">
@@ -184,61 +210,54 @@
                                             <table class="table table-striped">
                                                 <tr>
                                                     <td>
-                                                        <label for="">Customer Name</label>
-                                                        <input type="text" name="customer_name" id=""
-                                                            class="form-control">
+                                                        <label for="customer_name">Customer Name</label>
+                                                        <input type="text" name="customer_name" id="customer_name" class="form-control">
                                                     </td>
                                                     <td>
-                                                        <label for="">Note</label>
-                                                        <input type="text" name="note" id=""
-                                                            class="form-control">
+                                                        <label for="note">Note</label>
+                                                        <input type="text" name="note" id="note" class="form-control">
                                                     </td>
                                                 </tr>
                                             </table>
-
                                             <td>
                                                 <div class="col-12 form-group">
                                                     <label>Payment Method:</label><br>
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input required" type="radio"
-                                                            name="payment_method" id="cash" value="cash" required>
+                                                        <input class="form-check-input required" type="radio" name="payment_method" id="cash"
+                                                            value="cash" required>
                                                         <label class="form-check-label nott" for="cash"><i
                                                                 class="fa fa-money text-success"></i> Cash</label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="payment_method"
-                                                            id="pos" value="pos" required>
+                                                        <input class="form-check-input" type="radio" name="payment_method" id="pos" value="pos"
+                                                            required>
                                                         <label class="form-check-label nott" for="pos"><i
                                                                 class="fa fa-credit-card text-info"></i> POS</label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="payment_method"
-                                                            id="transfer" value="transfer" required>
+                                                        <input class="form-check-input" type="radio" name="payment_method" id="transfer"
+                                                            value="transfer" required>
                                                         <label class="form-check-label nott" for="transfer"><i
                                                                 class="fa fa-university text-danger"></i> Transfer</label>
                                                     </div>
                                                 </div>
                                             </td>
-
                                             <td>
                                                 Paid Amount
-                                                <input type="number" name="paid_amount" id="paid_amount"
-                                                    class="form-control mb-2">
+                                                <input type="number" name="paid_amount" id="paid_amount" class="form-control mb-2">
                                             </td>
                                             <td>
                                                 Returning Change
-                                                <input type="number" readonly name="balance" id="balance"
-                                                    class="form-control mb-2">
+                                                <input type="number" readonly name="balance" id="balance" class="form-control mb-2">
                                             </td>
                                             <td>
-                                                <button type="submit" id="submitBtn"
-                                                    class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
+                                                <button type="submit" id="submitBtn" class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
                                             </td>
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
                 </form>
@@ -261,13 +280,13 @@
             var product = $('.product_id').html();
             var numberofrow = ($('.addMoreRow tr').length - 0) + 1;
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
+                '<td class="button-group"><a class="btn btn-danger btn-sm mx-1 remove_row rounded-circle"><i class="fa fa-times-circle"></i></a> <a href="#" class="btn btn-success btn-sm add_row rounded-circle"><i class="fa fa-plus-circle"></i></a></td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
                 '</select><input type="hidden" class="product_qty" value=""></td>' +
                 '<td><input type="number" name="quantity[]" placeholder="Qty" step="any" class="form-control quantity" required></td>' +
-                '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
+                '<td><input type="number" readonly name="price[]" class="form-control disabled-input price"></td>' +
                 '<td><input type="number" name="discount[]" placeholder="Dicount" class="form-control discount"></td>' +
-                '<td><input type="number" readonly name="total_amount[]" class="form-control total_amount"></td>' +
-                '<td class="button-group"><a class="btn btn-danger btn-sm mx-1 remove_row rounded-circle"><i class="fa fa-times-circle"></i></a> <a href="#" class="btn btn-success btn-sm add_row rounded-circle"><i class="fa fa-plus"></i></a></td></tr>';
+                '<td><input type="number" readonly name="total_amount[]" class="form-control disabled-input total_amount"></td></tr>';
             $('.addMoreRow').append(tr);
             $('.product_id').select2();
         });
@@ -365,15 +384,16 @@
                             '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
                             '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-                            '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
+                            .toLocaleString() + '</td>' +
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                  
+
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
-                    $('#total').html('₦'+total.toLocaleString());
+                    $('#total').html('₦' + total.toLocaleString());
 
                     var data = document.getElementById('print').innerHTML;
 
@@ -420,7 +440,6 @@
                 // myReceipt.close();
             }, 8000);
         }
-
     </script>
 
     <script>

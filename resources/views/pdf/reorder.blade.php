@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Store Name</title>
@@ -7,49 +8,51 @@
         body {
             font-family: Arial, sans-serif;
         }
-        
+
         .title {
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        
+
         .details {
             margin-bottom: 20px;
         }
-        
+
         .details-table {
             width: 100%;
         }
-        
+
         .details-table td {
             vertical-align: top;
             width: 50%;
         }
-        
+
         .details-table td.right-column {
             text-align: right;
         }
-        
+
         .details-table td p {
             margin: 0;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        
-        table th, table td {
+
+        table th,
+        table td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
     </style>
 </head>
+
 <body>
     <div class="title">El-Habib Plumbing Materials & Services Ltd.</div>
-    
+
     <table class="details-table">
         <tr>
             <td>
@@ -65,15 +68,15 @@
             </td>
         </tr>
     </table>
-    
+
     <table>
         <thead>
             <tr>
                 <th>Product Name</th>
-                <th>Ordered Quantity</th>
+                <th style="text-align: center;">Ordered Qty</th>
                 {{-- <th>Old Price</th> --}}
                 {{-- <th>Price Change</th> --}}
-                <th>New Price</th>
+                <th>Price</th>
                 <th>Sub total</th>
             </tr>
         </thead>
@@ -81,7 +84,7 @@
             @foreach ($records as $reorder)
                 <tr>
                     <td>{{ $reorder->product->name }}</td>
-                    <td>{{ $reorder->quantity }}</td>
+                    <td style="text-align: center;">{{ $reorder->quantity }}</td>
                     {{-- <td>{{ $reorder->buying_price }}</td> --}}
                     {{-- <td><input type="checkbox"></td> --}}
                     <td></td>
@@ -91,4 +94,5 @@
         </tbody>
     </table>
 </body>
+
 </html>

@@ -16,6 +16,7 @@
                     @php
                     $total_amount = 0;
                         $estimates = App\Models\Estimate::select('price','quantity','discount')
+                                                ->where('branch_id', auth()->user()->branch_id)
                                                 ->where('estimate_no', $recent->estimate_no)
                                                 ->get();
                         foreach ($estimates as $estimate) {

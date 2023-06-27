@@ -15,6 +15,7 @@
                     @php
                     $total_amount = 0;
                         $sales = App\Models\Sale::select('price','quantity','discount')
+                                                ->where('branch_id', auth()->user()->branch_id)
                                                 ->where('receipt_no', $recent->receipt_no)
                                                 ->get();
                         foreach ($sales as $sale) {

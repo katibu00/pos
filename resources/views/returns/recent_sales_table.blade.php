@@ -15,6 +15,7 @@
                     @php
                     $total_amount = 0;
                         $returns = App\Models\Returns::select('price','quantity','discount')
+                                                ->where('branch_id', auth()->user()->branch_id)
                                                 ->where('return_no', $recent->return_no)
                                                 ->get();
                         foreach ($returns as $return) {

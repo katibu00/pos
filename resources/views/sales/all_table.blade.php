@@ -28,8 +28,11 @@
                             
                 @endphp 
             <tr>
-              <td class="text-center">{{ $key + $sales->firstItem() }}</td>
-
+                @if ($sales instanceof Illuminate\Pagination\LengthAwarePaginator)
+                <td class="text-center">{{ $key + $sales->firstItem() }}</td>
+                 @else
+                 <td class="text-center">{{ $key + 1 }}</td>
+                @endif
               <th scope="row">{{ $sale->receipt_no }}</th>
               <td>{{ $saled[0]->created_at->format('l, d F') }}</td>
               <td>{{ is_numeric($saled[0]->customer_name) ? @$saled[0]->customer->first_name : @$saled[0]->customer_name}}</td>
@@ -48,6 +51,8 @@
     </div>
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
-          {{ $sales->links() }}
+            @if ($sales instanceof Illuminate\Pagination\LengthAwarePaginator && $sales->hasPages())
+                {{ $sales->links() }}
+            @endif
         </ul>
     </nav>

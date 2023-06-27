@@ -7,8 +7,37 @@
 
                 <div class="card">
                     <!-- Default panel contents -->
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="col-2 d-none d-md-block"><span class="text-bold fs-16">All Sales</span></div>
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <h2 class="text-bold fs-20">All Sales</h2>
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <div class="form-group">
+                                <select class="form-select" id="cashier_id">
+                                    <option value="">Sort by Cashier</option>
+                                    <option value="all">All</option>
+                                   @foreach ($staffs as $staff)
+                                   <option value="{{ $staff->id }}">{{ $staff->first_name.' '.$staff->last_name }}</option>
+                                   @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <select class="form-select" id="transaction_type">
+                                    <option value="">Filter by Transaction Type</option>
+                                    <option value="all">All</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="credit">Credit</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-data">
@@ -25,53 +54,17 @@
 
             </div>
         </div>
-    </section><!-- #content end -->
+    </section>
 
 @endsection
+
+
 
 @section('js')
 
 
-    <script>
-        //search
-        $(document).on('keyup', function(e) {
-            e.preventDefault();
 
-            let query = $('#search').val();
-            let branch_id = $('#branch').val();
 
-            if (branch_id == '') {
-                alert('please choose a branch');
-                return;
-            }
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                url: "{{ route('search-stocks') }}",
-                method: 'POST',
-                data: {
-                    'query': query,
-                    'branch_id': branch_id
-                },
-
-                success: function(response) {
-                    $('.table-data').html(response);
-                    $('.table').removeClass('d-none');
-
-                    if (response.status == 404) {
-                        $('.table-data').html(
-                            '<p class="text-danger text-center">No Data Matched the Query</p>');
-                    }
-                }
-            });
-
-        });
-    </script>
 
     <script>
         function PrintReceiptContent(receipt_no) {
@@ -102,15 +95,16 @@
                             '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
                             '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-                            '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
+                            .toLocaleString() + '</td>' +
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                  
+
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
-                    $('#total').html('₦'+total.toLocaleString());
+                    $('#total').html('₦' + total.toLocaleString());
 
                     var data = document.getElementById('print').innerHTML;
 
@@ -159,51 +153,82 @@
         }
     </script>
 
+    <script>
+        function handleSearch() {
+            var query = $('#searchInput').val();
+            
+            $('.pagination').hide();
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: '{{ route('sales.all.search') }}',
+                method: 'POST',
+                data: {
+                    query: query
+                },
+                success: function(response) {
+                    // Empty the table
+                    $('.table').empty();
+
+                    // Check if the response is empty
+                    if ($(response).find('tbody tr').length > 0) {
+                        $('.table').html(response);
+                    } else {
+                        // Display a message if no rows are found
+                        $('.table tbody').empty().append('<tr><td colspan="9" class="text-center">No results found.</td></tr>');
+                        toastr.warning('No results found.');
+                    }
+
+                },
+
+                error: function(xhr) {
+                    // Handle the error response here
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        $('#searchInput').on('input', handleSearch);
+    </script>
+
 
     <script>
-        $(document).on('click', '.delete', function(e) {
-            e.preventDefault();
+        $(document).ready(function() {
+    $('#cashier_id, #transaction_type').on('change', function() {
 
-            let id = $(this).data('id');
+        var cashierId = $('#cashier_id').val();
+        var transactionType = $('#transaction_type').val();
+        $.LoadingOverlay("show")
+        $('.pagination').hide();
 
-            swal({
-                    title: "Delete Product?",
-                    text: "Once deleted, you will not be able to recover it!",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                })
-                .then((willDelete) => {
-                    if (willDelete) {
-
-                        var data = {
-                            'id': id,
-                        }
-
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('stock.delete') }}",
-                            data: data,
-                            dataType: "json",
-                            success: function(response) {
-
-                                $('.table').load(location.href + ' .table');
-
-
-                            }
-                        });
-
-                    }
-                });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
         });
+        $.ajax({
+            url: '{{ route('sales.all.sort') }}',
+            method: 'POST',
+            data: {
+                cashier_id: cashierId,
+                transaction_type: transactionType
+            },
+            success: function(response) {
+                $('.table').empty();
+                $.LoadingOverlay("hide")
+                $('.table').html(response);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+    });
+});
+
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
-        integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 @endsection

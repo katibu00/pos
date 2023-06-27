@@ -114,8 +114,7 @@ class SalesController extends Controller
                 }
             }
             $deposits = Payment::select('payment_amount')->where('customer_id', $request->customer)->where('payment_type', 'deposit')->sum('payment_amount');
-            if($total_price > $deposits)
-            {
+            if ($total_price > $deposits) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'Deposit Balance is low. Reduce Quantity and Try again',
@@ -171,9 +170,8 @@ class SalesController extends Controller
 
             $customer_id = request()->input('customer');
             Payment::where('customer_id', $customer_id)->update(['payment_type' => 'used']);
-            if($total_price - $deposits != 0)
-            {
-                $balance = Payment::where('customer_id', $customer_id)->where('payment_type','used')->latest()->first();
+            if ($total_price - $deposits != 0) {
+                $balance = Payment::where('customer_id', $customer_id)->where('payment_type', 'used')->latest()->first();
                 $balance->payment_type = 'deposit';
                 $balance->payment_amount = $deposits - $total_price;
                 $balance->update();
@@ -261,8 +259,56 @@ class SalesController extends Controller
 
     public function allIndex()
     {
-        $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id',auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
+        $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id', auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id',auth()->user()->branch_id)->get();
+
         return view('sales.all_index', $data);
     }
+
+    public function allSearch(Request $request)
+    {
+        $query = $request->input('query');
+
+        // Perform the search query on the Sale model
+        $data['sales']  = Sale::select('stock_id', 'receipt_no')
+            ->where('branch_id', auth()->user()->branch_id)
+            ->where('receipt_no', 'LIKE', '%' . $query . '%')
+            ->groupBy('receipt_no')
+            ->orderBy('created_at', 'desc')
+            ->take(100)
+            ->get();
+
+        // // Return the search results as JSON
+        // return response()->json($sales);
+
+        return view('sales.all_table', $data)->render();
+
+    }
+
+
+    public function filterSales(Request $request)
+{
+    $cashierId = $request->input('cashier_id');
+    $transactionType = $request->input('transaction_type');
+
+    $query = Sale::select('stock_id', 'receipt_no')
+        ->where('branch_id', auth()->user()->branch_id);
+
+    if ($cashierId && $cashierId != 'all') {
+        $query->where('user_id', $cashierId);
+    }
+
+    if ($transactionType && $transactionType != 'all') {
+        $query->where('payment_method', $transactionType);
+    }
+
+    $data['sales'] = $query->groupBy('receipt_no')
+        ->orderBy('created_at', 'desc')
+        ->take(100)
+        ->get();
+
+    return view('sales.all_table', $data)->render();
+}
+
 
 }

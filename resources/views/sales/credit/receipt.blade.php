@@ -1,8 +1,64 @@
-<div id="invoice-POS" style="margin-bottom: 20px">
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Reset default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <center id="top">
+        /* Body styles */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        /* Header styles */
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+           text-align: center;
+        }
+
+        .business-name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .contact-details {
+            font-size: 9px;
+            margin-top: 3px;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+            border-bottom: 1px solid #000;
+            font-size: 12px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
         <div class="logo">
-            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="80.000000pt" height="80.000000pt"
+            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="40.000000pt" height="40.000000pt"
                 viewBox="0 0 669.000000 597.000000" preserveAspectRatio="xMidYMid meet">
                 <g transform="translate(0.000000,597.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
                     <path
@@ -37,59 +93,55 @@
                 </g>
             </svg>
         </div>
-        <div class="info">
-            <h4>EL-Habib Plumbing Services and Materials - {{ auth()->user()->branch->name }} Branch</h4>
-            <h5 style="text-decoration: underline;">Sales Receipt</h5>
+        <div class="business-name">EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch</div>
+        @if (auth()->user()->branch->name == 'Azare')
+        <div class="contact-details">
+            Address: Along Ali Kwara Hospital, Azare.<br>
+            Phone: 0916-844-3058<br>
+            Email: support@elhabibplumbing.com<br>
+            Website: www.elhabibplumbing.com
         </div>
-        <!--End Info-->
-    </center>
-    <em>Tranx ID:</em>  <em class="tran_id"></em>
-
-    <div id="mid">
-        <div class="info">
-            @if (auth()->user()->branch->name == 'Azare')
-                <p>
-                    <strong>Address:</strong> Along Ali Kwara Hospital, Azare.<br/><br/>
-                    <strong>Phone:</strong> 0916-844-3058<br/>
-                </p>
-            @endif
-            @if (auth()->user()->branch->name == 'Misau')
-                <p>
-                    <strong>Address</strong> : Kofar Yamma, Misau, Bauchi State<br/>
-                    Phone : 0901-782-0678<br/>
-                </p>
-            @endif
+        @endif
+        @if (auth()->user()->branch->name == 'Misau')
+        <div class="contact-details">
+            Address: Kofar Yamma, Misau, Bauchi State<br>
+            Phone: 0901-782-0678<br>
+            Email: support@elhabibplumbing.com<br>
+            Website: www.elhabibplumbing.com
         </div>
+        @endif
+        <div style="font-size: 12px; margin-top: 10px;">Ref ID: <span class="tran_id">></span></div> <!-- Added Transaction ID -->
     </div>
-    <!--End Invoice Mid-->
 
-    <div id="bot">
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="receipt_body">
+        </tbody>
+        <tfoot>
+            {{-- <tr>
+                <td colspan="3" style="text-align: right;">Subtotal:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: right;">Tax (%):</td>
+                <td>0.00</td>
+            </tr> --}}
+            <tr>
+                <td colspan="3" style="text-align: right;">Total:</td>
+                <td id="total"></td>
+            </tr>
+        </tfoot>
+    </table>
 
-        <div id="table">
-            <table style="width: 100%">
-                <thead>
-                    <tr>
-                        <th style="width: 10%">#</th>
-                        <th style="text-align: left">Item</th>
-                        <th>Qty</th>
-                        <th>Amount</th>
-                    </tr>
-                </thead>
-
-                <tbody id="receipt_body" style="width: 100%">
-
-                </tbody>
-            </table>
-        </div>
-        <!--End Table-->
-
-        <div id="legalcopy">
-            <p class="legal" style="text-align: center">*** Thank you! *** </p><br /><br />
-            <p>.</p>
-            <p>.</p>
-        </div>
-
-    </div>
-    <!--End InvoiceBot-->
-</div>
-<!--End Invoice-->
+    <div style="text-align: center; margin-bottom: 15px;">*** Thank you! ***</div>
+    <p>.</p><br>
+    <p>.</p><br>
+</body>
+</html>

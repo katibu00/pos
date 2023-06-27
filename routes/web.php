@@ -116,6 +116,9 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function 
     Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
     Route::get('/all/index', [SalesController::class, 'allIndex'])->name('sales.all.index');
 
+    Route::post('/all/search', [SalesController::class, 'allSearch'])->name('sales.all.search');
+    Route::post('/all/sort', [SalesController::class, 'filterSales'])->name('sales.all.sort');
+
 });
 
 Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function () {

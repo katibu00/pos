@@ -13,6 +13,7 @@ use App\Http\Controllers\ReturnsController;
 use App\Http\Controllers\SalaryAdvanceController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ShoppingListController;
+use App\Http\Controllers\SMSController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\UsersController;
@@ -35,7 +36,7 @@ Route::get('/', function () {
             return redirect()->route('admin.home');
         }
         if (auth()->user()->usertype == 'cashier') {
-            return redirect()->route('sales.index');
+            return redirect()->route('cashier.home');
         }
     };
     // return view('ecom.index');
@@ -94,9 +95,6 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::post('/reorder/save-expenses', [ShoppingListController::class, 'saveExpenses'])->name('reorder.save-expenses');
     Route::post('/reorder/fetch-profitability-forecast', [ShoppingListController::class, 'profitabilityForecast'])->name('reorder.fetch-profitability-forecast');
 
-
-
-
     Route::post('/fetch-branch-stocks', [PurchasesController::class, 'fetchStocks'])->name('fetch-branch-stocks');
     Route::post('/fetch-purchases', [PurchasesController::class, 'fetchPurchases'])->name('fetch-purchases');
 
@@ -116,8 +114,8 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function 
     Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
     Route::get('/all/index', [SalesController::class, 'allIndex'])->name('sales.all.index');
 
-    Route::post('/all/search', [SalesController::class, 'allSearch'])->name('sales.all.search');
-    Route::post('/all/sort', [SalesController::class, 'filterSales'])->name('sales.all.sort');
+    Route::post('/all/search', [SalesController::class, 'allSearch'])->name('sales.all.search');/////
+    Route::post('/all/sort', [SalesController::class, 'filterSales'])->name('sales.all.sort');////
 
 });
 
@@ -132,12 +130,22 @@ Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], functi
 
 });
 
+
+Route::group(['prefix' => 'sms', 'middleware' => ['auth', 'staff']], function () {
+    Route::get('/compose', [SMSController::class, 'compose'])->name('sms.compose');
+    Route::get('/balance', [SMSController::class, 'balance'])->name('sms.balance');
+    Route::post('/send', [SMSController::class, 'send'])->name('sms.send');
+
+});
+
 Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [UsersController::class, 'index'])->name('users.index');
     Route::post('/store', [UsersController::class, 'store'])->name('users.store');
     Route::post('/delete', [UsersController::class, 'delete'])->name('users.delete');
     Route::get('/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
     Route::post('/update/{id}', [UsersController::class, 'update'])->name('users.update');
+
+    Route::post('/search', [UsersController::class, 'search'])->name('users.search');////
 });
 
 Route::group(['prefix' => 'suppliers', 'middleware' => ['auth', 'admin']], function () {

@@ -1,4 +1,44 @@
-<li class="menu-item "><a class="menu-link" href="{{ route('cashier.home') }}">
+@if($route == 'sales.index')
+<li class="menu-item">
+    <a class="menu-link" href="#">
+        <div>Menu</div>
+    </a>
+    <ul class="sub-menu-container">
+        <li class="menu-item"><a class="menu-link" href="{{ route('cashier.home') }}">
+            <div>Home</div>
+        </a></li>
+        <li
+            class="menu-item">
+            <a class="menu-link" href="{{ route('credit.index') }}">
+                <div>Credit Sales</div>
+            </a>
+        </li>
+        <li
+            class="menu-item">
+            <a class="menu-link" href="{{ route('sales.all.index') }}">
+                <div>All Sales</div>
+            </a>
+        </li>
+
+        <li class="menu-item"><a
+            class="menu-link" href="{{ route('expense.index') }}">
+            <div>Expense</div>
+        </a></li>
+
+        <li class="menu-item"><a class="menu-link"
+            href="{{ route('returns') }}">
+            <div>Returns</div>
+        </a></li>
+
+        <li class="menu-item"><a
+            class="menu-link" href="{{ route('customers.index') }}">
+            <div>Customers</div>
+        </a></li>
+    </ul>
+</li>
+@else
+
+<li class="menu-item {{ $route == 'cashier.home' ? 'current' : '' }} "><a class="menu-link" href="{{ route('cashier.home') }}">
         <div>Home</div>
     </a></li>
 <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}  {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
@@ -9,7 +49,7 @@
         <li
             class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('sales.index') }}">
-                <div><i class="icon-wpforms"></i>Sales</div>
+                <div>Sales</div>
             </a>
         </li>
         <li
@@ -57,7 +97,7 @@
         <li
             class="menu-item {{ $route == 'estimate.index' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('estimate.index') }}">
-                <div><i class="icon-wpforms"></i>Estimate</div>
+                <div>Estimate</div>
             </a>
         </li>
         <li
@@ -88,3 +128,5 @@
 
     </ul>
 </li>
+
+@endif

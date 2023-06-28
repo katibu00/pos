@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Reorder;
 use App\Models\ReorderExpense;
+use App\Models\Stock;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
@@ -21,7 +22,7 @@ class ShoppingListController extends Controller
 
         $data['branches'] = Branch::all();
         $data['suppliers'] = User::where('usertype', 'supplier')->get();
-        $data['products'] = [];
+        $data['stocks'] = [];
 
         return view('purchases.reorder.index', $data);
     }
@@ -112,7 +113,7 @@ class ShoppingListController extends Controller
         $branchId = $request->input('branch_id');
         $productType = $request->input('product_type');
 
-        $query = Product::query();
+        $query = Stock::query();
 
         // Filter by branch
         if ($branchId) {
@@ -218,7 +219,7 @@ class ShoppingListController extends Controller
             if ($afterBuyingPrice !== null && $afterSellingPrice !== null) {
                 $suppliedQuantity = $data['supplied_quantity'][$key];
 
-                $stock = Product::where('id', $productId)->first();
+                $stock = Stock::where('id', $productId)->first();
 
                 // Update the buying and selling prices
                 $stock->quantity += $suppliedQuantity;

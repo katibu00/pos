@@ -5,8 +5,7 @@
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="author" content="ukmisau" />
-    <!-- Stylesheets
- ============================================= -->
+    <!-- Stylesheets -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
 
@@ -40,8 +39,7 @@
     <!-- Bootstrap Select CSS -->
     <link rel="stylesheet" href="/css/components/bs-select.css" type="text/css" />
 
-    <!-- Document Title
- ============================================= -->
+    <!-- Document Title -->
     <title>@yield('PageTitle') | El-Habib Plumbing Material and Services Ltd</title>
     <link rel="stylesheet" href="/toastr/toastr.min.css">
 
@@ -49,20 +47,17 @@
 
 <body class="stretched search-overlay">
 
-    <!-- Document Wrapper
- ============================================= -->
+    <!-- Document Wrapper -->
     <div id="wrapper" class="clearfix">
 
 
-        <!-- Header
-  ============================================= -->
+        <!-- Header -->
         <header id="header" class="full-header header-size-md" data-mobile-sticky="true">
             <div id="header-wrap">
                 <div class="container">
                     <div class="header-row">
 
-                        <!-- Logo
-      ============================================= -->
+                        <!-- Logo -->
                         <div id="logo">
                             <a href="#" class="standard-logo"><img src="/logo.jpg" alt="logo"></a>
                             <a href="#" class="retina-logo"><img src="/logo.jpg" alt="logo"></a>
@@ -70,8 +65,7 @@
 
                         <div class="header-misc ms-0">
 
-                            <!-- Top Account
-       ============================================= -->
+                            <!-- Top Account -->
                             <div class="header-misc-icon">
                                 <a href="#" id="notifylink" data-bs-toggle="dropdown" data-bs-offset="0,15"
                                     aria-haspopup="true" aria-expanded="false" data-offset="12,12"><i
@@ -94,16 +88,17 @@
                                 </div>
                             </div>
 
-                            <!-- Top Account
-       ============================================= -->
+                            <!-- Top Account -->
                             <div class="header-misc-icon profile-image">
                                 <a href="#" id="profilelink" data-bs-toggle="dropdown" data-bs-offset="0,15"
                                     aria-haspopup="true" aria-expanded="false" data-offset="12,12"><img
                                         class="rounded-circle" src="/default.png"
                                         alt="{{ auth()->user()->first_name }}"></a>
                                 <div class="dropdown-menu dropdown-menu-end py-0 m-0" aria-labelledby="profilelink">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"><i
-                                            class="icon-line-log-out me-2"></i>Sign Out</a>
+                                    <a class="dropdown-item" href="{{ route('sms.compose') }}"><i class="icon-line-mail me-2"></i>Compose SMS</a>
+                                    <a class="dropdown-item" href="{{ route('sms.balance') }}"><i class="icon-line-speech-bubble me-2"></i>SMS Balance</a>
+                                    <div class="line m-0"></div>
+                                    <a class="dropdown-item" href="{{ route('logout') }}"><i class="icon-line-log-out me-2"></i>Sign Out</a>
                                 </div>
                             </div>
 
@@ -145,39 +140,29 @@
             <div class="header-wrap-clone"></div>
         </header><!-- #header end -->
 
-        <!-- Content
-  ============================================= -->
+        <!-- Content -->
         @yield('content')
 
-        <!-- Footer
-  ============================================= -->
+        <!-- Footer -->
         <footer id="footer" class="border-0" style="background-color: #F5F5F5;">
-
-
             <div class="line m-0"></div>
-
-            <!-- Copyrights
-   ============================================= -->
-            <div id="copyrights" style="background-color: #FFF">
+            <div id="copyrights" style="background-color: #FFF; padding: 10px;">
                 <div class="container clearfix">
-
                     <div class="w-100 center m-0">
-                        <span>Copyrights &copy; 2023 All Rights Reserved - El-Habib Plumbing Material and Services
-                            Ltd.</span>
+                        <span style="font-size: 12px;">Copyrights &copy; 2023 All Rights Reserved -
+                            El-Habib Plumbing Material and Services Ltd.</span>
                     </div>
-
                 </div>
-            </div><!-- #copyrights end -->
-        </footer><!-- #footer end -->
+            </div>
+        </footer>
+        
+        
+    </div>
 
-    </div><!-- #wrapper end -->
-
-    <!-- Go To Top
- ============================================= -->
+    <!-- Go To Top -->
     <div id="gotoTop" class="icon-angle-up"></div>
 
-    <!-- JavaScripts
- ============================================= -->
+    <!-- JavaScripts -->
     <script src="/js/jquery.js"></script>
     <script src="/js/plugins.min.js"></script>
 
@@ -191,8 +176,7 @@
     <!-- Select Splitter Plugin -->
     <script src="/js/components/selectsplitter.js"></script>
 
-    <!-- Footer Scripts
- ============================================= -->
+    <!-- Footer Scripts -->
     <script src="/js/functions.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="/toastr/toastr.min.js"></script>

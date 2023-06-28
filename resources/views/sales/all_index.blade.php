@@ -6,7 +6,6 @@
             <div class="container">
 
                 <div class="card">
-                    <!-- Default panel contents -->
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
                         <div class="col-12 col-md-3 mb-2 mb-md-0">
                             <h2 class="text-bold fs-20">All Sales</h2>

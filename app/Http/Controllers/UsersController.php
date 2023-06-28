@@ -97,7 +97,6 @@ class UsersController extends Controller
         // dd($data['dat÷es']);
         $data['payments'] = Payment::select('id', 'payment_amount', 'payment_method', 'created_at')->where('payment_type', 'credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
 
-
         $data['shoppingHistory'] = Sale::where('customer_name', $id)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -206,14 +205,11 @@ class UsersController extends Controller
                         DB::commit();
 
                         // Success message or redirect
-                        if($request->payment_method == 'deposit')
-                        {
+                        if ($request->payment_method == 'deposit') {
                             $customer->balance = $customer->balance - $request->partial_amount[$i];
-                        }else
-                        {
+                        } else {
                             $customer->balance = $customer->balance - $request->partial_amount[$i];
                         }
-                       
 
                         array_push($receipt_nos, $request->receipt_no[$i]);
                         $total_amount_paid += $request->partial_amount[$i];
@@ -305,11 +301,11 @@ class UsersController extends Controller
         $productCount = count($request->sale_id);
         if ($productCount != null) {
             for ($i = 0; $i < $productCount; $i++) {
-               
+
                 $sale = Sale::find($request->sale_id[$i]);
 
                 if ($request->returned_qty[$i] != '') {
-                   
+
                     if ($request->returned_qty[$i] <= $sale->quantity) {
 
                         $sale->returned_qty += $request->returned_qty[$i];
@@ -352,6 +348,23 @@ class UsersController extends Controller
         }
         Toastr::success('Credit Sales was Updated Successfully');
         return redirect()->route('customers.profile', $sale->customer_name);
+
+    }
+
+    public function search(Request $request)
+    {
+        $searchQuery = $request->input('query');
+
+        $data['customers'] = User::where('usertype', 'customer')
+            ->where('branch_id', auth()->user()->branch_id)
+            ->where(function ($query) use ($searchQuery) {
+                $query->where('first_name', 'LIKE', '%' . $searchQuery . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $searchQuery . '%');
+            })
+            ->orderBy('first_name')
+            ->get();
+
+        return view('users.customers.table', $data)->render();
 
     }
 

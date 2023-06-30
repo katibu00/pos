@@ -13,6 +13,7 @@
             border: 2px inset rgba(150, 150, 150, 0.7);
             background: radial-gradient(ellipse at top)
         }
+
         @media (max-width: 767px) {
             table.table thead {
                 display: none;
@@ -76,6 +77,7 @@
                 visibility: visible;
             }
         }
+
         .button-group {
             white-space: nowrap;
         }
@@ -84,6 +86,30 @@
             display: inline-block;
         }
 
+        .disabled-input {
+            opacity: 0.6;
+            pointer-events: none;
+            background-color: #f9f9f9;
+        }
+        .card-header {
+            padding: 0.5rem;
+            background-color: #f5f5f5; 
+        }
+
+        .card-header p {
+            margin-bottom: 0;
+        }
+
+        .card-header .total {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff0000; 
+        }
+
+        .card-header .amount {
+            display: block;
+            font-size: 2.5em;
+        }
     </style>
 
 @endsection
@@ -105,54 +131,59 @@
                                         <thead>
                                             <tr>
                                                 <th style="width: 2%"></th>
+                                                <th> </th>
                                                 <th style="width: 30%">Product</th>
                                                 <th>Qty</th>
                                                 <th>Price</th>
                                                 <th>Discount</th>
                                                 <th>Amount</th>
-                                                <th>
-                                                </th>
+
                                             </tr>
                                         </thead>
                                         <tbody class="addMoreRow">
                                             <tr>
                                                 <td>1</td>
-                                                <td>
-                                                    <select class="form-select product_id" id="product_id"
-                                                    name="product_id[]" required>
-                                                    <option value=""></option>
-                                                    @foreach ($products as $product)
-                                                        <option data-price="{{ $product->selling_price }}"
-                                                            data-quantity="{{ $product->quantity }}"
-                                                            value="{{ $product->id }}">{{ $product->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="quantity[]" step="0.5" id="quantity"
-                                                        class="form-control quantity" required>
-                                                </td>
-                                                <td>
-                                                    <input type="number" readonly name="price[]" id="price"
-                                                        class="form-control price">
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="discount[]" id="discount"
-                                                        class="form-control discount">
-                                                </td>
-                                                <td>
-                                                    <input type="number" readonly name="total_amount[]"
-                                                        id="total_amount" class="form-control total_amount">
-                                                </td>
                                                 <td class="button-group">
                                                     <a href="#"
                                                         class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
                                                             class="fa fa-times-circle"></i></a>
                                                     <a href="#"
                                                         class="btn btn-success btn-sm add_row rounded-circle"><i
-                                                            class="fa fa-plus"></i></a>
+                                                            class="fa fa-plus-circle"></i></a>
                                                 </td>
+                                                <td>
+
+                                                    <select class="form-select product_id" id="product_id"
+                                                        name="product_id[]" required>
+                                                        <option value=""></option>
+                                                        @foreach ($products as $product)
+                                                            <option data-price="{{ $product->selling_price }}"
+                                                                data-quantity="{{ $product->quantity }}"
+                                                                value="{{ $product->id }}">{{ $product->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <input type="hidden" class="product_qty" value="">
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="quantity[]" step="any"
+                                                        placeholder="Qty" id="quantity" class="form-control quantity"
+                                                        required>
+                                                </td>
+                                                <td>
+                                                    <input type="number" readonly name="price[]" id="price"
+                                                        class="form-control disabled-input price">
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="discount[]" placeholder="Discount"
+                                                        id="discount" class="form-control discount">
+                                                </td>
+                                                <td>
+                                                    <input type="number" readonly name="total_amount[]"
+                                                        id="total_amount"
+                                                        class="form-control disabled-input total_amount">
+                                                </td>
+
                                             </tr>
                                         </tbody>
                                     </table>
@@ -165,7 +196,7 @@
 
                     <div class="col-md-4 mb-4">
                         <div class="card">
-                            <div class="card-header bg-transparent">
+                            <div class="card-header bg-transparent text-center">
                                 <p>Total: <b class="total"> 0.00 </b></p>
                             </div>
 
@@ -216,23 +247,20 @@
 @section('js')
     <script>
         $('.product_id').select2();
-
         $('.sales-table').on('click', '.add_row', function() {
             var product = $('.product_id').html();
             var numberofrow = ($('.addMoreRow tr').length - 0) + 1;
             var tr = '<tr><td class="no">' + numberofrow + '</td>' +
+                '<td class="button-group"><a class="btn btn-danger btn-sm mx-1 remove_row rounded-circle"><i class="fa fa-times-circle"></i></a> <a href="#" class="btn btn-success btn-sm add_row rounded-circle"><i class="fa fa-plus-circle"></i></a></td>' +
                 '<td><select class="form-select product_id" name="product_id[]" required>' + product +
                 '</select><input type="hidden" class="product_qty" value=""></td>' +
                 '<td><input type="number" name="quantity[]" placeholder="Qty" step="any" class="form-control quantity" required></td>' +
-                '<td><input type="number" readonly name="price[]" class="form-control price"></td>' +
+                '<td><input type="number" readonly name="price[]" class="form-control disabled-input price"></td>' +
                 '<td><input type="number" name="discount[]" placeholder="Dicount" class="form-control discount"></td>' +
-                '<td><input type="number" readonly name="total_amount[]" class="form-control total_amount"></td>' +
-                '<td class="button-group"><a class="btn btn-danger btn-sm mx-1 remove_row rounded-circle"><i class="fa fa-times-circle"></i></a> <a href="#" class="btn btn-success btn-sm add_row rounded-circle"><i class="fa fa-plus"></i></a></td></tr>';
+                '<td><input type="number" readonly name="total_amount[]" class="form-control disabled-input total_amount"></td>';
             $('.addMoreRow').append(tr);
             $('.product_id').select2();
         });
-
-
        
         $('.addMoreRow').delegate('.remove_row', 'click', function() {
             $(this).parent().parent().remove();
@@ -258,13 +286,6 @@
             tr.find('.price').val(price);
             var qty = tr.find('.quantity').val() - 0;
 
-            if (quantity < 1) {
-                Command: toastr["error"](quantity + ' Remaining')
-
-                tr.find('.quantity').val('');
-            }
-
-
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price) - ((qty * price * disc) / 100);
@@ -277,12 +298,6 @@
             var tr = $(this).parent().parent();
             var qty = tr.find('.quantity').val() - 0;
             var product_qty = tr.find('.product_qty').val() - 0;
-            if (qty > product_qty) {
-                Command: toastr["error"](product_qty + ' Product Quantity Remaining Only.')
-
-                tr.find('.quantity').val('');
-
-            }
             var disc = tr.find('.discount').val() - 0;
             var price = tr.find('.price').val() - 0;
             var total_amount = (qty * price - disc);

@@ -114,8 +114,11 @@ Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function 
     Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
     Route::get('/all/index', [SalesController::class, 'allIndex'])->name('sales.all.index');
 
-    Route::post('/all/search', [SalesController::class, 'allSearch'])->name('sales.all.search');/////
-    Route::post('/all/sort', [SalesController::class, 'filterSales'])->name('sales.all.sort');////
+    Route::post('/all/search', [SalesController::class, 'allSearch'])->name('sales.all.search');
+    Route::post('/all/sort', [SalesController::class, 'filterSales'])->name('sales.all.sort');
+
+    Route::post('/awaiting_pickup', [SalesController::class, 'markAwaitingPickup'])->name('sales.awaiting_pickup');
+    Route::post('/deliver', [SalesController::class, 'markDeliver'])->name('sales.deliver');
 
 });
 

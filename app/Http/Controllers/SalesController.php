@@ -260,7 +260,7 @@ class SalesController extends Controller
     public function allIndex()
     {
         $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id', auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
-        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id',auth()->user()->branch_id)->get();
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
 
         return view('sales.all_index', $data);
     }
@@ -270,7 +270,7 @@ class SalesController extends Controller
         $query = $request->input('query');
 
         // Perform the search query on the Sale model
-        $data['sales']  = Sale::select('stock_id', 'receipt_no')
+        $data['sales'] = Sale::select('stock_id', 'receipt_no')
             ->where('branch_id', auth()->user()->branch_id)
             ->where('receipt_no', 'LIKE', '%' . $query . '%')
             ->groupBy('receipt_no')
@@ -285,30 +285,76 @@ class SalesController extends Controller
 
     }
 
-
     public function filterSales(Request $request)
-{
-    $cashierId = $request->input('cashier_id');
-    $transactionType = $request->input('transaction_type');
+    {
+        $cashierId = $request->input('cashier_id');
+        $transactionType = $request->input('transaction_type');
 
-    $query = Sale::select('stock_id', 'receipt_no')
-        ->where('branch_id', auth()->user()->branch_id);
+        $query = Sale::select('stock_id', 'receipt_no')
+            ->where('branch_id', auth()->user()->branch_id);
 
-    if ($cashierId && $cashierId != 'all') {
-        $query->where('user_id', $cashierId);
+        if ($cashierId && $cashierId != 'all') {
+            $query->where('user_id', $cashierId);
+        }
+
+        if ($transactionType && $transactionType != 'all') {
+            if ($transactionType === 'awaiting_pickup') {
+                $query->where('collected', 0);
+            } else {
+                $query->where('payment_method', $transactionType);
+            }
+        }
+
+        $data['sales'] = $query->groupBy('receipt_no')
+            ->orderBy('created_at', 'desc')
+            ->take(100)
+            ->get();
+
+        return view('sales.all_table', $data)->render();
     }
 
-    if ($transactionType && $transactionType != 'all') {
-        $query->where('payment_method', $transactionType);
+    public function markAwaitingPickup(Request $request)
+    {
+        $receiptNo = $request->receiptNo;
+
+        $sales = Sale::where('receipt_no', $receiptNo)->get();
+
+        foreach ($sales as $sale) {
+            $sale->collected = 0;
+            $sale->save();
+
+            $stock = Stock::find($sale->stock_id);
+            $stock->pending_pickups += $sale->quantity;
+            $stock->save();
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Items marked as awaiting pickup successfully.',
+        ]);
     }
 
-    $data['sales'] = $query->groupBy('receipt_no')
-        ->orderBy('created_at', 'desc')
-        ->take(100)
-        ->get();
+    public function markDeliver(Request $request)
+    {
+        $receiptNo = $request->receiptNo;
 
-    return view('sales.all_table', $data)->render();
-}
+        $sales = Sale::where('receipt_no', $receiptNo)
+            ->where('collected', 0)
+            ->get();
 
+        foreach ($sales as $sale) {
+            $sale->collected = 1;
+            $sale->update();
+
+            $stock = Stock::find($sale->stock_id);
+            $stock->pending_pickups -= $sale->quantity;
+            $stock->update();
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Sales marked as delivered successfully',
+        ]);
+    }
 
 }

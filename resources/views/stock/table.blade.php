@@ -6,7 +6,8 @@
                 <th scope="col">Product Name</th>
                 <th scope="col" class="text-center">Cost Price (&#8358;)</th>
                 <th scope="col" class="text-center">Retail Price (&#8358;)</th>
-                <th scope="col" class="text-center">Stock Quantity</th>
+                <th scope="col" class="text-center">Quantity</th>
+                <th scope="col" class="text-center">Awaiting Pickup</th>
                 <th scope="col" class="text-center">Critical Level</th>
                 <th scope="col" class="text-center">Action</th>
             </tr>
@@ -20,6 +21,7 @@
               <td class="text-center">{{ number_format($stock->buying_price,0) }}</td>
               <td class="text-center">{{ number_format($stock->selling_price,0) }}</td>
               <td class="text-center">{{ number_format($stock->quantity,0) }}</td>
+              <td class="text-center">@if($stock->pending_pickups == 0) <span class="badge bg-success">-</span> @else <span class="badge bg-danger">{{ number_format($stock->pending_pickups,0) }}</span> @endif</td>
               <td class="text-center">{{ number_format($stock->critical_level,0) }}</td>
               <td class="text-center">
                   <a class="btn btn-sm btn-primary my-1" href="{{route('stock.edit',$stock->id)}}"> <i class="fa fa-edit"></i></a>

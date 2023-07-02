@@ -20,6 +20,7 @@ class CreateStocksTable extends Migration
             $table->float('buying_price');
             $table->float('selling_price');
             $table->integer('quantity')->default(0); 
+            $table->integer('pending_pickups')->default(0);
             $table->integer('critical_level'); 
             $table->timestamps();
         });

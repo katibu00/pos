@@ -5,7 +5,7 @@
         <div class="content-wrap">
             <div class="container">
                 <div class="card">
-                  
+
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
                         <div class="col-12 col-md-4 mb-2 mb-md-0">
                             <h3 class="text-bgold fs-20">Customers ({{ auth()->user()->branch->name }} Branch)</h3>
@@ -17,14 +17,15 @@
                         </div>
 
                         <div class="col-12 col-md-2 mb-md-0">
-                            <button class="btn btn-lsm btn-primary text-white" data-bs-toggle="modal" data-bs-target=".addModal">+
+                            <button class="btn btn-lsm btn-primary text-white" data-bs-toggle="modal"
+                                data-bs-target=".addModal">+
                                 New Customer</button>
                         </div>
                     </div>
 
                     <div class="card-body">
 
-                       @include('users.customers.table')
+                        @include('users.customers.table')
 
                     </div>
 
@@ -118,46 +119,47 @@
 
 @section('js')
 
-<script>
-    function handleSearch() {
-        var query = $('#searchInput').val();
-        
-        $('.pagination').hide();
+    <script>
+        function handleSearch() {
+            var query = $('#searchInput').val();
 
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            url: '{{ route('users.search') }}',
-            method: 'POST',
-            data: {
-                query: query
-            },
-            success: function(response) {
-                // Empty the table
-                $('.table').empty();
+            $('.pagination').hide();
 
-                // Check if the response is empty
-                if ($(response).find('tbody tr').length > 0) {
-                    $('.table').html(response);
-                } else {
-                    // Display a message if no rows are found
-                    $('.table tbody').empty().append('<tr><td colspan="9" class="text-center">No results found.</td></tr>');
-                    toastr.warning('No results found.');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
+            });
+            $.ajax({
+                url: '{{ route('users.search') }}',
+                method: 'POST',
+                data: {
+                    query: query
+                },
+                success: function(response) {
+                    // Empty the table
+                    $('.table').empty();
 
-            },
+                    // Check if the response is empty
+                    if ($(response).find('tbody tr').length > 0) {
+                        $('.table').html(response);
+                    } else {
+                        // Display a message if no rows are found
+                        $('.table tbody').empty().append(
+                            '<tr><td colspan="9" class="text-center">No results found.</td></tr>');
+                        toastr.warning('No results found.');
+                    }
 
-            error: function(xhr) {
-                // Handle the error response here
-                console.log(xhr.responseText);
-            }
-        });
-    }
-    $('#searchInput').on('input', handleSearch);
-</script>
+                },
+
+                error: function(xhr) {
+                    // Handle the error response here
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        $('#searchInput').on('input', handleSearch);
+    </script>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"

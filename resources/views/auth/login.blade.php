@@ -96,7 +96,7 @@
         <ul id="error_list"></ul>
         <form id="loginForm">
             <div class="form-floating">
-                <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                <input type="text" class="form-control" id="email" placeholder="name@example.com">
                 <label for="email">Email address</label>
             </div>
             <div class="form-floating">

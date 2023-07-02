@@ -10,6 +10,7 @@
                 <th scope="col" class="text-center">Discount (&#8358;)</th>
                 <th scope="col" class="text-center">Discounted Amount (&#8358;)</th>
                 <th scope="col">Note</th>
+                <th scope="col">Collected?</th>
                 <th scope="col" class="text-center">Action</th>
             </tr>
         </thead>
@@ -18,7 +19,7 @@
                 @php
                     $total_amount = 0;
                     $total_discount = 0;
-                    $saled = App\Models\Sale::select('price','quantity','discount','customer_name','created_at','receipt_no','note')
+                    $saled = App\Models\Sale::select('price','quantity','discount','customer_name','created_at','receipt_no','note','collected')
                                             ->where('receipt_no', $row->receipt_no)
                                             ->get();
                     foreach ($saled as $sale) {
@@ -40,15 +41,33 @@
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
               <td>{{ $saled[0]->note }}</td>
-
-              <td class="text-center">
-                <button type="button" onclick="PrintReceiptContent('{{ $row->receipt_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button>
-            </td>
+              <td> @if($saled[0]->collected == 1)<span class="badge bg-success">Collected</span>@else<span class="badge bg-danger">Awaiting</span>@endif</td>
+            <td class="text-center">
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="dots"></span>
+                    <span class="dots"></span>
+                    <span class="dots"></span>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#" onclick="PrintReceiptContent('{{ $row->receipt_no}}')"><i class="fa fa-print"></i> Receipt</a>
+                    @if($saled[0]->collected == 1)
+                    <a class="dropdown-item" href="#" onclick="confirmPickup('{{ $row->receipt_no}}')">
+                        <i class="fa fa-truck"></i> Awaiting Pickup
+                    </a>
+                    @else
+                    <a class="dropdown-item" href="#" onclick="confirmDeliver('{{ $row->receipt_no}}')">
+                        <i class="fas fa-shipping-fast"></i> Deliver
+                    </a>
+                    @endif
+                  </div>
+                </div>
+              </td>
+              
             </tr>
             @endforeach
         </tbody>
     </table>
-    </div>
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             @if ($sales instanceof Illuminate\Pagination\LengthAwarePaginator && $sales->hasPages())
@@ -56,3 +75,5 @@
             @endif
         </ul>
     </nav>
+    </div>
+   

@@ -458,8 +458,20 @@
                             $('#salesForm')[0].reset();
                             $(".product_id").val('none').trigger('change');
                             updateTable();
+                            toastr.success(res.message, "Success", { timeOut: 3000 });
                         }
+                        if (res.status == 400) {
+                            $.LoadingOverlay("hide");
+                           
+                            toastr.warning(res.message, "Insuffient Balance", { timeOut: 3000 });
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+
+                        toastr.error("An error occurred: " + error, "Error", { timeOut: 3000 });
                     }
+                    
                 })
             });
 

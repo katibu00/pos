@@ -219,6 +219,10 @@ class HomeController extends Controller
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
         }, 0);
+        $data['depositSales'] = $todaySales->where('payment_method', 'deposit')->reduce(function ($total, $sale) {
+            $total += ($sale->price * $sale->quantity) - $sale->discount;
+            return $total;
+        }, 0);
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
             return (($sale->price - $sale->product->buying_price) * $sale->quantity);
         });
@@ -252,10 +256,15 @@ class HomeController extends Controller
         $data['posExpenses'] = $todayExpenses->where('payment_method', 'pos')->sum('amount');
         $data['transferExpenses'] = $todayExpenses->where('payment_method', 'transfer')->sum('amount');
         //credit Payments
-        $data['totalCreditPayments'] = $creditPayments->sum('payment_amount');
-        $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->sum('payment_amount');
-        $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->sum('payment_amount');
-        $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->sum('payment_amount');
+        $data['totalCreditPayments'] = $creditPayments->where('payment_type','credit')->sum('payment_amount');
+        $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->where('payment_type','credit')->sum('payment_amount');
+        $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->where('payment_type','credit')->sum('payment_amount');
+        $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->where('payment_type','credit')->sum('payment_amount');
+        //deposits
+        $data['totalDepositPayments'] = $creditPayments->where('payment_type','deposit')->sum('payment_amount');
+        $data['cashDepositPayments'] = $creditPayments->where('payment_method', 'cash')->where('payment_type','deposit')->sum('payment_amount');
+        $data['posDepositPayments'] = $creditPayments->where('payment_method', 'POS')->where('payment_type','deposit')->sum('payment_amount');
+        $data['transferDepositPayments'] = $creditPayments->where('payment_method', 'transfer')->where('payment_type','deposit')->sum('payment_amount');
         //estimates
         $data['totalEstimate'] = $estimates->sum(function ($estimate) {
             return ($estimate->price * $estimate->quantity) - $estimate->discount;
@@ -269,6 +278,11 @@ class HomeController extends Controller
             ->get();
         $data['lows'] = count($stocks);
         $data['total_stock'] = Stock::select('id')->where('branch_id', $branch_id)->count();
+
+        $data['uncollectedSales'] = Sale::where('branch_id', $branch_id)
+                            ->where('collected', 0)
+                            ->groupBy('receipt_no')
+                            ->get();
 
         $endDate = Carbon::today();
         $startDate = $endDate->copy()->subDays(6);

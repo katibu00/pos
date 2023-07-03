@@ -54,6 +54,10 @@ class HomeController extends Controller
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
         }, 0);
+        $data['depositSales'] = $todaySales->where('payment_method', 'deposit')->reduce(function ($total, $sale) {
+            $total += ($sale->price * $sale->quantity) - $sale->discount;
+            return $total;
+        }, 0);
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
             return (($sale->price - $sale->product->buying_price) * $sale->quantity);
         });
@@ -80,6 +84,10 @@ class HomeController extends Controller
         $data['returnProfit'] = $todayReturns->sum(function ($return) {
             return (($return->price - $return->product->buying_price) * $return->quantity);
         });
+        $data['uncollectedSales'] = Sale::where('branch_id', $branch_id)
+        ->where('collected', 0)
+        ->groupBy('receipt_no')
+        ->get();
 
         //Expenses
         $data['totalExpenses'] = $todayExpenses->sum('amount');
@@ -91,6 +99,11 @@ class HomeController extends Controller
         $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->sum('payment_amount');
         $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->sum('payment_amount');
         $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->sum('payment_amount');
+        //deposit
+        $data['totalDepositPayments'] = $creditPayments->where('payment_type','deposit')->sum('payment_amount');
+        $data['cashDepositPayments'] = $creditPayments->where('payment_method', 'cash')->where('payment_type','deposit')->sum('payment_amount');
+        $data['posDepositPayments'] = $creditPayments->where('payment_method', 'POS')->where('payment_type','deposit')->sum('payment_amount');
+        $data['transferDepositPayments'] = $creditPayments->where('payment_method', 'transfer')->where('payment_type','deposit')->sum('payment_amount');
         //estimates
         $data['totalEstimate'] = $estimates->sum(function ($estimate) {
             return ($estimate->price * $estimate->quantity) - $estimate->discount;

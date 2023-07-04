@@ -33,7 +33,7 @@ class ExpensesController extends Controller
         if($dataCount != NULL){
             for ($i=0; $i < $dataCount; $i++){
 
-                $todaySales = Sale::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->where('stock_id','!=',1012)->whereDate('created_at', today())->get();
+                $todaySales = Sale::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
                 $todayReturns = Returns::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereDate('created_at', today())->get();
                 $expenses = Expense::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereDate('created_at', today())->sum('amount');
                 $payments = Payment::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereDate('created_at', today())->sum('payment_amount');

@@ -40,7 +40,7 @@
 
               <td>
                 <button type="button" onclick="PrintReceiptContent('{{ $row->estimate_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print"></i></button>
-                <button type="button" class="btn btn-success btn-sm saleItem" data-note="{{ $estimate->note }}" data-name="{{ $estimate->customer }}" data-estimate_no="{{ $estimate->estimate_no  }}" data-payable="{{ $total_amount-$total_discount }}"><i class="fa fa-money" data-bs-toggle="modal" data-bs-target=".addModal"></i></button>
+                <button type="button" class="btn btn-success btn-sm saleItem" data-note="{{ $estimate->note }}" data-name="{{ $estimate->customer }}" data-estimate_no="{{ $estimate->estimate_no  }}" data-payable="{{ $total_amount-$total_discount }}"><i class="fas fa-shopping-cart" data-bs-toggle="modal" data-bs-target=".addModal"></i></button>
               </td>
             </tr>
             @endforeach

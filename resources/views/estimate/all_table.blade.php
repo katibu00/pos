@@ -24,8 +24,7 @@
                     foreach ($estimated as $estimate) {
                         $total_amount += ($estimate->price*$estimate->quantity);
                         $total_discount+= $estimate->discount;
-                    }
-                            
+                    }         
                 @endphp 
             <tr>
               <td class="text-center">{{ $key + $estimates->firstItem() }}</td>

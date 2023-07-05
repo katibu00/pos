@@ -393,6 +393,12 @@
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
+                    if(res.items[0].customer_name !== null)
+                    {
+                        $('#customer_name_span').html("Customer Name: "+res.items[0].customer_name);
+                    }else{
+                        $('#customer_name_span').html('');
+                    }
                     $('#total').html('₦' + total.toLocaleString());
 
                     var data = document.getElementById('print').innerHTML;

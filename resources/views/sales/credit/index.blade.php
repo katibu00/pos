@@ -78,6 +78,7 @@
                 visibility: visible;
             }
         }
+
         .button-group {
             white-space: nowrap;
         }
@@ -216,22 +217,35 @@
                                                         <label class="form-check-label nott" for="deposit"><i
                                                                 class="fa fa-credit-card text-info"></i> Deposit</label>
                                                     </div>
-                                                   
+
                                                 </div>
                                             </td>
+                                            <style>
+                                                p {
+                                                    margin: 0;
+                                                    font-weight: bold;
+                                                    font-size: 1.2em;
+                                                }
 
+                                                span {
+                                                    font-weight: normal;
+                                                }
+                                            </style>
 
                                             <td>
-                                                Credit Balance:
-                                                <input type="number" name="pre_balance" id="pre_balance" class="form-control mb-2" readonly>
+                                                <p>Credit Balance: <span id="pre_balance_span">0.00</span></p>
+                                                <input type="hidden" name="pre_balance" id="pre_balance"
+                                                    class="form-control mb-2" readonly>
                                             </td>
                                             <td>
-                                                Deposit Balance:
-                                                <input type="number" name="deposit_bal" id="deposit_bal" class="form-control mb-2" readonly>
+                                                <p>Deposit Balance: <span id="deposit_bal_span">0.00</span></p>
+                                                <input type="hidden" name="deposit_bal" id="deposit_bal"
+                                                    class="form-control mb-2" readonly>
                                             </td>
                                             <td>
-                                                New Balance:
-                                                <input type="number" name="new_balance" id="new_balance" class="form-control mb-2" readonly>
+                                                <p> <span id="balance_txt">New Balance:</span> <span id="new_balance_span">0.00</span></p>
+                                                <input type="hidden" name="new_balance" id="new_balance"
+                                                    class="form-control mb-2" readonly>
                                             </td>
 
                                             <td>
@@ -239,7 +253,7 @@
                                                     class="btn btn-secondary btn-lg btn-block mt-2">Record Credit
                                                     Sale</button>
                                             </td>
-                                            
+
                                         </div>
                                     </div>
                                 </div>
@@ -259,6 +273,64 @@
 @endsection
 
 @section('js')
+
+
+    <script>
+        $(document).ready(function() {
+            
+            function updateNewBalance() {
+                var total = parseInt($("#total_hidden").val());
+                var paymentMethod = $("input[name='payment_method']:checked").val();
+                var preBalance = parseInt($("#pre_balance").val());
+                var depositBalance = parseInt($("#deposit_bal").val());
+                var balanceTxt = '';
+                var newBalance = 0;
+                if (paymentMethod === "credit") {
+                    newBalance = preBalance - total;
+                    balanceTxt = "New Credit Balance";
+                } else if (paymentMethod === "deposit") {
+                    newBalance = depositBalance - total;
+                    balanceTxt = "New Deposit Balance";
+
+                }
+
+                $("#new_balance_span").text("₦" + newBalance.toLocaleString());
+                $("#balance_txt").text(balanceTxt);
+            }
+
+            $("input[name='payment_method']").change(function() {
+                updateNewBalance();
+
+                var total = parseInt($("#total_hidden").val());
+                var paymentMethod = $("input[name='payment_method']:checked").val();
+                var preBalance = parseInt($("#pre_balance").val());
+                var depositBalance = parseInt($("#deposit_bal").val());
+
+                var newBalance = 0;
+                if (paymentMethod === "credit") {
+                    newBalance = preBalance - total;
+                } else if (paymentMethod === "deposit") {
+                    newBalance = depositBalance - total;
+                }
+
+                $("#new_balance_span").text("₦" + newBalance.toLocaleString());
+
+                if (total < 1) {
+                    toastr.error("Please choose a product");
+                    $("input[name='payment_method']").prop("checked", false);
+                    return;
+                }
+
+                if (newBalance < 1) {
+                    toastr.error("Balance not enough. Please try another payment method");
+                    $("input[name='payment_method']").prop("checked", false);
+                    return;
+                }
+            });
+        });
+    </script>
+
+
     <script>
         $('.product_id').select2();
 
@@ -293,6 +365,7 @@
             });
             $('.total').html('&#8358;' + total.toLocaleString());
             $('#total_hidden').val(total);
+
         }
 
         $('.addMoreRow').delegate('.product_id', 'change', function() {
@@ -334,13 +407,6 @@
             TotalAmount();
         });
 
-        $('#paid_amount').keyup(function() {
-            var total = $('#total_hidden').val();
-            var paid_amount = $(this).val();
-            var tot = paid_amount - total;
-            $('#balance').val(tot);
-
-        });
 
 
         function PrintReceiptContent(receipt_no) {
@@ -458,20 +524,26 @@
                             $('#salesForm')[0].reset();
                             $(".product_id").val('none').trigger('change');
                             updateTable();
-                            toastr.success(res.message, "Success", { timeOut: 3000 });
+                            toastr.success(res.message, "Success", {
+                                timeOut: 3000
+                            });
                         }
                         if (res.status == 400) {
                             $.LoadingOverlay("hide");
-                           
-                            toastr.warning(res.message, "Insuffient Balance", { timeOut: 3000 });
+
+                            toastr.warning(res.message, "Insuffient Balance", {
+                                timeOut: 3000
+                            });
                         }
 
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
 
-                        toastr.error("An error occurred: " + error, "Error", { timeOut: 3000 });
+                        toastr.error("An error occurred: " + error, "Error", {
+                            timeOut: 3000
+                        });
                     }
-                    
+
                 })
             });
 
@@ -535,13 +607,14 @@
                         if (res.status === 200) {
                             $('#pre_balance').val(res.balance);
                             $('#deposit_bal').val(res.deposits);
-
+                            $("#pre_balance_span").text("₦" + res.balance.toLocaleString());
+                            $("#deposit_bal_span").text("₦" + Number(res.deposits)
+                                .toLocaleString());
                         }
 
                         if (res.status === 404) {
                             $('#pre_balance').val('');
                             $('#deposit_bal').val('');
-
                         }
                     }
                 });
@@ -549,4 +622,5 @@
 
         });
     </script>
+
 @endsection

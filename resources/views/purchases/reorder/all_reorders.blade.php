@@ -2,7 +2,7 @@
 @section('PageTitle', 'All Reorders')
 @section('content')
 
-    <!-- ============ Body content start ============= -->
+    <!-- Body content start -->
     <section id="content">
         <div class="content-wraap mt-3">
             <div class="container clearfix">
@@ -12,7 +12,7 @@
                         <div class="card mb-2">
                             <div class="card-header">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label for="branch">Branch:</label>
                                         <select id="branch" class="form-select">
                                             <option value=""></option>
@@ -21,7 +21,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label for="reorder-type">Reorder Type:</label>
                                         <select id="reorder-type" class="form-select">
                                             <option value=""></option>

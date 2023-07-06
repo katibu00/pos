@@ -433,6 +433,8 @@
                         if (res.status == 201) {
                             $.LoadingOverlay("hide");
                             $('#salesForm')[0].reset();
+                            $('.addMoreRow tr:not(:first)').remove();
+                            $(".product_id").val('none').trigger('change');
                             updateTable();
                         }
 

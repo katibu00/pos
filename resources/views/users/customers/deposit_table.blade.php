@@ -6,6 +6,7 @@
                 <th scope="col">Date</th>
                 <th scope="col">Amount</th>
                 <th scope="col">Method</th>
+                <th scope="col">Updated?</th>
                 <th></th>
             </tr>
         </thead>
@@ -15,6 +16,13 @@
             <td>{{ $deposit->created_at->diffForHumans() }}</td>
             <td>{{ number_format($deposit->payment_amount, 0) }}</td>
             <td>{{ ucfirst($deposit->payment_method) }}</td>
+            <td>
+                @if ($deposit->updated_at != $deposit->created_at)
+                    <span class="badge bg-danger">Yes</span>
+                @else
+                    <span class="badge bg-success">No</span>
+                @endif
+            </td>
             <td>
                 <button type="button" onclick="editDeposit('{{ $deposit->id }}', '{{ $deposit->payment_amount }}')"
                     class="btn btn-secondary btn-sm"><i class="fa fa-edit text-white"></i></button>

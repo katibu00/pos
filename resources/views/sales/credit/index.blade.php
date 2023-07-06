@@ -243,7 +243,8 @@
                                                     class="form-control mb-2" readonly>
                                             </td>
                                             <td>
-                                                <p> <span id="balance_txt">New Balance:</span> <span id="new_balance_span">0.00</span></p>
+                                                <p> <span id="balance_txt">New Balance:</span> <span
+                                                        id="new_balance_span">0.00</span></p>
                                                 <input type="hidden" name="new_balance" id="new_balance"
                                                     class="form-control mb-2" readonly>
                                             </td>
@@ -277,55 +278,42 @@
 
     <script>
         $(document).ready(function() {
-            
-            function updateNewBalance() {
+
+
+            $("input[name='payment_method']").change(function() {
+                
                 var total = parseInt($("#total_hidden").val());
                 var paymentMethod = $("input[name='payment_method']:checked").val();
                 var preBalance = parseInt($("#pre_balance").val());
                 var depositBalance = parseInt($("#deposit_bal").val());
                 var balanceTxt = '';
                 var newBalance = 0;
-                if (paymentMethod === "credit") {
-                    newBalance = preBalance - total;
-                    balanceTxt = "New Credit Balance";
-                } else if (paymentMethod === "deposit") {
-                    newBalance = depositBalance - total;
-                    balanceTxt = "New Deposit Balance";
 
-                }
-
-                $("#new_balance_span").text("₦" + newBalance.toLocaleString());
-                $("#balance_txt").text(balanceTxt);
-            }
-
-            $("input[name='payment_method']").change(function() {
-                updateNewBalance();
-
-                var total = parseInt($("#total_hidden").val());
-                var paymentMethod = $("input[name='payment_method']:checked").val();
-                var preBalance = parseInt($("#pre_balance").val());
-                var depositBalance = parseInt($("#deposit_bal").val());
-
-                var newBalance = 0;
-                if (paymentMethod === "credit") {
-                    newBalance = preBalance - total;
-                } else if (paymentMethod === "deposit") {
-                    newBalance = depositBalance - total;
-                }
-
-                $("#new_balance_span").text("₦" + newBalance.toLocaleString());
-
-                if (total < 1) {
+                if (isNaN(total)) {
                     toastr.error("Please choose a product");
                     $("input[name='payment_method']").prop("checked", false);
                     return;
                 }
 
-                if (newBalance < 1) {
-                    toastr.error("Balance not enough. Please try another payment method");
-                    $("input[name='payment_method']").prop("checked", false);
-                    return;
+
+                if (paymentMethod === "credit") {
+                    newBalance = preBalance + total;
+                    balanceTxt = "New Credit Balance";
+                } else if (paymentMethod === "deposit") {
+
+                    if (depositBalance < total) {
+                        toastr.error("Balance not enough. Please try another payment method");
+                        $("input[name='payment_method']").prop("checked", false);
+                        newBalance = 0;
+                        return;
+                    }
+                    balanceTxt = "New Deposit Balance";
+                    newBalance = depositBalance - total;
                 }
+
+                $("#new_balance_span").text("₦" + newBalance.toLocaleString());
+                $("#balance_txt").text(balanceTxt);
+               
             });
         });
     </script>
@@ -405,6 +393,8 @@
             var total_amount = (qty * price - disc);
             tr.find('.total_amount').val(total_amount);
             TotalAmount();
+            $("input[name='payment_method']").prop("checked", false);
+
         });
 
 
@@ -589,7 +579,7 @@
             $(document).on('change', '#customer', function() {
 
                 var customer_id = $('#customer').val();
-
+                $("input[name='payment_method']").prop("checked", false);
 
                 $.ajaxSetup({
                     headers: {

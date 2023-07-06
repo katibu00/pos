@@ -141,7 +141,7 @@ Route::group(['prefix' => 'sms', 'middleware' => ['auth', 'staff']], function ()
 
 });
 
-Route::group(['prefix' => 'users', 'middleware' => ['auth', 'admin']], function () {
+Route::group(['prefix' => 'users', 'middleware' => ['auth', 'staffƒ']], function () {
     Route::get('/index', [UsersController::class, 'index'])->name('users.index');
     Route::post('/store', [UsersController::class, 'store'])->name('users.store');
     Route::post('/delete', [UsersController::class, 'delete'])->name('users.delete');
@@ -198,6 +198,7 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::get('/profile/{id}', [UsersController::class, 'customerProfile'])->name('customers.profile');
     Route::post('/save_payment', [UsersController::class, 'savePayment'])->name('customers.save.payment');
     Route::post('/save_deposit', [UsersController::class, 'saveDeposit'])->name('customers.save.deposit');
+    Route::post('/update_deposit', [UsersController::class, 'updateDeposit'])->name('customers.update.deposit');
     Route::post('/load-receipt', [UsersController::class, 'loadReceipt'])->name('load-receipt');
     Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
 

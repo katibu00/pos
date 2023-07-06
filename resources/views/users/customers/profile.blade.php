@@ -25,14 +25,14 @@
                                         <button class="nav-link active" id="canvas-home-alt-tab"
                                             data-bs-toggle="pill" data-bs-target="#home-alt"
                                             type="button" role="tab" aria-controls="canvas-home-alt"
-                                            aria-selected="true"><i class="fa fa-credit-card"></i>
+                                            aria-selected="true"><i class="fas fa-shopping-cart"></i>
                                             Credit Purchases</a></button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="canvas-about-alt-tab"
                                             data-bs-toggle="pill" data-bs-target="#about-alt"
                                             type="button" role="tab" aria-controls="canvas-about-alt"
-                                            aria-selected="false"><i class="fa fa-cc-visa"></i>
+                                            aria-selected="false"><i class="fa fa-credit-card"></i>
                                             Credits Payments</a></button>
                                     </li>
     
@@ -46,7 +46,7 @@
                                         <button class="nav-link" id="active_deposits"
                                             data-bs-toggle="pill" data-bs-target="#deposit-alt"
                                             type="button" role="tab" aria-controls="deposit-alt"
-                                            aria-selected="false"><i class="fa fa-money"></i>
+                                            aria-selected="false"><i class="fas fa-money-bill"></i>
                                             Active Deposits</a></button>
                                     </li>
                                 </ul>
@@ -86,7 +86,7 @@
                                                             <td colspan="2">{{ $date->created_at->format('l, d F') }}</td>
                                                             <td></td>
                                                             <td></td>
-                                                            <td><a href="{{ route('users.return.index', ['id' => $date->receipt_no]) }}" class="btn btn-danger btn-sm"><i class="fa fa-rotate-left text-white"></i></a></td>
+                                                            <td><a href="{{ route('users.return.index', ['id' => $date->receipt_no]) }}" class="btn btn-danger btn-sm"><i class="fas fa-undo text-white"></i></a></td>
                                                         </tr>
                                                         @foreach ($sales as $key2 => $sale)
                                                             <tr @if ($sale->status == 'partial') class="bg-info text-white" @endif>
@@ -302,41 +302,7 @@
     
                                     @if($total_deposit > 1)
     
-                                    <div class="table-responsive border">
-                                        <table class=" table" style="width:100%; font-size: 12px;">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col">Date</th>
-                                                    <th scope="col">Amount</th>
-                                                    <th scope="col">Method</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            @forelse ($deposits as $key => $deposit)
-                                                <tr>
-                                                    <td>{{ $key + 1 }}</td>
-                                                    <td>{{ $deposit->created_at->diffForHumans() }}</td>
-                                                    <td>{{ number_format($deposit->payment_amount, 0) }}</td>
-                                                    <td>{{ ucfirst($deposit->payment_method) }}</td>
-                                                    <td>
-                                                        <button type="button"
-                                                            onclick="PrintReceiptContent('{{ $deposit->id }}')"
-                                                            class="btn btn-secondary btn-sm"><i
-                                                                class="fa fa-print text-white"></i></button>
-                                                    </td>
-                                                </tr>
-    
-                                            @empty
-                                                <tr>
-                                                    <td colspan="4" class="bg-danger text-white"> No Records Found</td>
-                                                </tr>
-                                            @endforelse
-    
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                   @include('users.customers.deposit_table')
                                     @endif
 
                                     </div>
@@ -556,9 +522,78 @@
         @include('users.customers.receipt')
     </div>
 </div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Deposit Amount</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="paymentAmount">Payment Amount</label>
+                        <input type="number" id="paymentAmount" name="payment_amount" class="form-control" required>
+                    </div>
+                    <!-- Add more input fields for editing other deposit details if needed -->
+                    <input type="hidden" id="depositId" name="deposit_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
+
+
+<script>
+    function editDeposit(depositId, paymentAmount) {
+        $('#editModal').find('#depositId').val(depositId);
+        $('#editModal').find('#paymentAmount').val(paymentAmount);
+
+        $('#editModal').modal('show');
+    }
+
+    $('#editForm').submit(function(e) {
+        e.preventDefault();
+
+        // Get the form data
+        var depositId = $('#editModal').find('#depositId').val();
+        var newPaymentAmount = $('#editModal').find('#paymentAmount').val();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            url: '{{ route('customers.update.deposit') }}',
+            type: 'POST',
+            data: { 'depositId':depositId, 'payment_amount': newPaymentAmount },
+            success: function(response) {
+               
+                toastr.success(response.message);
+                $('#editModal').modal('hide');
+                $('.deposit_table').load(location.href + ' .deposit_table');
+            },
+            error: function(xhr) {
+
+            }
+        });
+    });
+</script>
+
+
 
 <script>
     jQuery( "#tabs-profile" ).on( "tabsactivate", function( event, ui ) {

@@ -260,6 +260,21 @@ class UsersController extends Controller
 
     }
 
+    public function updateDeposit(Request $request)
+    {
+        // dd($request->all());
+        $deposit = Payment::findOrFail($request->depositId);
+
+        $validatedData = $request->validate([
+            'payment_amount' => 'required|numeric',
+        ]);
+
+        $deposit->payment_amount = $validatedData['payment_amount'];
+        $deposit->save();
+
+        return response()->json(['message' => 'Deposit updated successfully']);
+    }
+
     public function loadReceipt(Request $request)
     {
         // return $request->all();

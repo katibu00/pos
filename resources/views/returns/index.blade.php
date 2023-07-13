@@ -363,23 +363,7 @@
                         Command: toastr["error"](
                             "Session expired. please login again."
                         );
-                        toastr.options = {
-                            closeButton: false,
-                            debug: false,
-                            newestOnTop: false,
-                            progressBar: false,
-                            positionClass: "toast-top-right",
-                            preventDuplicates: false,
-                            onclick: null,
-                            showDuration: "300",
-                            hideDuration: "1000",
-                            timeOut: "5000",
-                            extendedTimeOut: "1000",
-                            showEasing: "swing",
-                            hideEasing: "linear",
-                            showMethod: "fadeIn",
-                            hideMethod: "fadeOut",
-                        };
+                        
                         setTimeout(() => {
                             window.location.replace('{{ route('login') }}');
                         }, 2000);
@@ -425,23 +409,7 @@
                         if(res.status == 400)
                         {
                             Command: toastr["error"](res.message);
-                            toastr.options = {
-                                closeButton: false,
-                                debug: false,
-                                newestOnTop: false,
-                                progressBar: false,
-                                positionClass: "toast-top-right",
-                                preventDuplicates: false,
-                                onclick: null,
-                                showDuration: "300",
-                                hideDuration: "1000",
-                                timeOut: "5000",
-                                extendedTimeOut: "1000",
-                                showEasing: "swing",
-                                hideEasing: "linear",
-                                showMethod: "fadeIn",
-                                hideMethod: "fadeOut",
-                            };
+                            
                             $.LoadingOverlay("hide");
                         }
                     }
@@ -475,23 +443,7 @@
                             Command: toastr["error"](
                                 "Session expired. please login again."
                             );
-                            toastr.options = {
-                                closeButton: false,
-                                debug: false,
-                                newestOnTop: false,
-                                progressBar: false,
-                                positionClass: "toast-top-right",
-                                preventDuplicates: false,
-                                onclick: null,
-                                showDuration: "300",
-                                hideDuration: "1000",
-                                timeOut: "5000",
-                                extendedTimeOut: "1000",
-                                showEasing: "swing",
-                                hideEasing: "linear",
-                                showMethod: "fadeIn",
-                                hideMethod: "fadeOut",
-                            };
+
                             setTimeout(() => {
                                 window.location.replace('{{ route('login') }}');
                             }, 2000);

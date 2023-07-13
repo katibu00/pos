@@ -32,23 +32,30 @@ class ReturnsController extends Controller
             ->map(function ($quantity, $index) use ($request) {
                 return ($quantity * $request->price[$index]) - $request->discount[$index];
             })
-            ->sum();
+            ->sum(); 
 
         $branch_id = auth()->user()->branch_id;
+
         $todaySales = Sale::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
         $todayReturns = Returns::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->get();
         $expenses = Expense::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('amount');
         $payments = Payment::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('payment_amount');
 
+       
+
         $sales = $todaySales->reduce(function ($total, $sale) {
             return $total + ($sale->price * $sale->quantity) - $sale->discount;
         }, 0);
+        
 
         $returns = $todayReturns->reduce(function ($total, $return) {
-            return $total + ($return->price * $return->quantity) - $return->discount;
+            return $total + ($return->price * $return->quantity) + $return->discount;
         }, 0);
 
-        $net_amount = ((float) $sales + (float) $payments) - (float) $returns - (float) $expenses;
+      
+
+        $net_amount = (float)$sales+(float)$payments - ((float)$returns + (float)$expenses);
+        
         if ((float) $total_price > (float) $net_amount) {
             return response()->json([
                 'status' => 400,

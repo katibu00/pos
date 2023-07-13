@@ -47,7 +47,7 @@ class ExpensesController extends Controller
                     return $total;
                 }, 0);
         
-                $net_amount = ((float)$sales+(float)$payments) - (float)$returns - (float)$expenses;
+                $net_amount = (float)$sales+(float)$payments - ((float)$returns + (float)$expenses);
                
                 if((float)$request->amount[$i] > (float)$net_amount)
                 {

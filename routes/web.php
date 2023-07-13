@@ -141,7 +141,7 @@ Route::group(['prefix' => 'sms', 'middleware' => ['auth', 'staff']], function ()
 
 });
 
-Route::group(['prefix' => 'users', 'middleware' => ['auth', 'staffƒ']], function () {
+Route::group(['prefix' => 'users', 'middleware' => ['auth', 'staff']], function () {
     Route::get('/index', [UsersController::class, 'index'])->name('users.index');
     Route::post('/store', [UsersController::class, 'store'])->name('users.store');
     Route::post('/delete', [UsersController::class, 'delete'])->name('users.delete');

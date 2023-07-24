@@ -427,7 +427,12 @@
 
                 var reorderNo = $(this).data('reorder-no');
 
-                // Make AJAX request to fetch data and download PDF
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
                 $.ajax({
                     url: '{{ route('reorder.download-pdf') }}',
                     method: 'POST',
@@ -463,6 +468,11 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
 
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
                         $.ajax({
                             url: '{{ route('reorder.delete') }}',
                             method: 'POST',
@@ -512,6 +522,12 @@
 
                 var reorderNo = $('#reorderNoInput').val();
                 var supplierId = $('#supplierSelect').val();
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
 
                 $.ajax({
                     url: '{{ route('reorder.update-supplier') }}',

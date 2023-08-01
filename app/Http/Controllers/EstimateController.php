@@ -138,7 +138,7 @@ class EstimateController extends Controller
                 if ($request->payment_method == 'credit') {
                     $data->customer_name = $request->customer;
                 } else {
-                    $data->customer_name = $estimate->customer_name;
+                    $data->customer_name = $estimate->customer;
                 }
                 $data->note = null;
                 $data->save();

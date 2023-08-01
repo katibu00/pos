@@ -91,9 +91,10 @@
             pointer-events: none;
             background-color: #f9f9f9;
         }
+
         .card-header {
             padding: 0.5rem;
-            background-color: #f5f5f5; 
+            background-color: #f5f5f5;
         }
 
         .card-header p {
@@ -103,7 +104,7 @@
         .card-header .total {
             font-size: 1.8em;
             font-weight: bold;
-            color: #ff0000; 
+            color: #ff0000;
         }
 
         .card-header .amount {
@@ -114,132 +115,134 @@
 
 @endsection
 @section('content')
-<section id="content">
-    <div class="content-wraap mt-3">
-        <div class="container clearfix">
-            <form id="salesForm">
-                <div class="row mb-4">
-                    <div class="col-md-8 mb-4">
-                        <div class="card mb-2">
-                            <div class="card-header bg-transparent">
-                                <marquee behavior="" direction="" class="text-danger"><b>Welcome to El-Habib Plumbing
-                                        Material and Services Ltd - {{ auth()->user()->branch->name }} Branch</b></marquee>
-                            </div>
-                            <div class="card-body sales-table">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered text-center">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 2%"></th>
-                                                <th> </th>
-                                                <th style="width: 30%">Product</th>
-                                                <th>Qty</th>
-                                                <th>Price</th>
-                                                <th>Discount</th>
-                                                <th>Amount</th>
+    <section id="content">
+        <div class="content-wraap mt-3">
+            <div class="container clearfix">
+                <form id="salesForm">
+                    <div class="row mb-4">
+                        <div class="col-md-8 mb-4">
+                            <div class="card mb-2">
+                                <div class="card-header bg-transparent">
+                                    <marquee behavior="" direction="" class="text-danger"><b>Welcome to El-Habib Plumbing
+                                            Material and Services Ltd - {{ auth()->user()->branch->name }} Branch</b>
+                                    </marquee>
+                                </div>
+                                <div class="card-body sales-table">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered text-center">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 2%"></th>
+                                                    <th> </th>
+                                                    <th style="width: 30%">Product</th>
+                                                    <th>Qty</th>
+                                                    <th>Price</th>
+                                                    <th>Discount</th>
+                                                    <th>Amount</th>
 
-                                            </tr>
-                                        </thead>
-                                        <tbody class="addMoreRow">
-                                            <tr>
-                                                <td>1</td>
-                                                <td class="button-group">
-                                                    <a href="#"
-                                                        class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
-                                                            class="fa fa-times-circle"></i></a>
-                                                    <a href="#"
-                                                        class="btn btn-success btn-sm add_row rounded-circle"><i
-                                                            class="fa fa-plus-circle"></i></a>
-                                                </td>
-                                                <td>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="addMoreRow">
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td class="button-group">
+                                                        <a href="#"
+                                                            class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
+                                                                class="fa fa-times-circle"></i></a>
+                                                        <a href="#"
+                                                            class="btn btn-success btn-sm add_row rounded-circle"><i
+                                                                class="fa fa-plus-circle"></i></a>
+                                                    </td>
+                                                    <td>
 
-                                                    <select class="form-select product_id" id="product_id"
-                                                        name="product_id[]" required>
-                                                        <option value=""></option>
-                                                        @foreach ($products as $product)
-                                                            <option data-price="{{ $product->selling_price }}"
-                                                                data-quantity="{{ $product->quantity }}"
-                                                                value="{{ $product->id }}">{{ $product->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <input type="hidden" class="product_qty" value="">
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="quantity[]" step="any"
-                                                        placeholder="Qty" id="quantity" class="form-control quantity"
-                                                        required>
-                                                </td>
-                                                <td>
-                                                    <input type="number" readonly name="price[]" id="price"
-                                                        class="form-control disabled-input price">
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="discount[]" placeholder="Discount"
-                                                        id="discount" class="form-control discount">
-                                                </td>
-                                                <td>
-                                                    <input type="number" readonly name="total_amount[]"
-                                                        id="total_amount"
-                                                        class="form-control disabled-input total_amount">
-                                                </td>
+                                                        <select class="form-select product_id" id="product_id"
+                                                            name="product_id[]" required>
+                                                            <option value=""></option>
+                                                            @foreach ($products as $product)
+                                                                <option data-price="{{ $product->selling_price }}"
+                                                                    data-quantity="{{ $product->quantity }}"
+                                                                    value="{{ $product->id }}">{{ $product->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <input type="hidden" class="product_qty" value="">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="quantity[]" step="any"
+                                                            placeholder="Qty" id="quantity" class="form-control quantity"
+                                                            required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" readonly name="price[]" id="price"
+                                                            class="form-control disabled-input price">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="discount[]" placeholder="Discount"
+                                                            id="discount" class="form-control discount">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" readonly name="total_amount[]"
+                                                            id="total_amount"
+                                                            class="form-control disabled-input total_amount">
+                                                    </td>
 
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
+
+                            @include('estimate.recents_table')
                         </div>
 
-                        @include('estimate.recents_table')
-                    </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-transparent text-center">
+                                    <p>Total: <b class="total"> 0.00 </b></p>
+                                </div>
 
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <div class="card-header bg-transparent text-center">
-                                <p>Total: <b class="total"> 0.00 </b></p>
-                            </div>
+                                <input type="hidden" id="total_hidden">
+                                <div class="card-body">
+                                    <div class="panel">
+                                        <div class="row">
+                                            <table class="table table-striped">
+                                                <tr>
+                                                    <td>
+                                                        <label for="">Customer Name</label>
+                                                        <input type="text" name="customer_name" id=""
+                                                            class="form-control" required>
+                                                    </td>
+                                                    <td>
+                                                        <label for="">Note</label>
+                                                        <input type="text" name="note" id=""
+                                                            class="form-control">
+                                                    </td>
+                                                </tr>
+                                            </table>
 
-                            <input type="hidden" id="total_hidden">
-                            <div class="card-body">
-                                <div class="panel">
-                                    <div class="row">
-                                        <table class="table table-striped">
-                                            <tr>
-                                                <td>
-                                                    <label for="">Customer Name</label>
-                                                    <input type="text" name="customer_name" id=""
-                                                        class="form-control" required>
-                                                </td>
-                                                <td>
-                                                    <label for="">Note</label>
-                                                    <input type="text" name="note" id=""
-                                                        class="form-control">
-                                                </td>
-                                            </tr>
-                                        </table>
-        
-                                        <td>
-                                            <button type="submit" id="submitBtn"
-                                                class="btn btn-warning text-white btn-lg btn-block mt-2">Save Estimage</button>
-                                        </td>
-                                        
+                                            <td>
+                                                <button type="submit" id="submitBtn"
+                                                    class="btn btn-warning text-white btn-lg btn-block mt-2">Save
+                                                    Estimage</button>
+                                            </td>
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </form>
+                <div class="modal">
+                    <div id="print">
+                        @include('estimate.receipt')
+                    </div>
                 </div>
-            </form>
-            <div class="modal">
-                <div id="print">
-                    @include('estimate.receipt')
-                </div>
-            </div>
 
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 @endsection
 
 
@@ -261,7 +264,7 @@
             $('.addMoreRow').append(tr);
             $('.product_id').select2();
         });
-       
+
         $('.addMoreRow').delegate('.remove_row', 'click', function() {
             $(this).parent().parent().remove();
         });
@@ -315,95 +318,97 @@
         });
 
 
-          function PrintReceiptContent(estimate_no){
+        function PrintReceiptContent(estimate_no) {
 
-                data = {
-                    'estimate_no':estimate_no,
+            data = {
+                'estimate_no': estimate_no,
+            }
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-               
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
+            });
 
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('refresh-receipt-estimate') }}",
-                    data: data,
-                    success: function(res) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('refresh-receipt-estimate') }}",
+                data: data,
+                success: function(res) {
 
-                        var html = '';
-                        var total = 0;
-                        $.each(res.items, function(key, item) {
+                    var html = '';
+                    var total = 0;
+                    $.each(res.items, function(key, item) {
 
-                            html +=
-                                '<tr style="text-align: center">' +
-                                    '<td style="font-size: 12px;">' + (key + 1) +'</td>' +
-                                    '<td style="text-align: left"><span style="font-size: 12px;" >' + item.product.name +'</span></td>' +
-                                    '<td style="font-size: 12px;">' + item.quantity +'</td>' +
-                                    '<td style="font-size: 12px;">' + item.quantity*item.price +'</td>' +
-                                '</tr>';
-                                total += item.quantity*item.price;
-                        });
                         html +=
+                            '<tr style="text-align: center">' +
+                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item
+                            .product.name +
+                            '</span></td>' +
+                            '<td style="font-size: 12px;">' + item.quantity + '</td>' +
+                            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
+                            .toLocaleString() + '</td>' +
+                            '</tr>';
+                        total += item.quantity * item.price;
+                    });
+                    html +=
                         '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Total Amount</b></td>' +
-                            '<td><b>&#8358;'+ total.toLocaleString()+'</b></td>' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Total Amount</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
                         '</tr>';
 
-                        html = $('#receipt_body').html(html);
-                        $('.tran_id').html('E'+res.items[0].estimate_no);
+                    html = $('#receipt_body').html(html);
+                    $('.tran_id').html('E' + res.items[0].estimate_no);
 
-           
-                        var data = document.getElementById('print').innerHTML;
-                        
-                        myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-                  
-                        myReceipt.screenX = 0;
-                        myReceipt.screenY = 0;
-                        myReceipt.document.write(data);
-                        myReceipt.document.title = "Print Estimate Certificate";
-                        myReceipt.focus();
-                        myReceipt.print();
 
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        if (xhr.status === 419) {
-                            Command: toastr["error"](
-                                "Session expired. please login again."
-                            );
-                            toastr.options = {
-                                closeButton: false,
-                                debug: false,
-                                newestOnTop: false,
-                                progressBar: false,
-                                positionClass: "toast-top-right",
-                                preventDuplicates: false,
-                                onclick: null,
-                                showDuration: "300",
-                                hideDuration: "1000",
-                                timeOut: "5000",
-                                extendedTimeOut: "1000",
-                                showEasing: "swing",
-                                hideEasing: "linear",
-                                showMethod: "fadeIn",
-                                hideMethod: "fadeOut",
-                            };
-                            setTimeout(() => {
-                                window.location.replace('{{ route('login') }}');
-                            }, 2000);
-                        }
-                    },
-                });
-            
-           
+                    var data = document.getElementById('print').innerHTML;
+
+                    myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+
+                    myReceipt.screenX = 0;
+                    myReceipt.screenY = 0;
+                    myReceipt.document.write(data);
+                    myReceipt.document.title = "Print Estimate Certificate";
+                    myReceipt.focus();
+                    myReceipt.print();
+
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    if (xhr.status === 419) {
+                        Command: toastr["error"](
+                            "Session expired. please login again."
+                        );
+                        toastr.options = {
+                            closeButton: false,
+                            debug: false,
+                            newestOnTop: false,
+                            progressBar: false,
+                            positionClass: "toast-top-right",
+                            preventDuplicates: false,
+                            onclick: null,
+                            showDuration: "300",
+                            hideDuration: "1000",
+                            timeOut: "5000",
+                            extendedTimeOut: "1000",
+                            showEasing: "swing",
+                            hideEasing: "linear",
+                            showMethod: "fadeIn",
+                            hideMethod: "fadeOut",
+                        };
+                        setTimeout(() => {
+                            window.location.replace('{{ route('login') }}');
+                        }, 2000);
+                    }
+                },
+            });
+
+
             setTimeout(() => {
                 // myReceipt.close();
             }, 8000);
-          } 
-
+        }
     </script>
 
     <script>
@@ -448,8 +453,7 @@
             //update table
             function updateTable() {
 
-                data = {
-                }
+                data = {}
                 $(".recent-table").LoadingOverlay("show");
                 $.ajaxSetup({
                     headers: {

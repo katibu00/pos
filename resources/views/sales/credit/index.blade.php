@@ -281,7 +281,7 @@
 
 
             $("input[name='payment_method']").change(function() {
-                
+
                 var total = parseInt($("#total_hidden").val());
                 var paymentMethod = $("input[name='payment_method']:checked").val();
                 var preBalance = parseInt($("#pre_balance").val());
@@ -313,7 +313,7 @@
 
                 $("#new_balance_span").text("₦" + newBalance.toLocaleString());
                 $("#balance_txt").text(balanceTxt);
-               
+
             });
         });
     </script>
@@ -422,12 +422,13 @@
 
                         html +=
                             '<tr style="text-align: center">' +
-                            '<td style="font-size: 12px;">' + (key + 1) + '</td>' +
                             '<td style="text-align: left"><span style="font-size: 12px;" >' + item
                             .product.name +
                             '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                            '<td style="font-size: 12px;">' + item.quantity * item.price + '</td>' +
+                            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
+                            .toLocaleString() + '</td>' +
                             '</tr>';
                         total += item.quantity * item.price;
                     });

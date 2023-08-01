@@ -13,6 +13,7 @@
             border: 2px inset rgba(150, 150, 150, 0.7);
             background: radial-gradient(ellipse at top)
         }
+
         @media (max-width: 767px) {
             table.table thead {
                 display: none;
@@ -76,6 +77,7 @@
                 visibility: visible;
             }
         }
+
         .button-group {
             white-space: nowrap;
         }
@@ -83,7 +85,6 @@
         .button-group a {
             display: inline-block;
         }
-
     </style>
 
 @endsection
@@ -117,7 +118,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody class="addMoreRow">
-                                                
+
                                                 <tr>
                                                     <td>1</td>
                                                     <td>
@@ -135,7 +136,8 @@
                                                         <input type="hidden" class="product_qty" value="">
                                                     </td>
                                                     <td>
-                                                        <input type="number" name="quantity[]" step="0.5" id="quantity" class="form-control quantity" required>
+                                                        <input type="number" name="quantity[]" step="0.5"
+                                                            id="quantity" class="form-control quantity" required>
                                                     </td>
                                                     <td>
                                                         <input type="number" readonly name="price[]" id="price"
@@ -216,9 +218,10 @@
                                             </td>
                                             <td>
                                                 <button type="submit" id="submitBtn"
-                                                    class="btn btn-info text-white btn-lg btn-block mt-2">Save Return</button>
+                                                    class="btn btn-info text-white btn-lg btn-block mt-2">Save
+                                                    Return</button>
                                             </td>
-                                           
+
                                         </div>
                                     </div>
                                 </div>
@@ -319,23 +322,18 @@
                     var html = '';
                     var total = 0;
                     $.each(res.items, function(key, item) {
-                        var calculated = 0;
-                        if(item.discount)
-                        {
-                            calculated =  item.quantity * item.price - item.discount;
-                        }else
-                        {
-                            calculated =  item.quantity * item.price;
-                        }
+
                         html +=
                             '<tr style="text-align: center">' +
-                            '<td style="font-size: 12px;">' + (key + 1) + '</td>' +
-                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item.product.name +
+                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item
+                            .product.name +
                             '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                            '<td style="font-size: 12px;">' + calculated + '</td>' +
+                            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
+                            .toLocaleString() + '</td>' +
                             '</tr>';
-                        total += calculated;
+                        total += item.quantity * item.price;
                     });
                     html +=
                         '<tr style="text-align: center">' +
@@ -345,7 +343,7 @@
                         '</tr>';
 
                     html = $('#receipt_body').html(html);
-                    $('.tran_id').html('R'+res.items[0].return_no);
+                    $('.tran_id').html('R' + res.items[0].return_no);
 
                     var data = document.getElementById('print').innerHTML;
 
@@ -363,7 +361,7 @@
                         Command: toastr["error"](
                             "Session expired. please login again."
                         );
-                        
+
                         setTimeout(() => {
                             window.location.replace('{{ route('login') }}');
                         }, 2000);
@@ -403,13 +401,12 @@
                             $.LoadingOverlay("hide");
                             $('#salesForm')[0].reset();
                             $('.addMoreRow tr:not(:first)').remove();
-                            $(".product_id"). val('none'). trigger('change');
+                            $(".product_id").val('none').trigger('change');
                             updateTable();
                         }
-                        if(res.status == 400)
-                        {
+                        if (res.status == 400) {
                             Command: toastr["error"](res.message);
-                            
+
                             $.LoadingOverlay("hide");
                         }
                     }

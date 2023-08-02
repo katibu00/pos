@@ -12,5 +12,15 @@ class Estimate extends Model
     public function product(){
         return $this->belongsTo(Stock::class, 'product_id','id');
     }
-   
+    protected $fillable = [
+        'branch_id',
+        'estimate_no',
+        'product_id',
+        'price',
+        'quantity',
+        'discount',
+        'cashier_id',
+        'customer',
+        'note',
+    ];
 }

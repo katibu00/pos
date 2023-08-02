@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
+use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\HomeController;
@@ -216,55 +217,12 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
 
 
 });
-Route::get('/post-data', [ApiController::class, 'store'])->name('post-data');
-
-Route::get('/send-data', function () {
-
-    // create a new curl session
-    $curl = curl_init();
-
-// get the CSRF token from Laravel
-    $csrf_token = file_get_contents('https://elhabibplumbing.com/csrf-cookie');
-
-// set the request options, including the CSRF token as a header
-    $url = 'https://elhabibplumbing.com/post-data';
-    $data = array(
-        'regno' => '08033174228',
-        'api_key' => 'K92@218$%_712bn',
-    );
-    $options = array(
-        CURLOPT_URL => $url,
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => http_build_query($data),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => [
-            'X-CSRF-TOKEN: ' . $csrf_token
-        ],
-    );
-    curl_setopt_array($curl, $options);
-
-// send the request and receive the response
-    $response = curl_exec($curl);
-    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-// close the curl session
-    curl_close($curl);
-
-    if ($httpcode == 200) {
-        $data = json_decode($response, true);
-        // process the response data as needed
-        return $data;
-    } else {
-        $error = $response;
-        return $error;
-        // handle the error response as needed
-    }
-
-    // return $json÷;
-    return 'this passed';
-
-})->name('send-data');
-
 
 Route::get('/fetch_stocks',  [ReportController::class, 'fetchStocks'])->name('fetch_stocks');
+
+
+
+Route::get('/data-sync', [DataSyncController::class, 'index'])->name('data-sync.index');
+Route::post('/data-sync/send', [DataSyncController::class, 'sendData'])->name('data-sync.send');
+
 

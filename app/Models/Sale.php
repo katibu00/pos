@@ -18,4 +18,21 @@ class Sale extends Model
     public function customer(){
         return $this->belongsTo(User::class, 'customer_name','id');
     }
+
+
+    protected $fillable = [
+        'branch_id',
+        'receipt_no',
+        'stock_id',
+        'price',
+        'quantity',
+        'discount',
+        'payment_type',
+        'payment_amount',
+        'user_id',
+        'customer',
+        'note',
+        'returned_qty',
+        'collected',
+    ];
 }

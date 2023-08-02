@@ -16,4 +16,16 @@ class Returns extends Model
     public function customer(){
         return $this->belongsTo(User::class, 'customer','id');
     }
+
+    protected $fillable = [
+        'return_no',
+        'branch_id',
+        'cashier_id',
+        'product_id',
+        'price',
+        'discount',
+        'quantity',
+        'customer',
+        'note',
+    ];
 }

@@ -71,7 +71,9 @@
                 },
                 dataType: 'json',
                 success: function(data) {
-                    console.log(data.message); // You can show a success message to the user if needed.
+                    console.log(data.message); 
+                    toastr.success(data.message, "Success", { timeOut: 3000 });
+                    location.reload(); 
                 },
                 error: function(error) {
                     console.error('Error:', error);

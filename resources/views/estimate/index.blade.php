@@ -199,7 +199,7 @@
                         <div class="col-md-4 mb-4">
                             <div class="card">
                                 <div class="card-header bg-transparent text-center">
-                                    <p>Total: <b class="total"> 0.00 </b></p>
+                                    <p>Total: <b class="total">0.00</b></p>
                                 </div>
 
                                 <input type="hidden" id="total_hidden">
@@ -222,16 +222,34 @@
                                             </table>
 
                                             <td>
-                                                <button type="submit" id="submitBtn"
-                                                    class="btn btn-warning text-white btn-lg btn-block mt-2">Save
-                                                    Estimage</button>
+                                                <div class="form-group">
+                                                    <label for="toggleLabor">Add Labor Costs</label>
+                                                    <label class="switch">
+                                                        <input type="checkbox" name="toggleLabor" id="toggleLabor">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
                                             </td>
 
+                                            <td>
+                                                <div class="form-group" id="laborCostField" style="display: none;">
+                                                    <label for="laborCost">Labor Cost</label>
+                                                    <input type="number" name="labor_cost" id="laborCost"
+                                                        class="form-control">
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <button type="submit" id="submitBtn"
+                                                    class="btn btn-warning text-white btn-lg btn-block mt-2">Save
+                                                    Estimate</button>
+                                            </td>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </form>
                 <div class="modal">
@@ -249,6 +267,20 @@
 
 @section('js')
     <script>
+        const toggleLaborSwitch = document.getElementById('toggleLabor');
+        const laborCostField = document.getElementById('laborCostField');
+        const laborCostInput = document.getElementById('laborCost');
+
+        toggleLaborSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                laborCostField.style.display = 'block';
+                laborCostInput.setAttribute('required', 'required');
+            } else {
+                laborCostField.style.display = 'none';
+                laborCostInput.removeAttribute('required');
+            }
+        });
+
         $('.product_id').select2();
         $('.sales-table').on('click', '.add_row', function() {
             var product = $('.product_id').html();
@@ -352,12 +384,44 @@
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                    html +=
-                        '<tr style="text-align: center">' +
-                        '<td></td>' +
-                        '<td colspan="2"><b>Total Amount</b></td>' +
-                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                        '</tr>';
+
+
+                    if (res.items[0].labor_cost !== null) {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + res.items[0].labor_cost.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total</b></td>' +
+                            '<td><b>&#8358;' + (total + res.items[0].labor_cost).toLocaleString() +
+                            '</b></td>' +
+                            '</tr>';
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                            '</tr>';
+                    } else {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total Amount</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
+
+
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('E' + res.items[0].estimate_no);
@@ -380,23 +444,7 @@
                         Command: toastr["error"](
                             "Session expired. please login again."
                         );
-                        toastr.options = {
-                            closeButton: false,
-                            debug: false,
-                            newestOnTop: false,
-                            progressBar: false,
-                            positionClass: "toast-top-right",
-                            preventDuplicates: false,
-                            onclick: null,
-                            showDuration: "300",
-                            hideDuration: "1000",
-                            timeOut: "5000",
-                            extendedTimeOut: "1000",
-                            showEasing: "swing",
-                            hideEasing: "linear",
-                            showMethod: "fadeIn",
-                            hideMethod: "fadeOut",
-                        };
+
                         setTimeout(() => {
                             window.location.replace('{{ route('login') }}');
                         }, 2000);

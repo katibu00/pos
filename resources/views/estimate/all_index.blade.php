@@ -108,12 +108,44 @@
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                    html +=
-                        '<tr style="text-align: center">' +
-                        '<td></td>' +
-                        '<td colspan="2"><b>Total Amount</b></td>' +
-                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                        '</tr>';
+
+
+                    if (res.items[0].labor_cost !== null) {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + res.items[0].labor_cost.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total</b></td>' +
+                            '<td><b>&#8358;' + (total + res.items[0].labor_cost).toLocaleString() +
+                            '</b></td>' +
+                            '</tr>';
+                            html +=
+                            '<tr style="text-align: center">' +
+                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                            '</tr>';
+                    } else {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total Amount</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
+
+
 
                     html = $('#receipt_body').html(html);
                     $('.tran_id').html('E' + res.items[0].estimate_no);
@@ -136,23 +168,7 @@
                         Command: toastr["error"](
                             "Session expired. please login again."
                         );
-                        toastr.options = {
-                            closeButton: false,
-                            debug: false,
-                            newestOnTop: false,
-                            progressBar: false,
-                            positionClass: "toast-top-right",
-                            preventDuplicates: false,
-                            onclick: null,
-                            showDuration: "300",
-                            hideDuration: "1000",
-                            timeOut: "5000",
-                            extendedTimeOut: "1000",
-                            showEasing: "swing",
-                            hideEasing: "linear",
-                            showMethod: "fadeIn",
-                            hideMethod: "fadeOut",
-                        };
+
                         setTimeout(() => {
                             window.location.replace('{{ route('login') }}');
                         }, 2000);

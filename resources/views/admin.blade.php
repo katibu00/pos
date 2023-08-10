@@ -227,8 +227,6 @@
                                         <span style="margin-left: auto;"></span>
                                     </li>
 
-
-
                                     <li class="border border-danger py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Cash Sales: <span class="fw-bold" style="margin-left: 5px;">
@@ -259,7 +257,7 @@
                                     <li class="border border-danger py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Net Sales: <span class="fw-bold"
-                                                style="margin-left: 5px;">&#8358;{{ number_format($grossSales - $totalDiscount - $totalReturn - $returnDiscounts, 0) }}</span></span>
+                                                style="margin-left: 5px;">&#8358;{{ number_format($grossSales - $totalDiscount - ($totalReturn - $returnDiscounts), 0) }}</span></span>
                                         <span
                                             style="margin-left: auto;">({{ 'Gross Sale: ' . number_format($grossSales, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Total Return: ' . number_format($totalReturn, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})
                                         </span>
@@ -275,7 +273,7 @@
                                     <li class="border border-danger py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Gross Profit: <span class="fw-bold"
-                                                style="margin-left: 5px;">&#8358;{{ number_format($grossProfit - $totalDiscounts - $returnProfit - $returnDiscounts, 0) }}</span></span>
+                                                style="margin-left: 5px;">&#8358;{{ number_format($grossProfit - $totalDiscounts - ($returnProfit - $returnDiscounts), 0) }}</span></span>
                                         <span
                                             style="margin-left: auto;">({{ 'Sales Profit: ' . number_format($grossProfit, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Return Profit: ' . number_format($returnProfit, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})
                                         </span>

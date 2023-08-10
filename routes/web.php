@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
+use App\Http\Controllers\CashCreditsController;
 use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpensesController;
@@ -78,7 +79,6 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
     Route::get('/details/{date}', [PurchasesController::class, 'details'])->name('purchase.details');
     Route::post('/store', [PurchasesController::class, 'store'])->name('purchase.store');
     Route::get('/create', [PurchasesController::class, 'create'])->name('purchase.create');
-
 
     Route::get('/reorder/new', [ShoppingListController::class, 'index'])->name('reorder.index');
     Route::post('/reorder/store', [ShoppingListController::class, 'store'])->name('reorder.store');
@@ -161,11 +161,20 @@ Route::group(['prefix' => 'suppliers', 'middleware' => ['auth', 'admin']], funct
 });
 
 
-
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'admin']], function () {
     Route::get('/index', [ReportController::class, 'index'])->name('reports.index');
     Route::post('/generate', [ReportController::class, 'generate'])->name('reports.generate');
 });
+
+Route::group(['prefix' => 'cash_credits', 'middleware' => ['auth', 'staff']], function () {
+    Route::get('/', [CashCreditsController::class, 'index'])->name('cash_credits.index');
+    Route::post('/', [CashCreditsController::class, 'store']);
+
+
+});
+
+Route::get('/credits-history/{customerId}', [CashCreditsController::class, 'show'])->name('credits-history');
+
 
 Route::group(['prefix' => 'print', 'middleware' => ['auth', 'staff']], function () {
     Route::get('/receipt/{id}/', [PrintController::class, 'receipt'])->name('print.receipt');
@@ -215,12 +224,9 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::post('/admin/salary_advance/reject', [SalaryAdvanceController::class, 'reject'])->name('cashier.salary_advance.reject');
     Route::post('/admin/salary_advance/delete', [SalaryAdvanceController::class, 'delete'])->name('cashier.salary_advance.delete');
 
-
 });
 
 Route::get('/fetch_stocks',  [ReportController::class, 'fetchStocks'])->name('fetch_stocks');
-
-
 
 Route::get('/data-sync', [DataSyncController::class, 'index'])->name('data-sync.index');
 Route::post('/data-sync/send', [DataSyncController::class, 'sendData'])->name('data-sync.send');

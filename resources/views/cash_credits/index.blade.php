@@ -8,24 +8,20 @@
 
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
                         <div class="col-12 col-md-4 mb-2 mb-md-0">
-                            <h3 class="text-bgold fs-20">Customers ({{ auth()->user()->branch->name }} Branch)</h3>
+                            <h3 class="text-bgold fs-20">Cash Credit ({{ auth()->user()->branch->name }} Branch)</h3>
                         </div>
-                        <div class="col-12 col-md-4 mb-2 mb-md-0">
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="searchInput" placeholder="Search">
-                            </div>
-                        </div>
+                       
 
                         <div class="col-12 col-md-2 mb-md-0">
                             <button class="btn btn-lsm btn-primary text-white" data-bs-toggle="modal"
                                 data-bs-target=".addModal">+
-                                New Customer</button>
+                                New Cash Credit</button>
                         </div>
                     </div>
 
                     <div class="card-body">
 
-                        @include('users.customers.table')
+                        @include('cash_credits.table')
 
                     </div>
 
@@ -39,28 +35,27 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Add New Customer</h4>
+                    <h4 class="modal-title" id="myModalLabel">Add New Cash Credit</h4>
                     <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
                 </div>
-                <form action="{{ route('customers.store') }}" method="POST">
+                <form action="{{ route('cash_credits.index') }}" method="POST">
                     @csrf
                     <div class="modal-body">
 
 
                         <div class="form-group">
-                            <label for="first_name" class="col-form-label">Customer Name:</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required>
-                            @error('first_name')
-                                <p class="text-danger">{{ $message }}</p>
-                            @enderror
+                            <label for="first_name" class="col-form-label">Customer:</label>
+                            <select class="form-select" name="customer_id" required>
+                                <option value=""></option>
+                                @foreach ($customers as $customer)
+                                <option value="{{ $customer->id }}">{{ $customer->first_name.' '. $customer->last_name }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="email" class="col-form-label">Phone Number:</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" required>
-                            @error('phone')
-                                <p class="text-danger">{{ $message }}</p>
-                            @enderror
+                            <label for="email" class="col-form-label">Amount:</label>
+                            <input type="number" class="form-control" id="amount" name="amount" required>
                         </div>
 
                     </div>
@@ -73,51 +68,154 @@
         </div>
     </div>
 
-    <div class="modal fade depositModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+
+
+    <div class="modal fade" id="creditsHistoryModal" tabindex="-1" aria-labelledby="creditsHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Add New Deposit</h4>
-                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
+                    <h5 class="modal-title" id="creditsHistoryModalLabel">Credits History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('customers.save.deposit') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-
-                        <div class="row">
-                            <div class="form-group col-md-6">
-                                <label for="" class="col-form-label">Payment Amount:</label>
-                                <input type="number" step="any" class="form-control" placeholder="Amount"
-                                    name="amount">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="" class="col-form-label">Payment Method:</label>
-                                <select class="form-select" name="payment_method" required>
-                                    <option value=""></option>
-                                    <option value="cash">Cash</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="pos">POS</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <input type="hidden" value="{{ @$user->id }}" name="customer_id">
-
+                <div class="modal-body">
+                    <div id="creditsHistoryContent">
+                        <!-- Credits history content will be loaded here -->
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary ml-2">Add Deposit</button>
-                    </div>
-                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Make the payment modal smaller */
+        #paymentModal .modal-dialog {
+            max-width: 300px; /* Adjust the width as needed */
+        }
+    
+        /* Add an outline to the payment modal */
+        #paymentModal .modal-content {
+            border: 2px solid #007bff; /* Use your desired outline color */
+        }
+    </style>
+    
+
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Payment Options</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Choose payment type:</p>
+                    <button class="btn btn-primary" id="partialPaymentBtn">Partial Payment</button>
+                    <button class="btn btn-success" id="completePaymentBtn">Complete Payment</button>
+                </div>
             </div>
         </div>
     </div>
 
 
+
+    <div class="modal fade" id="partialPaymentModal" tabindex="-1" aria-labelledby="partialPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="partialPaymentModalLabel">Partial Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Enter the partial payment amount:</p>
+                    <input type="number" id="partialPaymentAmount" class="form-control" placeholder="Amount">
+                    <button class="btn btn-primary mt-3" id="confirmPartialPaymentBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+
 @endsection
 
 @section('js')
+
+
+<script>
+    $(document).ready(function () {
+        var selectedCreditId;
+
+        $('.settle-btn').on('click', function () {
+            selectedCreditId = $(this).data('credit-id');
+            var clickedButton = $(this);
+            var paymentModal = $('#paymentModal');
+            
+            // Calculate modal position relative to the clicked button
+            var modalOffset = clickedButton.offset();
+            modalOffset.top += clickedButton.outerHeight();
+
+            // Set modal position and show
+            paymentModal.css({top: modalOffset.top, left: modalOffset.left});
+            paymentModal.modal('show');
+        });
+
+        // When the "Complete Payment" button is clicked
+        $('#completePaymentBtn').on('click', function () {
+            sendPaymentInformation(selectedCreditId, 'complete');
+        });
+    });
+
+    function sendPaymentInformation(creditId, paymentType) {
+        $.ajax({
+            url: '/process-payment',
+            type: 'POST',
+            data: {
+                creditId: creditId,
+                paymentType: paymentType
+            },
+            success: function (response) {
+                // Handle success response
+            },
+            error: function (error) {
+                // Handle error response
+            }
+        });
+    }
+</script>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        $('.credits-history').on('click', function(event) {
+            event.preventDefault();
+
+            var customerId = $(this).data('customer-id');
+            var modal = $('#creditsHistoryModal');
+            var content = $('#creditsHistoryContent');
+
+            // Show loading spinner while fetching data
+            content.html('<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</div>');
+
+            // Fetch and display credits history via AJAX
+            $.ajax({
+                url: '/credits-history/' + customerId,
+                type: 'GET',
+                success: function(data) {
+                    content.html(data);
+                },
+                error: function() {
+                    content.html('<div class="alert alert-danger">Failed to fetch credits history.</div>');
+                }
+            });
+
+            // Show the modal
+            modal.modal('show');
+        });
+    });
+</script>
+
 
     <script>
         function handleSearch() {

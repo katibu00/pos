@@ -14,6 +14,16 @@
                         <form action="{{ route('users.return.index') }}" method="post">
                             @csrf
                         <div class="table-responsive">
+                            <div class="form-group col-md-4">
+                                <label for="" class="col-form-label">Payment Method:</label>
+                                <select class="form-select" name="payment_method" required>
+                                    <option value=""></option>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="pos">POS</option>
+                                </select>
+                            </div>
+
                             <table class=" table"
                                 style="width:100%">
                                 <thead>

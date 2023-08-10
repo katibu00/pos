@@ -186,70 +186,71 @@
 
                                     <div class="tab-pane fade" id="contact-alt" role="tabpanel" aria-labelledby="canvas-contact-tab" tabindex="0">
                                         @php
-                                            $total_spent = 0;
-                                        @endphp
-                                        @foreach($shoppingHistory as $date => $purchases)
+                                        $total_spent = 0;
+                                    @endphp
+                                    
+                                    @foreach($shoppingHistory as $date => $purchases)
                                         <h3>{{ $date }}</h3>
                                         <div class="table-responsive border">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>S/N</th>
-                                                    <th>Item</th>
-                                                    <th>Price (&#8358;)</th>
-                                                    <th>Quantity</th>
-                                                    <th>Discount (&#8358;)</th>
-                                                    <th>Subtotal (&#8358;)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $total_price = 0;
-                                                    $total_discount = 0;
-                                                @endphp
-                                                @foreach($purchases as $index => $purchase)
+                                            <table class="table">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ $index+1 }}</td>
-                                                        <td>{{ @$purchase->product->name }}</td>
-                                                        <td>{{ number_format($purchase->price,0) }}</td>
-                                                        <td>{{ number_format($purchase->quantity,0) }}</td>
-                                                        <td>{{ number_format($purchase->discount,0) }}</td>
-                                                        @php
-                                                            $total_spent +=  $purchase->price * $purchase->quantity - $purchase->discount; 
-                                                            $total_price +=  $purchase->price * $purchase->quantity - $purchase->discount; 
-                                                            $total_price += $purchase->discount;
-                                                        @endphp
-                                                        <td>{{ $purchase->price * $purchase->quantity - $purchase->discount }}</td>
+                                                        <th>S/N</th>
+                                                        <th>Item</th>
+                                                        <th>Price (&#8358;)</th>
+                                                        <th>Quantity</th>
+                                                        <th>Discount (&#8358;)</th>
+                                                        <th>Subtotal (&#8358;)</th>
                                                     </tr>
-                                                   
-                                                @endforeach
-                                                <tr>
-                                                    <td colspan="4"></td>
-                                                    <td><em>Total Discount</em></td>
-                                                    <td><strong>&#8358;{{ number_format($purchase->price,0) }}</strong></td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="4"></td>
-                                                    <td><em>Net Total</em></td>
-                                                    <td><strong>&#8358;{{ number_format($total_price,0) }}</strong></td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="4"></td>
-                                                    <td><em>Payment Method</em></td>
-                                                    <td><strong>{{ @$purchase->payment_method }}</strong></td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="4"></td>
-                                                    <td><em>Note</em></td>
-                                                    <td><strong>{{ @$purchase->note }}</strong></td>
-                                                </tr>
-                                                
-                                            </tbody>
-                                           
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        $total_price = 0;
+                                                        $total_discount = 0;
+                                                    @endphp
+                                                    @foreach($purchases as $index => $purchase)
+                                                        <tr>
+                                                            <td>{{ $index+1 }}</td>
+                                                            <td>{{ @$purchase->product->name }}</td>
+                                                            <td>{{ number_format($purchase->price, 0) }}</td>
+                                                            <td>{{ number_format($purchase->quantity, 0) }}</td>
+                                                            <td>{{ number_format($purchase->discount, 0) }}</td>
+                                                            @php
+                                                                $subtotal = $purchase->price * $purchase->quantity;
+                                                                $total_spent += $subtotal - $purchase->discount;
+                                                                $total_price += $subtotal - $purchase->discount;
+                                                                $total_discount += $purchase->discount;
+                                                            @endphp
+                                                            <td>{{ number_format($subtotal - $purchase->discount, 0) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                    <tr>
+                                                        <td colspan="4"></td>
+                                                        <td><em>Total Discount</em></td>
+                                                        <td><strong>&#8358;{{ number_format($total_discount, 0) }}</strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="4"></td>
+                                                        <td><em>Net Total</em></td>
+                                                        <td><strong>&#8358;{{ number_format($total_price, 0) }}</strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="4"></td>
+                                                        <td><em>Payment Method</em></td>
+                                                        <td><strong>{{ @$purchase->payment_method }}</strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="4"></td>
+                                                        <td><em>Note</em></td>
+                                                        <td><strong>{{ @$purchase->note }}</strong></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     @endforeach
-                                    <h3>Total Money Spent = &#8358;{{ number_format($total_spent,0) }}</h3>
+                                    
+                                    <h3>Total Money Spent = &#8358;{{ number_format($total_spent, 0) }}</h3>
+                                    
                                     </div>
 
                                     <div class="tab-pane fade" id="about-alt" role="tabpanel" aria-labelledby="canvas-about-tab" tabindex="0">

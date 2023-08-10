@@ -65,7 +65,7 @@ class HomeController extends Controller
         $data['totalItemsSold'] = $todaySales->sum('quantity');
         //returns
         $data['totalReturn'] = $todayReturns->sum(function ($return) {
-            return ($return->price * $return->quantity) - $return->discount;
+            return ($return->price * $return->quantity);
         });
         $data['cashReturns'] = $todayReturns->where('payment_method', 'cash')->reduce(function ($total, $return) {
             $total += ($return->price * $return->quantity) - $return->discount;
@@ -243,7 +243,7 @@ class HomeController extends Controller
         $data['totalItemsSold'] = $todaySales->sum('quantity');
         //returns
         $data['totalReturn'] = $todayReturns->sum(function ($return) {
-            return ($return->price * $return->quantity) - $return->discount;
+            return ($return->price * $return->quantity);
         });
         $data['cashReturns'] = $todayReturns->where('payment_method', 'cash')->reduce(function ($total, $return) {
             $total += ($return->price * $return->quantity) - $return->discount;

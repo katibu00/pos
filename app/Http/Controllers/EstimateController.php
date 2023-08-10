@@ -62,6 +62,9 @@ class EstimateController extends Controller
                 $data->cashier_id = auth()->user()->id;
                 $data->customer = $request->customer_name;
                 $data->note = $request->note;
+                if ($request->input('toggleLabor')) {
+                    $data->labor_cost = $request->input('labor_cost');
+                }
                 $data->save();
             }
         }

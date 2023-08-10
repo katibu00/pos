@@ -98,13 +98,13 @@ class UsersController extends Controller
         $data['payments'] = Payment::select('id', 'payment_amount', 'payment_method', 'created_at')->where('payment_type', 'credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
 
         $data['shoppingHistory'] = Sale::where('customer_name', $id)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($item) {
-                // Group the sales by date
-                return $item->created_at->toDateString();
-            });
-
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->groupBy(function ($item) {
+            // Group the sales by date
+            return $item->created_at->toDateString();
+        });
+        
         return view('users.customers.profile', $data);
     }
 
@@ -342,7 +342,7 @@ class UsersController extends Controller
                         $data->cashier_id = auth()->user()->id;
                         $data->customer = null;
                         $data->note = null;
-                        $data->payment_method = null;
+                        $data->payment_method = $request->payment_method;
                         $data->save();
 
                         $data = Stock::find($request->product_id[$i]);

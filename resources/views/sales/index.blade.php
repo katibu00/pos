@@ -466,7 +466,7 @@
 
 
                     html = $('#receipt_body').html(html);
-                    $('.tran_id').html('E' + res.items[0].estimate_no);
+                    $('.tran_id').html('S' + res.items[0].receipt_no);
 
 
                     var data = document.getElementById('print').innerHTML;

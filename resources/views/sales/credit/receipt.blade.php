@@ -130,10 +130,7 @@
         <tbody id="receipt_body">
         </tbody>
         <tfoot>
-            <tr>
-                <td colspan="3" style="text-align: right;">Total:</td>
-                <td id="total"></td>
-            </tr>
+            
         </tfoot>
     </table>
     <div style="display: flex; justify-content: center;">

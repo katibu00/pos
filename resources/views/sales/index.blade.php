@@ -92,9 +92,10 @@
             pointer-events: none;
             background-color: #f9f9f9;
         }
+
         .card-header {
             padding: 0.5rem;
-            background-color: #f5f5f5; 
+            background-color: #f5f5f5;
         }
 
         .card-header p {
@@ -104,7 +105,7 @@
         .card-header .total {
             font-size: 1.8em;
             font-weight: bold;
-            color: #ff0000; 
+            color: #ff0000;
         }
 
         .card-header .amount {
@@ -202,7 +203,7 @@
                                 <div class="card-header bg-transparent text-center">
                                     <p>Total: <b class="total">0.00</b></p>
                                 </div>
-                            
+
                                 <input type="hidden" id="total_hidden">
                                 <div class="card-body">
                                     <div class="panel">
@@ -211,11 +212,13 @@
                                                 <tr>
                                                     <td>
                                                         <label for="customer_name">Customer Name</label>
-                                                        <input type="text" name="customer_name" id="customer_name" class="form-control">
+                                                        <input type="text" name="customer_name" id="customer_name"
+                                                            class="form-control">
                                                     </td>
                                                     <td>
                                                         <label for="note">Note</label>
-                                                        <input type="text" name="note" id="note" class="form-control">
+                                                        <input type="text" name="note" id="note"
+                                                            class="form-control">
                                                     </td>
                                                 </tr>
                                             </table>
@@ -223,41 +226,61 @@
                                                 <div class="col-12 form-group">
                                                     <label>Payment Method:</label><br>
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input required" type="radio" name="payment_method" id="cash"
-                                                            value="cash" required>
+                                                        <input class="form-check-input required" type="radio"
+                                                            name="payment_method" id="cash" value="cash" required>
                                                         <label class="form-check-label nott" for="cash"><i
                                                                 class="fa fa-money text-success"></i> Cash</label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="payment_method" id="pos" value="pos"
-                                                            required>
+                                                        <input class="form-check-input" type="radio" name="payment_method"
+                                                            id="pos" value="pos" required>
                                                         <label class="form-check-label nott" for="pos"><i
                                                                 class="fa fa-credit-card text-info"></i> POS</label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="payment_method" id="transfer"
-                                                            value="transfer" required>
+                                                        <input class="form-check-input" type="radio" name="payment_method"
+                                                            id="transfer" value="transfer" required>
                                                         <label class="form-check-label nott" for="transfer"><i
                                                                 class="fa fa-university text-danger"></i> Transfer</label>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
+                                                <div class="form-group">
+                                                    <label for="toggleLabor">Add Labor Costs</label>
+                                                    <label class="switch">
+                                                        <input type="checkbox" name="toggleLabor" id="toggleLabor">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
+                                                    Labor Cost
+                                                    <input type="number" name="labor_cost" id="laborCost"
+                                                        class="form-control mb-2">
+                                                </div>
+                                            </td>
+                                            <td>
                                                 Paid Amount
-                                                <input type="number" name="paid_amount" id="paid_amount" class="form-control mb-2">
+                                                <input type="number" name="paid_amount" id="paid_amount"
+                                                    class="form-control mb-2">
                                             </td>
                                             <td>
                                                 Returning Change
-                                                <input type="number" readonly name="balance" id="balance" class="form-control mb-2">
+                                                <input type="number" readonly name="balance" id="balance"
+                                                    class="form-control mb-2">
                                             </td>
                                             <td>
-                                                <button type="submit" id="submitBtn" class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
+                                                <button type="submit" id="submitBtn"
+                                                    class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
                                             </td>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </form>
@@ -274,6 +297,20 @@
 
 @section('js')
     <script>
+        const toggleLaborSwitch = document.getElementById('toggleLabor');
+        const laborCostField = document.getElementById('laborCostField');
+        const laborCostInput = document.getElementById('laborCost');
+
+        toggleLaborSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                laborCostField.style.display = 'block';
+                laborCostInput.setAttribute('required', 'required');
+            } else {
+                laborCostField.style.display = 'none';
+                laborCostInput.removeAttribute('required');
+            }
+        });
+
         $('.product_id').select2();
 
         $('.sales-table').on('click', '.add_row', function() {
@@ -391,15 +428,46 @@
                     });
 
 
-                    html = $('#receipt_body').html(html);
-                    $('.tran_id').html('S' + res.items[0].receipt_no);
-                    if(res.items[0].customer_name !== null)
-                    {
-                        $('#customer_name_span').html("Customer Name: "+res.items[0].customer_name);
-                    }else{
-                        $('#customer_name_span').html('');
+                    if (res.items[0].labor_cost !== null) {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + res.items[0].labor_cost.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total</b></td>' +
+                            '<td><b>&#8358;' + (total+res.items[0].labor_cost).toLocaleString() +
+                            '</b></td>' +
+                            '</tr>';
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                            '</tr>';
+                    } else {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total Amount</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
                     }
-                    $('#total').html('₦' + total.toLocaleString());
+
+
+
+                    html = $('#receipt_body').html(html);
+                    $('.tran_id').html('E' + res.items[0].estimate_no);
+
 
                     var data = document.getElementById('print').innerHTML;
 
@@ -408,16 +476,17 @@
                     myReceipt.screenX = 0;
                     myReceipt.screenY = 0;
                     myReceipt.document.write(data);
-                    myReceipt.document.title = "Print Peceipt";
+                    myReceipt.document.title = "Print Estimate Certificate";
                     myReceipt.focus();
                     myReceipt.print();
+
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {
                         Command: toastr["error"](
                             "Session expired. please login again."
                         );
-                       
+
                         setTimeout(() => {
                             window.location.replace('{{ route('login') }}');
                         }, 2000);
@@ -460,13 +529,17 @@
                             $(".product_id").val('none').trigger('change');
 
                             updateTable();
-                            toastr.success(res.message, "Success", { timeOut: 3000 });
+                            toastr.success(res.message, "Success", {
+                                timeOut: 3000
+                            });
 
                         }
                     },
-                    error: function (xhr, status, error) {
-                        
-                        toastr.error("An error occurred: " + error, "Error", { timeOut: 3000 });
+                    error: function(xhr, status, error) {
+
+                        toastr.error("An error occurred: " + error, "Error", {
+                            timeOut: 3000
+                        });
                     }
                 })
             });

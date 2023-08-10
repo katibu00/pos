@@ -86,6 +86,9 @@ class SalesController extends Controller
                 $data->user_id = auth()->user()->id;
                 $data->customer_name = $request->customer_name;
                 $data->note = $request->note;
+                if ($request->input('toggleLabor')) {
+                    $data->labor_cost = $request->input('labor_cost');
+                }
 
                 $data->save();
 
@@ -157,6 +160,9 @@ class SalesController extends Controller
                     $data->user_id = auth()->user()->id;
                     $data->customer_name = $request->customer;
                     $data->note = $request->note;
+                    if ($request->input('toggleLabor')) {
+                        $data->labor_cost = $request->input('labor_cost');
+                    }
                     $data->save();
 
                     $data = Stock::find($request->product_id[$i]);
@@ -220,6 +226,9 @@ class SalesController extends Controller
                     $data->user_id = auth()->user()->id;
                     $data->customer_name = $request->customer;
                     $data->note = $request->note;
+                    if ($request->input('toggleLabor')) {
+                        $data->labor_cost = $request->input('labor_cost');
+                    }
                     $data->save();
 
                     $data = Stock::find($request->product_id[$i]);

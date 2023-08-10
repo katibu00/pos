@@ -248,6 +248,23 @@
                                                 <input type="hidden" name="new_balance" id="new_balance"
                                                     class="form-control mb-2" readonly>
                                             </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label for="toggleLabor">Add Labor Costs</label>
+                                                    <label class="switch">
+                                                        <input type="checkbox" name="toggleLabor" id="toggleLabor">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
+                                                    Labor Cost
+                                                    <input type="number" name="labor_cost" id="laborCost"
+                                                        class="form-control mb-2">
+                                                </div>
+                                            </td>
 
                                             <td>
                                                 <button type="submit" id="submitBtn"
@@ -279,6 +296,19 @@
     <script>
         $(document).ready(function() {
 
+            const toggleLaborSwitch = document.getElementById('toggleLabor');
+        const laborCostField = document.getElementById('laborCostField');
+        const laborCostInput = document.getElementById('laborCost');
+
+        toggleLaborSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                laborCostField.style.display = 'block';
+                laborCostInput.setAttribute('required', 'required');
+            } else {
+                laborCostField.style.display = 'none';
+                laborCostInput.removeAttribute('required');
+            }
+        });
 
             $("input[name='payment_method']").change(function() {
 
@@ -432,15 +462,48 @@
                             '</tr>';
                         total += item.quantity * item.price;
                     });
-                    html +=
-                        '<tr style="text-align: center">' +
-                        '<td></td>' +
-                        '<td colspan="2"><b>Total Amount</b></td>' +
-                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                        '</tr>';
+
+
+                    if (res.items[0].labor_cost !== null) {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + res.items[0].labor_cost.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total</b></td>' +
+                            '<td><b>&#8358;' + (total+res.items[0].labor_cost).toLocaleString() +
+                            '</b></td>' +
+                            '</tr>';
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                            '</tr>';
+                    } else {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total Amount</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
+
+
 
                     html = $('#receipt_body').html(html);
-                    $('.tran_id').html('S' + res.items[0].receipt_no);
+                    $('.tran_id').html('E' + res.items[0].estimate_no);
+
 
                     var data = document.getElementById('print').innerHTML;
 
@@ -449,9 +512,10 @@
                     myReceipt.screenX = 0;
                     myReceipt.screenY = 0;
                     myReceipt.document.write(data);
-                    myReceipt.document.title = "Print Peceipt";
+                    myReceipt.document.title = "Print Estimate Certificate";
                     myReceipt.focus();
                     myReceipt.print();
+
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {

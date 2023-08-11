@@ -21,7 +21,8 @@
                                     <option value="">Sort by Cashier</option>
                                     <option value="all">All</option>
                                     @foreach ($staffs as $staff)
-                                        <option value="{{ $staff->id }}">{{ $staff->first_name . ' ' . $staff->last_name }}
+                                        <option value="{{ $staff->id }}">
+                                            {{ $staff->first_name . ' ' . $staff->last_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -66,8 +67,8 @@
 
 
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.min.js"></script>
 
 
     <script>
@@ -87,16 +88,14 @@
                 url: "{{ route('refresh-receipt') }}",
                 data: data,
                 success: function(res) {
-
                     var html = '';
                     var total = 0;
-                    $.each(res.items, function(key, item) {
 
+                    $.each(res.items, function(key, item) {
                         html +=
                             '<tr style="text-align: center">' +
-                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item
-                            .product.name +
-                            '</span></td>' +
+                            '<td style="text-align: left"><span style="font-size: 12px;">' + item
+                            .product.name + '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
                             '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
                             '<td style="font-size: 12px;">' + (item.quantity * item.price)
@@ -105,22 +104,61 @@
                         total += item.quantity * item.price;
                     });
 
+                    if (res.items[0].labor_cost !== null) {
+                        var laborCost = parseInt(res.items[0]
+                        .labor_cost); // Convert labor cost from string to integer
 
-                    html = $('#receipt_body').html(html);
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        total += laborCost; // Add labor cost to the total
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                            '</tr>';
+                    } else {
+                        html +=
+                            '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total Amount</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
+
+                    $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
-                    $('#total').html('₦' + total.toLocaleString());
 
                     var data = document.getElementById('print').innerHTML;
 
-                    myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                    var myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
 
                     myReceipt.screenX = 0;
                     myReceipt.screenY = 0;
                     myReceipt.document.write(data);
-                    myReceipt.document.title = "Print Peceipt";
+                    myReceipt.document.title = "Print Estimate Certificate";
                     myReceipt.focus();
                     myReceipt.print();
                 },
+
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {
                         Command: toastr["error"](
@@ -244,95 +282,95 @@
 
 
 
-<script>
-    function confirmDeliver(receiptNo) {
-        Swal.fire({
-            title: "Confirm Delivery",
-            text: 'Are you sure you want to mark sale '+ receiptNo+' as Delivered?',
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, items Delivered!",
-            cancelButtonText: "Cancel",
-            dangerMode: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                markAsDeivered(receiptNo);
-            }
-        });
-    }
+    <script>
+        function confirmDeliver(receiptNo) {
+            Swal.fire({
+                title: "Confirm Delivery",
+                text: 'Are you sure you want to mark sale ' + receiptNo + ' as Delivered?',
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, items Delivered!",
+                cancelButtonText: "Cancel",
+                dangerMode: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    markAsDeivered(receiptNo);
+                }
+            });
+        }
 
-    function markAsDeivered(receiptNo) {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            url: '{{ route('sales.deliver') }}',
-            method: 'POST',
-            data: {
-                receiptNo: receiptNo
-            },
-            success: function(response) {
-                // Handle the success response from the backend
-                Swal.fire('Success', response.message);
-                $('.table').load(location.href + ' .table');
+        function markAsDeivered(receiptNo) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: '{{ route('sales.deliver') }}',
+                method: 'POST',
+                data: {
+                    receiptNo: receiptNo
+                },
+                success: function(response) {
+                    // Handle the success response from the backend
+                    Swal.fire('Success', response.message);
+                    $('.table').load(location.href + ' .table');
 
-            },
-            error: function(xhr, status, error) {
-                // Handle the error response from the backend
-                Swal.fire('Error', 'Failed to confirm pickup. Please try again.', 'error');
-            }
-        });
-    }
-</script>
+                },
+                error: function(xhr, status, error) {
+                    // Handle the error response from the backend
+                    Swal.fire('Error', 'Failed to confirm pickup. Please try again.', 'error');
+                }
+            });
+        }
+    </script>
 
-<script>
-    function confirmPickup(receiptNo) {
-        Swal.fire({
-            title: "Confirm Awaiting Pickup",
-            text: 'Are you sure you want to mark sale '+ receiptNo+' as Awaiting Pickup?',
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, items Not received!",
-            cancelButtonText: "Cancel",
-            dangerMode: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                sendReceiptNumber(receiptNo);
-            }
-        });
-    }
+    <script>
+        function confirmPickup(receiptNo) {
+            Swal.fire({
+                title: "Confirm Awaiting Pickup",
+                text: 'Are you sure you want to mark sale ' + receiptNo + ' as Awaiting Pickup?',
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, items Not received!",
+                cancelButtonText: "Cancel",
+                dangerMode: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendReceiptNumber(receiptNo);
+                }
+            });
+        }
 
-    function sendReceiptNumber(receiptNo) {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            url: '{{ route('sales.awaiting_pickup') }}',
-            method: 'POST',
-            data: {
-                receiptNo: receiptNo
-            },
-            success: function(response) {
-                // Handle the success response from the backend
-                Swal.fire('Success', 'Pickup confirmed for receipt number ' + receiptNo, 'success');
-                $('.table').load(location.href + ' .table');
+        function sendReceiptNumber(receiptNo) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: '{{ route('sales.awaiting_pickup') }}',
+                method: 'POST',
+                data: {
+                    receiptNo: receiptNo
+                },
+                success: function(response) {
+                    // Handle the success response from the backend
+                    Swal.fire('Success', 'Pickup confirmed for receipt number ' + receiptNo, 'success');
+                    $('.table').load(location.href + ' .table');
 
-            },
-            error: function(xhr, status, error) {
-                // Handle the error response from the backend
-                Swal.fire('Error', 'Failed to confirm pickup. Please try again.', 'error');
-            }
-        });
-    }
-</script>
+                },
+                error: function(xhr, status, error) {
+                    // Handle the error response from the backend
+                    Swal.fire('Error', 'Failed to confirm pickup. Please try again.', 'error');
+                }
+            });
+        }
+    </script>
 
 
 

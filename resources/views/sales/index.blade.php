@@ -409,16 +409,14 @@
                 url: "{{ route('refresh-receipt') }}",
                 data: data,
                 success: function(res) {
-
                     var html = '';
                     var total = 0;
-                    $.each(res.items, function(key, item) {
 
+                    $.each(res.items, function(key, item) {
                         html +=
                             '<tr style="text-align: center">' +
-                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item
-                            .product.name +
-                            '</span></td>' +
+                            '<td style="text-align: left"><span style="font-size: 12px;">' + item
+                            .product.name + '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
                             '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
                             '<td style="font-size: 12px;">' + (item.quantity * item.price)
@@ -427,8 +425,10 @@
                         total += item.quantity * item.price;
                     });
 
-
                     if (res.items[0].labor_cost !== null) {
+                        var laborCost = parseInt(res.items[0]
+                        .labor_cost); // Convert labor cost from string to integer
+
                         html +=
                             '<tr style="text-align: center">' +
                             '<td></td>' +
@@ -440,16 +440,18 @@
                             '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Labor Cost</b></td>' +
-                            '<td><b>&#8358;' + res.items[0].labor_cost.toLocaleString() + '</b></td>' +
+                            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
                             '</tr>';
+
+                        total += laborCost; // Add labor cost to the total
 
                         html +=
                             '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Total</b></td>' +
-                            '<td><b>&#8358;' + (total +=  res.items[0].labor_cost).toLocaleString() +
-                            '</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
                             '</tr>';
+
                         html +=
                             '<tr style="text-align: center">' +
                             '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
@@ -463,15 +465,12 @@
                             '</tr>';
                     }
 
-
-
-                    html = $('#receipt_body').html(html);
+                    $('#receipt_body').html(html);
                     $('.tran_id').html('S' + res.items[0].receipt_no);
-
 
                     var data = document.getElementById('print').innerHTML;
 
-                    myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                    var myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
 
                     myReceipt.screenX = 0;
                     myReceipt.screenY = 0;
@@ -479,8 +478,8 @@
                     myReceipt.document.title = "Print Estimate Certificate";
                     myReceipt.focus();
                     myReceipt.print();
-
                 },
+
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {
                         Command: toastr["error"](

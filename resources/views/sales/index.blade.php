@@ -447,7 +447,7 @@
                             '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Total</b></td>' +
-                            '<td><b>&#8358;' + (total+res.items[0].labor_cost).toLocaleString() +
+                            '<td><b>&#8358;' + (total + res.items[0].labor_cost).toLocaleString() +
                             '</b></td>' +
                             '</tr>';
                         html +=

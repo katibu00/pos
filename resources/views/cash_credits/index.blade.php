@@ -146,9 +146,11 @@
 <script>
     $(document).ready(function () {
         var selectedCreditId;
+        var selectedCreditAmount;
 
         $('.settle-btn').on('click', function () {
             selectedCreditId = $(this).data('credit-id');
+            selectedCreditAmount = $(this).data('credit-amount');
             var clickedButton = $(this);
             var paymentModal = $('#paymentModal');
             
@@ -165,6 +167,14 @@
         $('#completePaymentBtn').on('click', function () {
             sendPaymentInformation(selectedCreditId, 'complete');
         });
+
+        $('#partialPaymentBtn').on('click', function () {
+            var partialPaymentModal = $('#partialPaymentModal');
+            partialPaymentModal.find('#partialPaymentAmount').val(selectedCreditAmount);
+            partialPaymentModal.modal('show');
+        });
+
+        
     });
 
     function sendPaymentInformation(creditId, paymentType) {

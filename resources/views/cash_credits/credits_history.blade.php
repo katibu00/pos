@@ -16,7 +16,7 @@
                 <td>{{ number_format($credit->amount, 0) }}</td>
                 <td>{{ number_format($credit->paid, 0) }}</td>
                 <td>
-                    <button class="btn btn-primary settle-btn" data-credit-id="{{ $credit->id }}" data-toggle="modal" data-target="#paymentModal">Settle</button>
+                    <button class="btn btn-primary settle-btn" data-credit-id="{{ $credit->id }}" data-credit-amount="{{ $credit->amount }}"  data-toggle="modal" data-target="#paymentModal">Settle</button>
                 </td>
             </tr>
         @endforeach

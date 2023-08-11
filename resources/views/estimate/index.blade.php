@@ -372,6 +372,8 @@
                     var total = 0;
                     $.each(res.items, function(key, item) {
 
+                        total += item.quantity * item.price;
+
                         html +=
                             '<tr style="text-align: center">' +
                             '<td style="text-align: left"><span style="font-size: 12px;" >' + item
@@ -382,7 +384,6 @@
                             '<td style="font-size: 12px;">' + (item.quantity * item.price)
                             .toLocaleString() + '</td>' +
                             '</tr>';
-                        total += item.quantity * item.price;
                     });
 
 
@@ -437,6 +438,7 @@
                     myReceipt.document.title = "Print Estimate Certificate";
                     myReceipt.focus();
                     myReceipt.print();
+
 
                 },
                 error: function(xhr, ajaxOptions, thrownError) {

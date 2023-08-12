@@ -314,40 +314,43 @@ class UsersController extends Controller
     }
     public function returnStore(Request $request)
     {
+        // dd($request->all());
 
-        $total_price = collect($request->quantity)
-            ->map(function ($quantity, $index) use ($request) {
-                return ($quantity * $request->price[$index]) - $request->discount[$index];
-            })
-            ->sum();
+        $sale = Sale::find($request->sale_id[0]);
 
-        $branch_id = auth()->user()->branch_id;
+        $sales = Sale::where('receipt_no', $sale->receipt_no)->where('customer_name', $sale->customer_name)->get(); 
+        $net_amount = 0;
+       
+        foreach($sales as $sale)
+       {
+        $net_amount += ($sale->quantity - $sale->returned_qty) * $sale->price - $sale->discount;
+       
+       }
+       $remaining_balance = $net_amount - $sales[0]->payment_amount;
 
-        $todaySales = Sale::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
-        $todayReturns = Returns::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->get();
-        $expenses = Expense::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('amount');
-        $payments = Payment::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('payment_amount');
+       $returned_amount = 0;
+       $productCount = count($request->sale_id);
+       if ($productCount != null) {
+           for ($i = 0; $i < $productCount; $i++) {
 
-        $sales = $todaySales->reduce(function ($total, $sale) {
-            return $total + ($sale->price * $sale->quantity) - $sale->discount;
-        }, 0);
-
-        $returns = $todayReturns->reduce(function ($total, $return) {
-            return $total + ($return->price * $return->quantity) + $return->discount;
-        }, 0);
-
-        $net_amount = (float) $sales + (float) $payments - ((float) $returns + (float) $expenses);
-
-        if ((float) $total_price > (float) $net_amount) {
-            Toastr::error('No enough Balance in the Selected Payment Channel');
-            return redirect()->back();
+                if($request->returned_qty[$i] != null)
+                {
+                    $returned_amount += $request->price[$i] * $request->returned_qty[$i];
+                }
+           }
         }
+       
+      if($returned_amount > $remaining_balance)
+      {
+        Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
+        return redirect()->back();
+
+      }
 
         $productCount = count($request->sale_id);
         if ($productCount != null) {
             for ($i = 0; $i < $productCount; $i++) {
 
-                $sale = Sale::find($request->sale_id[$i]);
 
                 if ($request->returned_qty[$i] != '') {
 
@@ -370,8 +373,9 @@ class UsersController extends Controller
                             $data->discount = $discount;
                         }
                         $data->cashier_id = auth()->user()->id;
-                        $data->customer = null;
-                        $data->note = null;
+                        $data->customer = $sale->customer_name;
+                        $data->channel = 'credit';
+                        $data->note = $sale->note;
                         $data->payment_method = $request->payment_method;
                         $data->save();
 

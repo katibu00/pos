@@ -174,6 +174,10 @@ Route::group(['prefix' => 'cash_credits', 'middleware' => ['auth', 'staff']], fu
 });
 
 Route::get('/credits-history/{customerId}', [CashCreditsController::class, 'show'])->name('credits-history');
+Route::get('/fetch-credit-records/{customerId}', [CashCreditsController::class, 'fetchCreditRecords'])->name('fetch-credit-records');
+Route::post('/process-credit-payment', [CashCreditsController::class, 'processCreditPayment']);
+
+
 
 
 Route::group(['prefix' => 'print', 'middleware' => ['auth', 'staff']], function () {

@@ -12,5 +12,12 @@ class CashCredit extends Model
     public function customer(){
         return $this->belongsTo(User::class, 'customer_id','id');
     }
+
+    protected $fillable = [
+        'customer_id',
+        'amount',
+        'status',
+        'amount_paid',
+    ];
    
 }

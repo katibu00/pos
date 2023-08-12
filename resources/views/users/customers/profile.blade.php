@@ -397,6 +397,7 @@
 
                                         $sales = App\Models\Sale::select('stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount')
                                             ->where('receipt_no', $date->receipt_no)
+                                            ->where('customer_name', $user->id)
                                             ->get();
 
                                         $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')

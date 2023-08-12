@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('customer_id');
             $table->float('amount');
-            $table->float('paid')->default(0);
+            $table->float('amount_paid')->default(0); 
+            $table->string('status')->nullable(); 
             $table->timestamps();
         });
     }

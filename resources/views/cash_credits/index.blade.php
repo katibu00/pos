@@ -134,6 +134,51 @@
     </div>
 </div>
 
+
+
+
+
+<div class="modal fade" id="creditPaymentModal" tabindex="-1" aria-labelledby="creditPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="creditPaymentModalLabel">Credit Payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center" id="loadingSpinner">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="creditPaymentContent" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Amount</th>
+                                <th>Amount Paid</th>
+                                <th>Payment Type</th>
+                                <th>Partial Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="creditPaymentTableBody">
+                            <!-- Table rows will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="processCreditPaymentBtn">Process Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     
     
     
@@ -141,6 +186,135 @@
 @endsection
 
 @section('js')
+
+
+
+<script>
+    $(document).ready(function () {
+        // ... Other code ...
+
+        $('#processCreditPaymentBtn').on('click', function() {
+            var paymentData = [];
+
+            // Loop through each payment row to gather payment data
+            $('input[type="radio"]:checked').each(function() {
+                var paymentType = $(this).val();
+                var creditId = $(this).attr('name').split('_')[1];
+                var partialAmountInput = $('input[name="partial_amount_' + creditId + '"]');
+                var partialAmount = partialAmountInput.val();
+
+                paymentData.push({
+                    creditId: creditId,
+                    paymentType: paymentType,
+                    partialAmount: partialAmount
+                });
+            });
+
+
+            $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+            // Send payment data to the server
+            $.ajax({
+                url: '/process-credit-payment',
+                method: 'POST',
+                data: { paymentData: paymentData },
+                success: function (response) {
+                    if (response.message) {
+        // Show a success message to the user
+                        toastr.success(response.message);
+
+                        // Refresh the page after a short delay
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1500); // 1500 milliseconds (1.5 seconds) delay before refresh
+                    } 
+                },
+                error: function (error) {
+                    // Handle error response
+                }
+            });
+        });
+
+        // ... Rest of your code ...
+    });
+</script>
+
+
+
+<script>
+    $(document).ready(function () {
+        $('.credits-payment').on('click', function(event) {
+            event.preventDefault();
+
+            var modal = $('#creditPaymentModal');
+            var customerId = $(this).data('customer-id');
+
+            modal.find('#loadingSpinner').show();
+            modal.find('#creditPaymentContent').hide();
+
+            $.ajax({
+                url: '/fetch-credit-records/' + customerId,
+                method: 'GET',
+                success: function (response) {
+                    modal.find('#creditPaymentTableBody').empty();
+
+                    $.each(response.creditRecords, function (index, credit) {
+                        var row = '<tr>' +
+                            '<td>' + (index + 1) + '</td>' +
+                            '<td>' + credit.amount + '</td>' +
+                            '<td>' + credit.amount_paid + '</td>' +
+                            '<td>' +
+                            '<label><input type="radio" name="payment_' + credit.id + '" value="no_payment" checked> No Payment</label><br>' +
+                            '<label><input type="radio" name="payment_' + credit.id + '" value="full_payment"> Full Payment</label><br>' +
+                            '<label><input type="radio" name="payment_' + credit.id + '" value="partial_payment"> Partial Payment</label>' +
+                            '</td>' +
+                            '<td><input type="number" name="partial_amount_' + credit.id + '" style="display: none;" placeholder="Partial Amount"></td>' +
+                            '</tr>';
+
+                        modal.find('#creditPaymentTableBody').append(row);
+                    });
+
+
+                    modal.find('#loadingSpinner').hide();
+                    modal.find('#creditPaymentContent').show();
+                },
+                error: function (error) {
+                    // Handle error response
+                }
+            });
+        });
+
+        // Show/hide partial amount input field based on radio button selection
+        $(document).on('change', 'input[name^="payment_"]', function () {
+            var partialInput = $(this).closest('tr').find('input[name^="partial_amount_"]');
+            if ($(this).val() === 'partial_payment') {
+                partialInput.show();
+            } else {
+                partialInput.hide();
+            }
+        });
+
+        $(document).on('input', 'input[name^="partial_amount_"]', function () {
+            var partialInput = $(this);
+            var row = partialInput.closest('tr');
+            var amountPaid = parseFloat(row.find('td:eq(2)').text()); // Extract amount paid from the table row
+            var amountCollected = parseFloat(row.find('td:eq(1)').text()); // Extract amount collected from the table row
+            var remainingBalance = amountCollected - amountPaid;
+
+            var enteredAmount = parseFloat(partialInput.val());
+            if (enteredAmount > remainingBalance) {
+                partialInput.val('');
+                // Display a toastr message here or any other validation error handling
+            }
+        });
+    });
+</script>
+
+
 
 
 <script>

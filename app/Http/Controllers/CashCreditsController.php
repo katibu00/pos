@@ -43,4 +43,66 @@ class CashCreditsController extends Controller
  
          return View::make('cash_credits.credits_history', ['customer' => $customer, 'creditsHistory' => $creditsHistory]);
      }
+
+
+     public function fetchCreditRecords($customerId)
+     {
+         $creditRecords = CashCredit::where('customer_id', $customerId)
+             ->where(function ($query) {
+                 $query->where('status', '!=', 'paid')
+                       ->orWhereNull('status');
+             })
+             ->get();
+     
+         // Return the credit records as JSON response
+         return response()->json(['creditRecords' => $creditRecords]);
+     }
+
+
+
+   
+
+
+    public function processCreditPayment(Request $request)
+    {
+        $paymentData = $request->input('paymentData');
+
+        foreach ($paymentData as $payment) {
+            $credit = CashCredit::findOrFail($payment['creditId']);
+
+            if ($payment['paymentType'] === 'no_payment') {
+                // Handle no payment (if needed)
+            } elseif ($payment['paymentType'] === 'full_payment') {
+                // Handle full payment
+                $this->handleFullPayment($credit);
+            } elseif ($payment['paymentType'] === 'partial_payment') {
+                // Handle partial payment
+                $partialAmount = floatval($payment['partialAmount']);
+                $this->handlePartialPayment($credit, $partialAmount);
+            }
+        }
+
+        return response()->json(['message' => 'Credit payment(s) processed successfully']);
+    }
+
+    protected function handleFullPayment($credit)
+    {
+        $credit->update([
+            'amount_paid' => $credit->amount, 
+            'status' => 'paid', 
+        ]);
+    }
+
+    protected function handlePartialPayment($credit, $partialAmount)
+    {
+        if ($partialAmount > ($credit->amount - $credit->amount_paid)) {
+            return response()->json(['error' => 'Partial amount exceeds balance']);
+        }
+
+        $credit->update([
+            'amount_paid' => $credit->amount_paid + $partialAmount, 
+        ]);
+    }
+
+
 }

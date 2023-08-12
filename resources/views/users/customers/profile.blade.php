@@ -84,7 +84,7 @@
                                                         @endphp
                                                         <tr>
                                                             <td>{{ $key3 + 1 }}</td>
-                                                            <td colspan="2">{{ $date->created_at->format('l, d F') }}</td>
+                                                            <td colspan="2">{{ $date->created_at->format('l, d F').' (S'.$date->receipt_no.')' }} </td>
                                                             <td></td>
                                                             <td></td>
                                                             <td><a href="{{ route('users.return.index', ['id' => $date->receipt_no]) }}" class="btn btn-danger btn-sm"><i class="fas fa-undo text-white"></i></a></td>

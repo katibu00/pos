@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\Returns;
 use App\Models\Sale;
@@ -98,13 +99,13 @@ class UsersController extends Controller
         $data['payments'] = Payment::select('id', 'payment_amount', 'payment_method', 'created_at')->where('payment_type', 'credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(10)->get();
 
         $data['shoppingHistory'] = Sale::where('customer_name', $id)
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->groupBy(function ($item) {
-            // Group the sales by date
-            return $item->created_at->toDateString();
-        });
-        
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($item) {
+                // Group the sales by date
+                return $item->created_at->toDateString();
+            });
+
         return view('users.customers.profile', $data);
     }
 
@@ -313,6 +314,35 @@ class UsersController extends Controller
     }
     public function returnStore(Request $request)
     {
+
+        $total_price = collect($request->quantity)
+            ->map(function ($quantity, $index) use ($request) {
+                return ($quantity * $request->price[$index]) - $request->discount[$index];
+            })
+            ->sum();
+
+        $branch_id = auth()->user()->branch_id;
+
+        $todaySales = Sale::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
+        $todayReturns = Returns::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->get();
+        $expenses = Expense::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('amount');
+        $payments = Payment::where('branch_id', $branch_id)->where('payment_method', $request->payment_method)->whereDate('created_at', today())->sum('payment_amount');
+
+        $sales = $todaySales->reduce(function ($total, $sale) {
+            return $total + ($sale->price * $sale->quantity) - $sale->discount;
+        }, 0);
+
+        $returns = $todayReturns->reduce(function ($total, $return) {
+            return $total + ($return->price * $return->quantity) + $return->discount;
+        }, 0);
+
+        $net_amount = (float) $sales + (float) $payments - ((float) $returns + (float) $expenses);
+
+        if ((float) $total_price > (float) $net_amount) {
+            Toastr::error('No enough Balance in the Selected Payment Channel');
+            return redirect()->back();
+        }
+
         $productCount = count($request->sale_id);
         if ($productCount != null) {
             for ($i = 0; $i < $productCount; $i++) {

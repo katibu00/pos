@@ -44,6 +44,18 @@
                     <div>Customers</div>
                 </a>
             </li>
+
+            <li class="menu-item {{ $route == 'reorder.index' ? 'current' : '' }}">
+                <a class="menu-link " href="{{ route('reorder.index') }}">
+                    <div>New Reorder</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'reorder.all.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('reorder.all.index') }}">
+                    <div>All Reorders</div>
+                </a>
+            </li>
+            
         </ul>
     </li>
 @else
@@ -51,10 +63,10 @@
             href="{{ route('admin.home') }}">
             <div>Home</div>
         </a></li>
-    <li class="menu-item {{ $route == 'data-sync.index' ? 'current' : '' }}"><a class="menu-link"
+    {{-- <li class="menu-item {{ $route == 'data-sync.index' ? 'current' : '' }}"><a class="menu-link"
             href="{{ route('data-sync.index') }}">
             <div>Data Synch</div>
-        </a></li>
+        </a></li> --}}
     <li
         class="menu-item {{ $route == 'report.index' ? 'current' : '' }} {{ $route == 'report.generate' ? 'current' : '' }}">
         <a class="menu-link" href="{{ route('report.index') }}">

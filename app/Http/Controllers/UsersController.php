@@ -304,9 +304,11 @@ class UsersController extends Controller
     public function returnIndex(Request $request)
     {
         $id = $request->input('id');
+        $sale = Sale::where('receipt_no',$id)->first();
 
         $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount', 'customer_name', 'returned_qty')
             ->where('receipt_no', $id)
+            ->where('customer_name', $sale->customer_name)
             ->get();
 
         return view('users.customers.return', $data);

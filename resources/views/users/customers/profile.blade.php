@@ -80,7 +80,7 @@
                                                                 ->get(); 
                                                             $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
                                                                 ->where('return_no', 'R'.$date->receipt_no)
-                                                                ->where('customer_name', $user->id)
+                                                                ->where('customer', $user->id)
                                                                 ->get();
                                                         @endphp
                                                         <tr>
@@ -403,6 +403,7 @@
 
                                         $returns = App\Models\Returns::select('product_id', 'price', 'quantity', 'discount', 'payment_method')
                                                 ->where('return_no', 'R'.$date->receipt_no)
+                                                ->where('customer', $user->id)
                                                 ->get();
                                             
                                         foreach ($sales as $sale) {

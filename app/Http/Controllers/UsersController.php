@@ -316,7 +316,6 @@ class UsersController extends Controller
     }
     public function returnStore(Request $request)
     {
-        // dd($request->all());
 
         $sale = Sale::find($request->sale_id[0]);
 

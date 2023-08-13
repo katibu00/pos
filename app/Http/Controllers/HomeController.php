@@ -25,7 +25,7 @@ class HomeController extends Controller
 
         
             $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
-            $todayReturns = Returns::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+            $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
             $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();

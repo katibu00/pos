@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\CashCredit;
 use App\Models\Estimate;
 use App\Models\Expense;
 use App\Models\Payment;
@@ -31,6 +32,11 @@ class HomeController extends Controller
             $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
         
+            $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', today())
+            ->sum(DB::raw('amount - amount_paid'));
+            $data['TotalcashCredit']  = CashCredit::where('branch_id', $branch_id)
+            ->whereRaw('amount > amount_paid')
+            ->sum(DB::raw('amount - amount_paid'));
 
         $data['totalDiscounts'] = $todaySales->sum('discount');
         //sales
@@ -200,6 +206,8 @@ class HomeController extends Controller
             $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
             $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', $request->date)->get();
             $data['date'] = $request->date;
+            $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', $request->date)
+            ->sum(DB::raw('amount - amount_paid'));
         } else {
             $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
             $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
@@ -207,7 +215,18 @@ class HomeController extends Controller
             $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
             $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+
+            $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', today())
+                ->sum(DB::raw('amount - amount_paid'));
+
         }
+
+        $data['TotalcashCredit']  = CashCredit::where('branch_id', $branch_id)
+                ->whereRaw('amount > amount_paid')
+                ->sum(DB::raw('amount - amount_paid'));
+
+    
+
         $data['deposits'] = Payment::select('payment_amount')->where('branch_id', $branch_id)->where('payment_type', 'deposit')->sum('payment_amount');
 
         $data['totalDiscounts'] = $todaySales->sum('discount');
@@ -372,6 +391,10 @@ class HomeController extends Controller
         }
 
         $data['pieChartData'] = $pieChartData;
+
+        ///////////
+
+
 
         return view('admin', $data);
 

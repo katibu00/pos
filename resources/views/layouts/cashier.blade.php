@@ -124,6 +124,13 @@
                 <div>Salary Advance</div>
             </a>
         </li>
+
+        <li
+        class="menu-item {{ $route == 'cash_credits.index' ? 'current' : '' }}">
+        <a class="menu-link" href="{{ route('cash_credits.index') }}">
+            <div>Cash Credits</div>
+        </a>
+    </li>
        
 
     </ul>

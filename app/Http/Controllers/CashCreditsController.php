@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CashCredit;
+use App\Models\Expense;
+use App\Models\Payment;
+use App\Models\Returns;
+use App\Models\Sale;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -25,8 +29,38 @@ class CashCreditsController extends Controller
 
     public function store(Request $request)
     {
+
+        $branch_id = auth()->user()->branch_id;
+
+        $todaySales = Sale::where('branch_id', $branch_id)->where('payment_method', 'cash')->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
+        $todayReturns = Returns::where('branch_id', $branch_id)->where('payment_method', 'cash')->whereDate('created_at', today())->get();
+        $expenses = Expense::where('branch_id', $branch_id)->where('payment_method', 'cash')->whereDate('created_at', today())->sum('amount');
+        $payments = Payment::where('branch_id', $branch_id)->where('payment_method', 'cash')->whereDate('created_at', today())->sum('payment_amount');
+
+       
+
+        $sales = $todaySales->reduce(function ($total, $sale) {
+            return $total + ($sale->price * $sale->quantity) - $sale->discount;
+        }, 0);
+        
+
+        $returns = $todayReturns->reduce(function ($total, $return) {
+            return $total + ($return->price * $return->quantity) + $return->discount;
+        }, 0);
+
+      
+
+        $net_amount = (float)$sales+(float)$payments - ((float)$returns + (float)$expenses);
+        
+        if ((float) $request->amount > (float) $net_amount) {
+            Toastr::error('No enough Cash');
+            return redirect()->route('cash_credits.index');
+        }
+
+
         $credit = new CashCredit();
         $credit->customer_id = $request->customer_id;
+        $credit->branch_id = auth()->user()->branch_id;
         $credit->amount = $request->amount;
         $credit->save();
 

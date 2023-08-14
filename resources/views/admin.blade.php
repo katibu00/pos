@@ -202,6 +202,12 @@
                                                 style="margin-left: 5px;">{{ number_format(@$uncollectedSales->count(), 0) }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
+                                    <li class="border border-success py-2 px-3 rounded mb-2"
+                                        style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Total Cash Credit Balance Remaining: <span class="fw-bold"
+                                                style="margin-left: 5px;">&#8358;{{ number_format(@$TotalcashCredit, 0) }}</span></span>
+                                        <span style="margin-left: auto;"></span>
+                                    </li>
 
                                 </ul>
                             </div>
@@ -302,8 +308,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Cash Balance</h5>
-                                    <p class="card-text">&#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments) }}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $cashSales.' Returns: '.$cashReturns.' Expenses: '.$cashExpenses.' Repayments: '.$cashCreditPayments.' Deposit '.$cashDepositPayments }}</h6>
+                                    <p class="card-text">&#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments - $cashCreditToday) }}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $cashSales.' Returns: '.$cashReturns.' Expenses: '.$cashExpenses.' Repayments: '.$cashCreditPayments.' Deposit '.$cashDepositPayments.' Cash Credit: '.$cashCreditToday }}</h6>
                                 </div>
                             </div>
                         </div>

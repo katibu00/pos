@@ -86,57 +86,7 @@
         </div>
     </div>
 
-    <style>
-        /* Make the payment modal smaller */
-        #paymentModal .modal-dialog {
-            max-width: 300px; /* Adjust the width as needed */
-        }
-       
-    #paymentModal .modal-content {
-        border: 2px solid #007bff; /* Use your desired outline color */
-        background-color: #f8f9fa; /* Use your desired background color */
-    }
-
-    </style>
     
-
-<!-- Update the payment modal HTML -->
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="paymentModalLabel">Payment Options</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Choose payment type:</p>
-                <button class="btn btn-primary" id="partialPaymentBtn">Partial Payment</button>
-                <button class="btn btn-success" id="completePaymentBtn">Complete Payment</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Update the partial payment modal HTML -->
-<div class="modal fade" id="partialPaymentModal" tabindex="-1" aria-labelledby="partialPaymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="partialPaymentModalLabel">Partial Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Enter the partial payment amount:</p>
-                <input type="number" id="partialPaymentAmount" class="form-control" placeholder="Amount">
-                <button class="btn btn-primary mt-3" id="confirmPartialPaymentBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
 
 <div class="modal fade" id="creditPaymentModal" tabindex="-1" aria-labelledby="creditPaymentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('cash_credits', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('customer_id');
+            $table->integer('branch_id');
             $table->float('amount');
             $table->float('amount_paid')->default(0); 
             $table->string('status')->nullable(); 

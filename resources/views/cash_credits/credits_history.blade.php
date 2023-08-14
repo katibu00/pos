@@ -6,19 +6,26 @@
             <th>Date</th>
             <th>Amount</th>
             <th>Paid</th>
-            <th>Action</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($creditsHistory as $credit)
-            <tr>
-                <td>{{ \Carbon\Carbon::parse($credit->created_at)->format('D d F') }}</td>
-                <td>{{ number_format($credit->amount, 0) }}</td>
-                <td>{{ number_format($credit->paid, 0) }}</td>
-                <td>
-                    <button class="btn btn-primary settle-btn" data-credit-id="{{ $credit->id }}" data-credit-amount="{{ $credit->amount }}"  data-toggle="modal" data-target="#paymentModal">Settle</button>
-                </td>
-            </tr>
-        @endforeach
+        <tr>
+            <td>{{ \Carbon\Carbon::parse($credit->created_at)->format('D d F') }}</td>
+            <td>{{ number_format($credit->amount, 0) }}</td>
+            <td>{{ number_format($credit->amount_paid, 0) }}</td>
+            <td>
+                @if($credit->amount_paid == 0)
+                    <span class="badge bg-danger">No Payment</span>
+                @elseif($credit->amount == $credit->amount_paid)
+                    <span class="badge bg-success">Settled</span>
+                @else
+                    <span class="badge bg-warning">Partial</span>
+                @endif
+            </td>
+        </tr>
+    @endforeach
+    
     </tbody>
 </table>

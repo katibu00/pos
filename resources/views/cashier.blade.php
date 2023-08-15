@@ -12,10 +12,10 @@
                             <div class="card-body">
                                 <h5 class="card-title">Cash Balance</h5>
                                 <p class="card-text">
-                                    &#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments - $cashCreditToday) }}
+                                    &#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash']) }}
                                 </p>
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments.' Cash Credit: '.$cashCreditToday }}
+                                    {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments.' Cash Credit: '.$cashCreditToday.' CCP: '.$CreditPaymentSummary['cash'] }}
                                 </h6>
                             </div>
                         </div>
@@ -26,10 +26,10 @@
                             <div class="card-body">
                                 <h5 class="card-title">Transfer Balance</h5>
                                 <p class="card-text">
-                                    &#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments) }}
+                                    &#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments) + $CreditPaymentSummary['transfer'] }}
                                 </p>
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments }}
+                                    {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments.' CCP: '.$CreditPaymentSummary['transfer'] }}
                                 </h6>
                             </div>
                         </div>
@@ -39,10 +39,10 @@
                             <div class="card-body">
                                 <h5 class="card-title">POS Balance</h5>
                                 <p class="card-text">
-                                    &#8358;{{ number_format($posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments) }}
+                                    &#8358;{{ number_format($posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments) + $CreditPaymentSummary['pos'] }}
                                 </p>
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments }}
+                                    {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments.' CCP: '.$CreditPaymentSummary['pos'] }}
                                 </h6>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
 
             <div class="container mt-2">
 
-                <h3>Today's Stats >>></h3>
+                {{-- <h3>Today's Stats >>></h3> --}}
                 <div class="row col-mb-50 mb-0">
                     <div class="col-md-6">
                         <ul class="iconlist fw-medium">

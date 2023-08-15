@@ -1,5 +1,5 @@
 <div class="table-responsive">
-    <table class="table" style="width:100%">
+    <table class="table creditTable" style="width:100%">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -18,20 +18,17 @@
                         $total_amount = App\Models\CashCredit::where('customer_id', $debtor->customer_id)
                             ->where(function ($query) {
                                 $query
-                                    ->whereNull('status') // Rows where status is null
-                                    ->orWhere('status', '!=', 'paid'); // Rows where status is not 'paid'
+                                    ->whereNull('status')
+                                    ->orWhere('status', '!=', 'paid');
                             })
                             ->sum('amount');
                         $total_paid = App\Models\CashCredit::where('customer_id', $debtor->customer_id)
                             ->where(function ($query) {
                                 $query
-                                    ->whereNull('status') // Rows where status is null
-                                    ->orWhere('status', '!=', 'paid'); // Rows where status is not 'paid'
+                                    ->whereNull('status') 
+                                    ->orWhere('status', '!=', 'paid');
                             })
                             ->sum('amount_paid');
-                        
-                     
-                        
 
                         // Get the last payment where status is paid
                         $last_payment = App\Models\CashCredit::where('customer_id', $debtor->customer_id)

@@ -308,8 +308,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Cash Balance</h5>
-                                    <p class="card-text">&#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments - $cashCreditToday) }}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $cashSales.' Returns: '.$cashReturns.' Expenses: '.$cashExpenses.' Repayments: '.$cashCreditPayments.' Deposit '.$cashDepositPayments.' Cash Credit: '.$cashCreditToday }}</h6>
+                                    <p class="card-text">&#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash']) }}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $cashSales.' Returns: '.$cashReturns.' Expenses: '.$cashExpenses.' Repayments: '.$cashCreditPayments.' Deposit '.$cashDepositPayments.' Cash Credit: '.$cashCreditToday.' CCP: '.$CreditPaymentSummary['cash'] }}</h6>
                                 </div>
                             </div>
                         </div>
@@ -318,8 +318,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Transfer Balance</h5>
-                                    <p class="card-text">&#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments+$transferDepositPayments) }}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $transferSales.' Returns: '.$transferReturns.' Expenses: '.$transferExpenses.' Repayments: '.$transferCreditPayments.' Deposit '.$transferDepositPayments }}</h6>
+                                    <p class="card-text">&#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments+$transferDepositPayments) + $CreditPaymentSummary['transfer']}}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $transferSales.' Returns: '.$transferReturns.' Expenses: '.$transferExpenses.' Repayments: '.$transferCreditPayments.' Deposit '.$transferDepositPayments.' CCP: '.$CreditPaymentSummary['transfer'] }}</h6>
                                 </div>
                             </div>
                         </div>
@@ -327,8 +327,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">POS Balance</h5>
-                                    <p class="card-text">&#8358;{{ number_format($posSales - ($posExpenses + $posReturns) + $posCreditPayments+$posDepositPayments) }}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $posSales.' Returns: '.$posReturns.' Expenses: '.$posExpenses.' Repayments: '.$posCreditPayments.' Deposit '.$posDepositPayments }}</h6>
+                                    <p class="card-text">&#8358;{{ number_format($posSales - ($posExpenses + $posReturns) + $posCreditPayments+$posDepositPayments) + $CreditPaymentSummary['pos'] }}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ 'Sales: '. $posSales.' Returns: '.$posReturns.' Expenses: '.$posExpenses.' Repayments: '.$posCreditPayments.' Deposit '.$posDepositPayments.' CCP: '.$CreditPaymentSummary['pos'] }}</h6>
                                 </div>
                             </div>
                         </div>

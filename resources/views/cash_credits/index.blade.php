@@ -86,13 +86,14 @@
         </div>
     </div>
 
-    
+
 
 <div class="modal fade" id="creditPaymentModal" tabindex="-1" aria-labelledby="creditPaymentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="creditPaymentModalLabel">Credit Payment</h5>
+                <h6 class="modal-title" id="creditBalanceHeader">Credit Balance: <span id="modalCreditBalance"></span></h6>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -118,6 +119,15 @@
                             <!-- Table rows will be dynamically added here -->
                         </tbody>
                     </table>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                            <option value=""></option>
+                            <option value="cash">Cash</option>
+                            <option value="transfer">Transfer</option>
+                            <option value="pos">POS</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -127,7 +137,6 @@
         </div>
     </div>
 </div>
-
 
     
     
@@ -141,12 +150,10 @@
 
 <script>
     $(document).ready(function () {
-        // ... Other code ...
-
+       
         $('#processCreditPaymentBtn').on('click', function() {
             var paymentData = [];
 
-            // Loop through each payment row to gather payment data
             $('input[type="radio"]:checked').each(function() {
                 var paymentType = $(this).val();
                 var creditId = $(this).attr('name').split('_')[1];
@@ -160,38 +167,49 @@
                 });
             });
 
+            // Check if payment method is selected
+            var paymentMethod = $('#paymentMethod').val();
+            if (!paymentMethod) {
+                toastr.error("Please select a payment method.");
+                return;
+            }
 
             $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            // Disable the button and show spinner animation
+            var processBtn = $(this);
+            processBtn.prop('disabled', true);
+            processBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
 
             // Send payment data to the server
             $.ajax({
                 url: '/process-credit-payment',
                 method: 'POST',
-                data: { paymentData: paymentData },
+                data: { paymentData: paymentData, paymentMethod: paymentMethod },
                 success: function (response) {
                     if (response.message) {
-        // Show a success message to the user
                         toastr.success(response.message);
+                        $('.creditTable').load(location.href+' .creditTable');
+                        processBtn.prop('disabled', false);
+                        processBtn.text('Process Payment');
+                        $('#creditPaymentModal').modal('hide');
 
-                        // Refresh the page after a short delay
-                        setTimeout(function () {
-                            window.location.reload();
-                        }, 1500); // 1500 milliseconds (1.5 seconds) delay before refresh
                     } 
                 },
                 error: function (error) {
-                    // Handle error response
+                    processBtn.prop('disabled', false);
+                    processBtn.text('Process Payment');
                 }
             });
         });
 
-        // ... Rest of your code ...
     });
 </script>
+
 
 
 
@@ -211,8 +229,12 @@
                 method: 'GET',
                 success: function (response) {
                     modal.find('#creditPaymentTableBody').empty();
+                    var totalCreditBalance = 0;
 
                     $.each(response.creditRecords, function (index, credit) {
+                        
+                        totalCreditBalance += credit.amount - credit.amount_paid;
+
                         var row = '<tr>' +
                             '<td>' + (index + 1) + '</td>' +
                             '<td>' + credit.amount + '</td>' +
@@ -228,6 +250,7 @@
                         modal.find('#creditPaymentTableBody').append(row);
                     });
 
+                    modal.find('#modalCreditBalance').text(totalCreditBalance);
 
                     modal.find('#loadingSpinner').hide();
                     modal.find('#creditPaymentContent').show();
@@ -251,74 +274,18 @@
         $(document).on('input', 'input[name^="partial_amount_"]', function () {
             var partialInput = $(this);
             var row = partialInput.closest('tr');
-            var amountPaid = parseFloat(row.find('td:eq(2)').text()); // Extract amount paid from the table row
-            var amountCollected = parseFloat(row.find('td:eq(1)').text()); // Extract amount collected from the table row
+            var amountPaid = parseFloat(row.find('td:eq(2)').text()); 
+            var amountCollected = parseFloat(row.find('td:eq(1)').text()); 
             var remainingBalance = amountCollected - amountPaid;
 
             var enteredAmount = parseFloat(partialInput.val());
             if (enteredAmount > remainingBalance) {
                 partialInput.val('');
-                // Display a toastr message here or any other validation error handling
+                toastr.warning("Entered Amount Cannot Exceed Remaining Balance");
             }
         });
     });
 </script>
-
-
-
-
-<script>
-    $(document).ready(function () {
-        var selectedCreditId;
-        var selectedCreditAmount;
-
-        $('.settle-btn').on('click', function () {
-            selectedCreditId = $(this).data('credit-id');
-            selectedCreditAmount = $(this).data('credit-amount');
-            var clickedButton = $(this);
-            var paymentModal = $('#paymentModal');
-            
-            // Calculate modal position relative to the clicked button
-            var modalOffset = clickedButton.offset();
-            modalOffset.top += clickedButton.outerHeight();
-
-            // Set modal position and show
-            paymentModal.css({top: modalOffset.top, left: modalOffset.left});
-            paymentModal.modal('show');
-        });
-
-        // When the "Complete Payment" button is clicked
-        $('#completePaymentBtn').on('click', function () {
-            sendPaymentInformation(selectedCreditId, 'complete');
-        });
-
-        $('#partialPaymentBtn').on('click', function () {
-            var partialPaymentModal = $('#partialPaymentModal');
-            partialPaymentModal.find('#partialPaymentAmount').val(selectedCreditAmount);
-            partialPaymentModal.modal('show');
-        });
-
-        
-    });
-
-    function sendPaymentInformation(creditId, paymentType) {
-        $.ajax({
-            url: '/process-payment',
-            type: 'POST',
-            data: {
-                creditId: creditId,
-                paymentType: paymentType
-            },
-            success: function (response) {
-                // Handle success response
-            },
-            error: function (error) {
-                // Handle error response
-            }
-        });
-    }
-</script>
-
 
 
 
@@ -353,49 +320,6 @@
 </script>
 
 
-    <script>
-        function handleSearch() {
-            var query = $('#searchInput').val();
-
-            $('.pagination').hide();
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                url: '{{ route('users.search') }}',
-                method: 'POST',
-                data: {
-                    query: query
-                },
-                success: function(response) {
-                    // Empty the table
-                    $('.table').empty();
-
-                    // Check if the response is empty
-                    if ($(response).find('tbody tr').length > 0) {
-                        $('.table').html(response);
-                    } else {
-                        // Display a message if no rows are found
-                        $('.table tbody').empty().append(
-                            '<tr><td colspan="9" class="text-center">No results found.</td></tr>');
-                        toastr.warning('No results found.');
-                    }
-
-                },
-
-                error: function(xhr) {
-                    // Handle the error response here
-                    console.log(xhr.responseText);
-                }
-            });
-        }
-        $('#searchInput').on('input', handleSearch);
-    </script>
-
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
     </script>
@@ -403,65 +327,5 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
 
-    <script>
-        $(document).on('click', '.deleteItem', function(e) {
-            e.preventDefault();
 
-            let id = $(this).data('id');
-            let name = $(this).data('name');
-
-            swal({
-                    title: "Delete " + name + "?",
-                    text: "Once deleted, all Payments by the user will also be deleted and you will no able to restore it!",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                })
-                .then((willDelete) => {
-                    if (willDelete) {
-
-                        var data = {
-                            'id': id,
-                        }
-
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('customers.delete') }}",
-                            data: data,
-                            dataType: "json",
-                            success: function(res) {
-
-                                if (res.status == 200) {
-                                    Command: toastr["success"](
-                                        "User deleted Successfully."
-                                    );
-                                   
-                                    window.location.replace('{{ route('customers.index') }}');
-
-                                }
-                                else {
-
-                                    Command: toastr["error"](
-                                        "Error Occured"
-                                    );
-                                   
-                                }
-
-
-                            }
-                        });
-
-                    }
-                });
-        });
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
-        integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @endsection

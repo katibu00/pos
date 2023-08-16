@@ -11,11 +11,15 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Cash Balance</h5>
-                                <p class="card-text">
-                                    &#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments+$cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash']) }}
-                                </p>
+                                <?php
+                                $cashResult = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'];
+                                $formattedCashResult = number_format($cashResult);
+                                ?>
+
+                                <p class="card-text">&#8358;{{ $formattedCashResult }}</p>
+
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments.' Cash Credit: '.$cashCreditToday.' CCP: '.$CreditPaymentSummary['cash'] }}
+                                    {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments . ' Cash Credit: ' . $cashCreditToday . ' CCP: ' . $CreditPaymentSummary['cash'] }}
                                 </h6>
                             </div>
                         </div>
@@ -25,11 +29,15 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Transfer Balance</h5>
-                                <p class="card-text">
-                                    &#8358;{{ number_format($transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments) + $CreditPaymentSummary['transfer'] }}
-                                </p>
+                                <?php
+                                $transferResult = $transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments + $CreditPaymentSummary['transfer'];
+                                $formattedTransferResult = number_format($transferResult);
+                                ?>
+
+                                <p class="card-text">&#8358;{{ $formattedTransferResult }}</p>
+
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments.' CCP: '.$CreditPaymentSummary['transfer'] }}
+                                    {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments . ' CCP: ' . $CreditPaymentSummary['transfer'] }}
                                 </h6>
                             </div>
                         </div>
@@ -38,11 +46,15 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">POS Balance</h5>
-                                <p class="card-text">
-                                    &#8358;{{ number_format($posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments) + $CreditPaymentSummary['pos'] }}
-                                </p>
+                                <?php
+                                $posResult = $posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments + $CreditPaymentSummary['pos'];
+                                $formattedPosResult = number_format($posResult);
+                                ?>
+
+                                <p class="card-text">&#8358;{{ $formattedPosResult }}</p>
+
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments.' CCP: '.$CreditPaymentSummary['pos'] }}
+                                    {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments . ' CCP: ' . $CreditPaymentSummary['pos'] }}
                                 </h6>
                             </div>
                         </div>
@@ -111,24 +123,24 @@
                                 <span style="margin-left: auto;"></span>
                             </li>
                             <li class="border border-success py-2 px-3 rounded mb-2"
-                            style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Today's Deposit: <span class="fw-bold"
-                                    style="margin-left: 5px;">&#8358;{{ number_format($totalDepositPayments, 0) }}</span></span>
-                            <span style="margin-left: auto;"></span>
-                        </li>
-                       
-                        <li class="border border-success py-2 px-3 rounded mb-2"
-                            style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Awaiting Pickup: <span class="fw-bold"
-                                    style="margin-left: 5px;">{{ number_format(@$uncollectedSales->count(), 0) }}</span></span>
-                            <span style="margin-left: auto;"></span>
-                        </li>
-                        <li class="border border-success py-2 px-3 rounded mb-2"
-                            style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Total Cash Credit Balance Remaining: <span class="fw-bold"
-                                    style="margin-left: 5px;">&#8358;{{ number_format(@$TotalcashCredit, 0) }}</span></span>
-                            <span style="margin-left: auto;"></span>
-                        </li>
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Today's Deposit: <span class="fw-bold"
+                                        style="margin-left: 5px;">&#8358;{{ number_format($totalDepositPayments, 0) }}</span></span>
+                                <span style="margin-left: auto;"></span>
+                            </li>
+
+                            <li class="border border-success py-2 px-3 rounded mb-2"
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Awaiting Pickup: <span class="fw-bold"
+                                        style="margin-left: 5px;">{{ number_format(@$uncollectedSales->count(), 0) }}</span></span>
+                                <span style="margin-left: auto;"></span>
+                            </li>
+                            <li class="border border-success py-2 px-3 rounded mb-2"
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Total Cash Credit Balance Remaining: <span class="fw-bold"
+                                        style="margin-left: 5px;">&#8358;{{ number_format(@$TotalcashCredit, 0) }}</span></span>
+                                <span style="margin-left: auto;"></span>
+                            </li>
 
                         </ul>
                     </div>

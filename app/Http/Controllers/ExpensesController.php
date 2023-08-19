@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashCredit;
+use App\Models\CashCreditPayment;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Payment;
@@ -33,28 +35,13 @@ class ExpensesController extends Controller
         if($dataCount != NULL){
             for ($i=0; $i < $dataCount; $i++){
 
-                $todaySales = Sale::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
-                $todayReturns = Returns::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereDate('created_at', today())->get();
-                $expenses = Expense::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereDate('created_at', today())->sum('amount');
-                $payments = Payment::where('branch_id', auth()->user()->branch_id)->where('payment_method', $request->payment_method[$i])->whereDate('created_at', today())->sum('payment_amount');
-        
-                $sales =  $todaySales->reduce(function ($total, $sale) {
-                    $total += ($sale->price * $sale->quantity) - $sale->discount;
-                    return $total;
-                }, 0);
-                $returns =  $todayReturns->reduce(function ($total, $return) {
-                    $total += ($return->price * $return->quantity) - $return->discount;
-                    return $total;
-                }, 0);
-        
-                $net_amount = (float)$sales+(float)$payments - ((float)$returns + (float)$expenses);
                
-                if((float)$request->amount[$i] > (float)$net_amount)
-                {
+                if (!$this->checkBalance($request->payment_method[$i], $request->amount[$i])) {
+                    
                     Toastr::error('Low Balance in the Payment Channel.');
                     return redirect()->route('expense.index');
                 }
-
+        
                 $data = new Expense();
                 $data->expense_category_id = $request->expense_category_id[$i];
                 $data->amount = $request->amount[$i];
@@ -69,5 +56,64 @@ class ExpensesController extends Controller
 
         Toastr::success('Expenses Recorded sucessfully', 'Done');
         return redirect()->route('expense.index');
+    }
+
+
+    private function checkBalance($paymentMethod, $totalPrice)
+    {
+        $branch_id = auth()->user()->branch_id;
+
+        $todaySales = Sale::where('branch_id', $branch_id)
+            ->where('payment_method', $paymentMethod)
+            ->whereNotIn('stock_id', [1093, 1012])
+            ->whereDate('created_at', today())
+            ->get();
+
+        $todayReturns = Returns::where('branch_id', $branch_id)
+            ->where('payment_method', $paymentMethod)
+            ->whereDate('created_at', today())
+            ->get();
+
+        $expenses = Expense::where('branch_id', $branch_id)
+            ->where('payment_method', $paymentMethod)
+            ->whereDate('created_at', today())
+            ->sum('amount');
+
+        $creditRepayments = Payment::where('branch_id', $branch_id)
+            ->where('payment_method', $paymentMethod)
+            ->where('payment_type', 'credit')
+            ->whereDate('created_at', today())
+            ->sum('payment_amount');
+
+        $deposits = Payment::where('branch_id', $branch_id)
+            ->where('payment_method', $paymentMethod)
+            ->where('payment_type', 'deposit')
+            ->whereDate('created_at', today())
+            ->sum('payment_amount');
+
+
+        $cashCreditPayment = CashCreditPayment::where('branch_id', $branch_id)
+            ->whereDate('created_at', today())
+            ->where('payment_method', $paymentMethod)
+            ->sum('amount_paid');
+
+        $totalSales = $todaySales->sum(function ($sale) {
+            return ($sale->price * $sale->quantity) - $sale->discount;
+        });
+
+        $totalReturns = $todayReturns->sum(function ($return) {
+            return ($return->price * $return->quantity) - $return->discount;
+        });
+
+        $netAmount = $totalSales + $deposits + $creditRepayments + $cashCreditPayment - ($totalReturns + $expenses);
+
+        if ($paymentMethod === 'cash') {
+            $cashCredit = CashCredit::where('branch_id', $branch_id)
+                ->whereDate('created_at', today())
+                ->sum('amount');
+            $netAmount -= $cashCredit;
+        }
+
+        return ($totalPrice <= $netAmount);
     }
 }

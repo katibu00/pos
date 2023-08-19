@@ -124,10 +124,10 @@ class HomeController extends Controller
         $data['posExpenses'] = $todayExpenses->where('payment_method', 'pos')->sum('amount');
         $data['transferExpenses'] = $todayExpenses->where('payment_method', 'transfer')->sum('amount');
         //credit Payments
-        $data['totalCreditPayments'] = $creditPayments->sum('payment_amount');
-        $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->sum('payment_amount');
-        $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->sum('payment_amount');
-        $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->sum('payment_amount');
+        $data['totalCreditPayments'] = $creditPayments->where('payment_type', 'credit')->sum('payment_amount');
+        $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->where('payment_type', 'credit')->sum('payment_amount');
+        $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->where('payment_type', 'credit')->sum('payment_amount');
+        $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->where('payment_type', 'credit')->sum('payment_amount');
         //deposit
         $data['totalDepositPayments'] = $creditPayments->where('payment_type', 'deposit')->sum('payment_amount');
         $data['cashDepositPayments'] = $creditPayments->where('payment_method', 'cash')->where('payment_type', 'deposit')->sum('payment_amount');

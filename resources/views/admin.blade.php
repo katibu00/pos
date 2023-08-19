@@ -87,7 +87,7 @@
 
                                     <p class="card-text">&#8358;{{ $formattedResult }}</p>
                                     <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments . ' Cash Credit: ' . $cashCreditToday . ' CCP: ' . $CreditPaymentSummary['cash'] }}
+                                        {{ 'Sales: ' . $cashSales . ', Returns: ' . $cashReturns . ', Expenses: ' . $cashExpenses . ', Repayments: ' . $cashCreditPayments . ', Deposit ' . $cashDepositPayments . ', Cash Credit: ' . $cashCreditToday . ', CC Repayment: ' . $CreditPaymentSummary['cash'] }}
                                     </h6>
                                 </div>
                             </div>
@@ -106,7 +106,7 @@
                                     <p class="card-text">&#8358;{{ $formattedTransferResult }}</p>
 
                                     <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments . ' CCP: ' . $CreditPaymentSummary['transfer'] }}
+                                        {{ 'Sales: ' . $transferSales . ', Returns: ' . $transferReturns . ', Expenses: ' . $transferExpenses . ', Repayments: ' . $transferCreditPayments . ', Deposit ' . $transferDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['transfer'] }}
                                     </h6>
                                 </div>
                             </div>
@@ -123,7 +123,7 @@
                                     <p class="card-text">&#8358;{{ $formattedPosResult }}</p>
                                     
                                     <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments . ' CCP: ' . $CreditPaymentSummary['pos'] }}
+                                        {{ 'Sales: ' . $posSales . ', Returns: ' . $posReturns . ', Expenses: ' . $posExpenses . ', Repayments: ' . $posCreditPayments . ', Deposit ' . $posDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['pos'] }}
                                     </h6>
                                 </div>
                             </div>

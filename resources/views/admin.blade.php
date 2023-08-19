@@ -74,54 +74,26 @@
         <div class="content-wrap">
             <div class="container">
 
+              
+
+
+
+
+
+
+
                 <div class="container">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <form class="row" action="{{ route('change_branch') }}" method="POST">
-                                @csrf
-                                <div class="col-6">
-                                    <label for="branch" class="visually-hidden">Password</label>
-                                    <select id="branch" name="branch_id" class="form-select form-select-sm">
-                                        <option value=""></option>
-                                        @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}"
-                                                {{ auth()->user()->branch_id == $branch->id ? 'selected' : '' }}>
-                                                {{ $branch->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <button type="submit" class="btn btn-sm btn-info text-white col-12">Change</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-md-6">
-                            <form class="row" action="{{ route('change_date') }}" method="POST">
-                                @csrf
-                                <div class="col-6">
-                                    <input type="date" class="form-control form-control-sm" placeholder="Pick a Date"
-                                        value="{{ isset($date) ? $date : '' }}" name="date">
-                                </div>
-                                <div class="col-6">
-                                    <button type="submit" class="btn btn-sm btn-secondary text-white col-12">Go
-                                        >>></button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-
-
-
-                <div class="container my-3">
                     <div class="stats-section">
-                        <h3 class="stats-title">Today's Stats &gt;&gt;&gt;</h3>
-                        <div class="row">
+                        <h3 class="stats-title">
+                            @if(isset($start_date) && isset($end_date))
+                                Stats for {{ \Carbon\Carbon::parse($start_date)->toFormattedDateString() }}
+                                to {{ \Carbon\Carbon::parse($end_date)->toFormattedDateString() }}
+                                ({{ \Carbon\Carbon::parse($start_date)->diffInDays($end_date) }} days apart)
+                            @else
+                                Today's Stats &gt;&gt;&gt;
+                            @endif
+                        </h3>
+                         <div class="row">
 
                             <div class="col-md-6">
                                 <ul class="iconlist fw-medium">
@@ -302,7 +274,7 @@
 
 
 
-                <div class="container">
+                <div class="container mt-3">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card">
@@ -389,6 +361,55 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <form class="row" action="{{ route('change_date') }}" method="POST">
+                                @csrf
+                                <div class="col-5">
+                                    <label for="start_date" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="start_date" name="start_date" required
+                                           value="{{ isset($start_date) ? $start_date : '' }}">
+                                </div>
+                                <div class="col-5">
+                                    <label for="end_date" class="form-label">End Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="end_date" name="end_date" required
+                                           value="{{ isset($end_date) ? $end_date : '' }}">
+                                </div>
+                                <div class="col-2">
+                                    <label class="invisible">Submit</label>
+                                    <button type="submit" class="btn btn-sm btn-primary text-white col-12">View Stats</button>
+                                </div>
+                            </form>
+                            
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <form class="row" action="{{ route('change_branch') }}" method="POST">
+                                @csrf
+                                <div class="col-8">
+                                    <label for="branch" class="form-label">Select Branch</label>
+                                    <select id="branch" name="branch_id" class="form-select form-select-sm" required>
+                                        <option value=""></option>
+                                        @foreach ($branches as $branch)
+                                            <option value="{{ $branch->id }}"
+                                                {{ auth()->user()->branch_id == $branch->id ? 'selected' : '' }}>
+                                                {{ $branch->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label class="invisible">Submit</label>
+                                    <button type="submit" class="btn btn-sm btn-info text-white col-12">Change Branch</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                
 
             </div>
         </div>

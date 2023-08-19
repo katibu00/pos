@@ -74,15 +74,66 @@
         <div class="content-wrap">
             <div class="container">
 
-              
-
-
-
-
-
-
-
                 <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Cash Balance</h5>
+                                    <?php
+                                    $result = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'];
+                                    $formattedResult = number_format($result);
+                                    ?>
+
+                                    <p class="card-text">&#8358;{{ $formattedResult }}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments . ' Cash Credit: ' . $cashCreditToday . ' CCP: ' . $CreditPaymentSummary['cash'] }}
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Transfer Balance</h5>
+
+                                    <?php
+                                    $transferResult = $transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments + $CreditPaymentSummary['transfer'];
+                                    $formattedTransferResult = number_format($transferResult);
+                                    ?>
+
+                                    <p class="card-text">&#8358;{{ $formattedTransferResult }}</p>
+
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments . ' CCP: ' . $CreditPaymentSummary['transfer'] }}
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">POS Balance</h5>
+                                    <?php
+                                    $posResult = $posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments + $CreditPaymentSummary['pos'];
+                                    $formattedPosResult = number_format($posResult);
+                                    ?>
+                                    
+                                    <p class="card-text">&#8358;{{ $formattedPosResult }}</p>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments . ' CCP: ' . $CreditPaymentSummary['pos'] }}
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="container mt-1">
                     <div class="stats-section">
                         <h3 class="stats-title">
                             @if(isset($start_date) && isset($end_date))
@@ -267,72 +318,6 @@
                         </div>
                     </div>
                 </div>
-
-
-
-
-
-
-
-                <div class="container mt-3">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Cash Balance</h5>
-                                    <?php
-                                    $result = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'];
-                                    $formattedResult = number_format($result);
-                                    ?>
-
-                                    <p class="card-text">&#8358;{{ $formattedResult }}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments . ' Cash Credit: ' . $cashCreditToday . ' CCP: ' . $CreditPaymentSummary['cash'] }}
-                                    </h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Transfer Balance</h5>
-
-                                    <?php
-                                    $transferResult = $transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments + $CreditPaymentSummary['transfer'];
-                                    $formattedTransferResult = number_format($transferResult);
-                                    ?>
-
-                                    <p class="card-text">&#8358;{{ $formattedTransferResult }}</p>
-
-                                    <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ 'Sales: ' . $transferSales . ' Returns: ' . $transferReturns . ' Expenses: ' . $transferExpenses . ' Repayments: ' . $transferCreditPayments . ' Deposit ' . $transferDepositPayments . ' CCP: ' . $CreditPaymentSummary['transfer'] }}
-                                    </h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">POS Balance</h5>
-                                    <?php
-                                    $posResult = $posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments + $CreditPaymentSummary['pos'];
-                                    $formattedPosResult = number_format($posResult);
-                                    ?>
-                                    
-                                    <p class="card-text">&#8358;{{ $formattedPosResult }}</p>
-                                    
-                                    <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ 'Sales: ' . $posSales . ' Returns: ' . $posReturns . ' Expenses: ' . $posExpenses . ' Repayments: ' . $posCreditPayments . ' Deposit ' . $posDepositPayments . ' CCP: ' . $CreditPaymentSummary['pos'] }}
-                                    </h6>
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-
 
                 <div class="container">
                     <div class="row col-mb-50 mb-0">

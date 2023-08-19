@@ -88,7 +88,7 @@ class HomeController extends Controller
             return $total;
         }, 0);
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
-            return (($sale->price - $sale->product->buying_price) * $sale->quantity);
+            return (($sale->price - @$sale->product->buying_price) * $sale->quantity);
         });
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');
@@ -111,7 +111,7 @@ class HomeController extends Controller
         $data['returnDiscounts'] = $todayReturns->sum('discount');
 
         $data['returnProfit'] = $todayReturns->sum(function ($return) {
-            return (($return->price - $return->product->buying_price) * $return->quantity);
+            return (($return->price - @$return->product->buying_price) * $return->quantity);
         });
         $data['uncollectedSales'] = Sale::where('branch_id', $branch_id)
             ->where('collected', 0)
@@ -227,7 +227,7 @@ class HomeController extends Controller
         
             if ($endDate->isFuture()) {
                 Toastr::error('End date cannot be in the future');
-                return redirect()->back();
+                return redirect()->route('admin.home');
             }
         
             $todaySales = Sale::where('branch_id', $branch_id)
@@ -366,7 +366,7 @@ class HomeController extends Controller
             return $total;
         }, 0);
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
-            return (($sale->price - $sale->product->buying_price) * $sale->quantity);
+            return (($sale->price - @$sale->product->buying_price) * $sale->quantity);
         });
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');
@@ -389,7 +389,7 @@ class HomeController extends Controller
         $data['returnDiscounts'] = $todayReturns->sum('discount');
 
         $data['returnProfit'] = $todayReturns->sum(function ($return) {
-            return (($return->price - $return->product->buying_price) * $return->quantity);
+            return (($return->price - @$return->product->buying_price) * $return->quantity);
         });
 
         //Expenses

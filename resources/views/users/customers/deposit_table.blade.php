@@ -10,6 +10,9 @@
                 <th></th>
             </tr>
         </thead>
+        @php
+            $total_deposit = 0;
+        @endphp
         @forelse ($deposits as $key => $deposit)
         <tr>
             <td>{{ $key + 1 }}</td>
@@ -30,6 +33,9 @@
                     class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button>
             </td>
         </tr>
+        @php
+            $total_deposit += $deposit->payment_amount;
+        @endphp
         
 
         @empty
@@ -37,7 +43,11 @@
                 <td colspan="4" class="bg-danger text-white"> No Records Found</td>
             </tr>
         @endforelse
-
+            <tr>
+                <td colspan="4"></td>
+                <td>Total Deposit</td>
+                <td>NGN {{ number_format($total_deposit,0) }}</td>
+            </tr>
         <tbody>
         </tbody>
     </table>

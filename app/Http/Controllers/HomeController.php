@@ -337,7 +337,7 @@ class HomeController extends Controller
             ->whereRaw('amount > amount_paid')
             ->sum(DB::raw('amount - amount_paid'));
 
-        $data['deposits'] = Payment::select('payment_amount')->where('branch_id', $branch_id)->where('payment_type', 'deposit')->sum('payment_amount');
+        $data['deposits'] = User::where('branch_id',$branch_id)->sum('deposit');
 
         $data['totalDiscounts'] = $todaySales->sum('discount');
         //sales

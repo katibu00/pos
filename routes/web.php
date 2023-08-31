@@ -223,11 +223,15 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::get('/index', [UsersController::class, 'customersIndex'])->name('customers.index');
     Route::post('/store', [UsersController::class, 'customerStore'])->name('customers.store');
     Route::get('/profile/{id}', [UsersController::class, 'customerProfile'])->name('customers.profile');
+    Route::get('/edit/{id}', [UsersController::class, 'editCustomer'])->name('customers.edit');
     Route::post('/save_payment', [UsersController::class, 'savePayment'])->name('customers.save.payment');
     Route::post('/save_deposit', [UsersController::class, 'saveDeposit'])->name('customers.save.deposit');
     Route::post('/update_deposit', [UsersController::class, 'updateDeposit'])->name('customers.update.deposit');
     Route::post('/load-receipt', [UsersController::class, 'loadReceipt'])->name('load-receipt');
     Route::post('/delete', [UsersController::class, 'deleteCustomer'])->name('customers.delete');
+
+    Route::post('/update/{id}', [UsersController::class, 'updateCustomer'])->name('customers.update');
+
 
     Route::get('/return', [UsersController::class, 'returnIndex'])->name('users.return.index');
     Route::post('/return', [UsersController::class, 'returnStore']);

@@ -119,9 +119,9 @@
                                     $posResult = $posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments + $CreditPaymentSummary['pos'];
                                     $formattedPosResult = number_format($posResult);
                                     ?>
-                                    
+
                                     <p class="card-text">&#8358;{{ $formattedPosResult }}</p>
-                                    
+
                                     <h6 class="card-subtitle mb-2 text-muted">
                                         {{ 'Sales: ' . $posSales . ', Returns: ' . $posReturns . ', Expenses: ' . $posExpenses . ', Repayments: ' . $posCreditPayments . ', Deposit ' . $posDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['pos'] }}
                                     </h6>
@@ -136,7 +136,7 @@
                 <div class="container mt-1">
                     <div class="stats-section">
                         <h3 class="stats-title">
-                            @if(isset($start_date) && isset($end_date))
+                            @if (isset($start_date) && isset($end_date))
                                 Stats for {{ \Carbon\Carbon::parse($start_date)->toFormattedDateString() }}
                                 to {{ \Carbon\Carbon::parse($end_date)->toFormattedDateString() }}
                                 ({{ \Carbon\Carbon::parse($start_date)->diffInDays($end_date) }} days apart)
@@ -144,7 +144,7 @@
                                 Today's Stats &gt;&gt;&gt;
                             @endif
                         </h3>
-                         <div class="row">
+                        <div class="row">
 
                             <div class="col-md-6">
                                 <ul class="iconlist fw-medium">
@@ -203,7 +203,7 @@
                                     </li>
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span>Total Deposit: <span class="fw-bold"
+                                        <span>Total Deposit Balance: <span class="fw-bold"
                                                 style="margin-left: 5px;">&#8358;{{ number_format($deposits, 0) }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
@@ -354,22 +354,23 @@
                                 @csrf
                                 <div class="col-5">
                                     <label for="start_date" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="start_date" name="start_date" required
-                                           value="{{ isset($start_date) ? $start_date : '' }}">
+                                    <input type="date" class="form-control form-control-sm" id="start_date"
+                                        name="start_date" required value="{{ isset($start_date) ? $start_date : '' }}">
                                 </div>
                                 <div class="col-5">
                                     <label for="end_date" class="form-label">End Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="end_date" name="end_date" required
-                                           value="{{ isset($end_date) ? $end_date : '' }}">
+                                    <input type="date" class="form-control form-control-sm" id="end_date"
+                                        name="end_date" required value="{{ isset($end_date) ? $end_date : '' }}">
                                 </div>
                                 <div class="col-2">
                                     <label class="invisible">Submit</label>
-                                    <button type="submit" class="btn btn-sm btn-primary text-white col-12">View Stats</button>
+                                    <button type="submit" class="btn btn-sm btn-primary text-white col-12">View
+                                        Stats</button>
                                 </div>
                             </form>
-                            
+
                         </div>
-                        
+
                         <div class="col-md-4">
                             <form class="row" action="{{ route('change_branch') }}" method="POST">
                                 @csrf
@@ -387,20 +388,20 @@
                                 </div>
                                 <div class="col-4">
                                     <label class="invisible">Submit</label>
-                                    <button type="submit" class="btn btn-sm btn-info text-white col-12">Change Branch</button>
+                                    <button type="submit" class="btn btn-sm btn-info text-white col-12">Change
+                                        Branch</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                
-                
+
+
 
             </div>
         </div>
     </section>
 @endsection
-
 
 @section('js')
 
@@ -510,7 +511,6 @@
         });
     </script>
 
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var pieChartData = @json($pieChartData);
@@ -528,6 +528,5 @@
             });
         });
     </script>
-
 
 @endsection

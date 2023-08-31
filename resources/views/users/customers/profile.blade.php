@@ -47,7 +47,7 @@
                                             data-bs-toggle="pill" data-bs-target="#deposit-alt"
                                             type="button" role="tab" aria-controls="deposit-alt"
                                             aria-selected="false"><i class="fas fa-money-bill"></i>
-                                            Active Deposits</a></button>
+                                             Deposit History</a></button>
                                     </li>
                                 </ul>
                                 <div id="canvas-TabContent2" class="tab-content">
@@ -299,14 +299,12 @@
                                        
                                         @php
                                         $deposits = App\Models\Payment::where('customer_id',$user->id)->where('payment_type','deposit')->latest()->get();
-                                        $total_deposit = $deposits->sum('payment_amount');
                                     @endphp
     
-                                    @if($total_deposit > 1)
+                
     
-                                   @include('users.customers.deposit_table')
-                                    @endif
-
+                                    @include('users.customers.deposit_table')
+                                 
                                     </div>
 
                              
@@ -327,7 +325,7 @@
                         </a>
                         <a href="#"
                             class="list-group-item list-group-item-action d-flex justify-content-between">
-                            <div>Deposit Balance</div><span class="badge bg-secondary float-end" style="margin-top: 3px;">&#8358;{{ number_format($total_deposit, 0) }}</span>
+                            <div>Deposit Balance</div><span class="badge bg-secondary float-end" style="margin-top: 3px;">&#8358;{{ number_format($user->deposit, 0) }}</span>
                         </a>
                         <a href="#"
                             class="list-group-item list-group-item-action d-flex justify-content-between">

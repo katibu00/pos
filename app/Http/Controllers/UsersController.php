@@ -149,11 +149,28 @@ class UsersController extends Controller
         $receipt_nos = [];
         $total_amount_paid = 0;
 
+        if($request->receipt_no == null)
+        {
+            Toastr::error("No Transaction selected");
+            return redirect()->back();
+        }
+
         $rowCount = count($request->receipt_no);
         if ($rowCount != null) {
             for ($i = 0; $i < $rowCount; $i++) {
 
                 if ($request->payment_option[$i] == "Full Payment") {
+                  
+                    if ($request->payment_method == 'deposit') 
+                    {
+                        if($customer->deposit < $request->full_payment_payable[$i]) 
+                        {
+                            Toastr::error("Customer has no enough deposit balance");
+                            return redirect()->back();
+                        }
+                    }
+                  
+
                     $receiptNo = $request->receipt_no[$i];
                     $sales = DB::table('sales')
                         ->where('receipt_no', $receiptNo)
@@ -173,9 +190,9 @@ class UsersController extends Controller
                             $customer->balance -= $request->full_payment_payable[$i];
                             $customer->update();
                         } else {
-                            $customer->balance = $request->full_payment_payable[$i];
+                            $customer->balance -= $request->full_payment_payable[$i];
+                            $customer->update();
                         }
-
                         array_push($receipt_nos, $receiptNo);
                         $total_amount_paid += $request->full_payment_payable[$i];
 
@@ -183,10 +200,7 @@ class UsersController extends Controller
                         DB::table('sales')
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
-                        // dd($request->full_price[$i]);
-                        $customer->balance = $customer->balance - $request->full_payment_payable[$i];
-                        $customer->update();
-
+                       
                         array_push($receipt_nos, $request->receipt_no[$i]);
                         $total_amount_paid += $request->full_payment_payable[$i];
 
@@ -195,12 +209,22 @@ class UsersController extends Controller
                             $customer->balance -= $request->full_payment_payable[$i];
                             $customer->update();
                         } else {
-                            $customer->balance = $request->full_payment_payable[$i];
+                            $customer->balance -= $request->full_payment_payable[$i];
+                            $customer->update();
                         }
                     }
 
                 }
                 if ($request->payment_option[$i] == "Partial Payment") {
+
+                    if ($request->payment_method == 'deposit') 
+                    {
+                        if($customer->deposit < $request->partial_amount[$i]) 
+                        {
+                            Toastr::error("Customer has no enough deposit balance");
+                            return redirect()->back();
+                        }
+                    }
 
                     try {
                         DB::beginTransaction();
@@ -241,10 +265,11 @@ class UsersController extends Controller
                         // Success message or redirect
                         if ($request->payment_method == 'deposit') {
                             $customer->deposit -= $request->partial_amount[$i];
-                            $customer->balance = $customer->balance - $request->partial_amount[$i];
+                            $customer->balance -= $request->partial_amount[$i];
                             $customer->update();
                         } else {
-                            $customer->balance = $customer->balance - $request->partial_amount[$i];
+                            $customer->balance -=  $request->partial_amount[$i];
+                            $customer->update();
                         }
 
                         array_push($receipt_nos, $request->receipt_no[$i]);

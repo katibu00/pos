@@ -119,17 +119,13 @@
         <ul class="sub-menu-container">
             <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('sales.index') }}">
-                    <div>Sales</div>
+                    <div>Record Sales</div>
                 </a>
             </li>
-            <li class="menu-item {{ $route == 'credit.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('credit.index') }}">
-                    <div>Credit Sales</div>
-                </a>
-            </li>
+           
             <li class="menu-item {{ $route == 'sales.all.index' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('sales.all.index') }}">
-                    <div>All Sales</div>
+                    <div>View Sales</div>
                 </a>
             </li>
 

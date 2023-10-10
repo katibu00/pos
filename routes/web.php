@@ -253,3 +253,5 @@ Route::get('/data-sync', [DataSyncController::class, 'index'])->name('data-sync.
 Route::post('/data-sync/send', [DataSyncController::class, 'sendData'])->name('data-sync.send');
 
 
+Route::get('/get-product-suggestions',[SalesController::class, 'getProductSuggestions']);
+Route::get('/fetch-credit-balance', [SalesController::class, 'fetchBalanceOrDeposit']);

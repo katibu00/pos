@@ -97,14 +97,14 @@ class UsersController extends Controller
                 $query->where('status', '!=', 'paid')
                     ->orWhereNull('status');
             })
-            ->where('customer_name', $id)
+            ->where('customer', $id)
             ->groupBy('receipt_no')
             ->orderBy('created_at', 'desc')
             ->get();
         // dd($data['dat÷es']);
         $data['payments'] = Payment::select('id', 'payment_amount', 'payment_method', 'created_at')->where('payment_type', 'credit')->where('customer_id', $id)->orderBy('created_at', 'desc')->take(20)->get();
 
-        $data['shoppingHistory'] = Sale::where('customer_name', $id)
+        $data['shoppingHistory'] = Sale::where('customer', $id)
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy(function ($item) {
@@ -370,10 +370,10 @@ class UsersController extends Controller
         $id = $request->input('id');
         $sale = Sale::where('receipt_no',$id)->where('branch_id', auth()->user()->branch_id)->first();
 
-        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount', 'customer_name', 'returned_qty')
+        $data['sales'] = Sale::select('id', 'stock_id', 'price', 'quantity', 'discount', 'status', 'payment_amount', 'customer', 'returned_qty')
             ->where('receipt_no', $id)
             ->where('branch_id', auth()->user()->branch_id)
-            ->where('customer_name', $sale->customer_name)
+            ->where('customer', $sale->customer)
             ->get();
 
         return view('users.customers.return', $data);
@@ -384,7 +384,7 @@ class UsersController extends Controller
 
         $sale = Sale::find($request->sale_id[0]);
 
-        $sales = Sale::where('receipt_no', $sale->receipt_no)->where('branch_id', auth()->user()->branch_id)->where('customer_name', $sale->customer_name)->get(); 
+        $sales = Sale::where('receipt_no', $sale->receipt_no)->where('branch_id', auth()->user()->branch_id)->where('customer', $sale->customer)->get(); 
         $net_amount = 0;
        
         foreach($sales as $sale)
@@ -439,7 +439,7 @@ class UsersController extends Controller
                             $data->discount = $discount;
                         }
                         $data->cashier_id = auth()->user()->id;
-                        $data->customer = $sale->customer_name;
+                        $data->customer = $sale->customer;
                         $data->channel = 'credit';
                         $data->note = $sale->note;
                         $data->payment_method = $request->payment_method;
@@ -462,7 +462,7 @@ class UsersController extends Controller
             }
         }
         Toastr::success('Credit Sales was Updated Successfully');
-        return redirect()->route('customers.profile', $sale->customer_name);
+        return redirect()->route('customers.profile', $sale->customer);
 
     }
 

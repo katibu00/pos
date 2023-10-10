@@ -3,284 +3,243 @@
 
 @section('css')
     <style>
-        .radio-item input[type="radio"]::before {
-            position: relative;
-            margin: 4px -25px -4px 0;
-            display: inline-block;
-            visibility: visible;
-            width: 20px;
-            height: 20px;
-            border-radius: 10px;
-            border: 2px inset rgba(150, 150, 150, 0.7);
-            background: radial-gradient(ellipse at top)
+        #productSuggestions {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 5px;
         }
 
-        @media (max-width: 767px) {
-            table.table thead {
-                display: none;
-            }
-
-            table.table tbody td {
-                display: block;
-                width: 100%;
-                text-align: left;
-                border-bottom: 1px solid #ddd;
-            }
-
-            table.table tbody td:before {
-                content: attr(data-label);
-                float: left;
-                font-weight: bold;
-            }
+        #productSuggestions li {
+            background-color: #f8f9fa;
+            padding: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-bottom: 5px;
         }
 
-        .select2-container {
-            width: 100% !important;
-            font-family: Arial, sans-serif;
+        #productSuggestions li:hover {
+            background-color: #e9ecef;
         }
 
-        .select2-selection--single {
-            height: 38px !important;
-            border-radius: 4px !important;
-            border: 1px solid #ced4da !important;
-            padding: 6px 12px !important;
-            background-color: #fff !important;
-        }
-
-        .select2-selection__arrow {
-            height: 36px !important;
-            width: 36px !important;
-            top: 1px !important;
-        }
-
-        .select2-selection__rendered {
-            line-height: 24px !important;
-        }
-
-        .select2-results__option {
-            padding: 8px 12px !important;
-        }
-
-        .select2-results__option--highlighted {
-            background-color: #e0e0e0 !important;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            text-align: left;
-        }
-
-        ::placeholder {
-            visibility: hidden;
-        }
-
-        @media (max-width: 767px) {
-            ::placeholder {
-                visibility: visible;
-            }
-        }
-
-        .button-group {
-            white-space: nowrap;
-        }
-
-        .button-group a {
+        .total-amount {
+            border: 1px solid #007BFF;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
             display: inline-block;
         }
 
-        .disabled-input {
-            opacity: 0.6;
-            pointer-events: none;
-            background-color: #f9f9f9;
+        #totalAmount {
+            font-size: 24px;
+            margin: 0;
+            color: #007BFF;
         }
 
-        .card-header {
-            padding: 0.5rem;
-            background-color: #f5f5f5;
+        #productSearch {
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+            padding: 12px;
+            font-size: 18px;
+            width: 100%;
+            outline: none;
+            background-color: #f8f9fa;
         }
 
-        .card-header p {
-            margin-bottom: 0;
+        #productSearch:focus {
+            border-color: #1eaa08;
         }
 
-        .card-header .total {
-            font-size: 1.8em;
+        #productSearch::placeholder {
+            opacity: 0.5;
+        }
+
+        #noMatchFound {
+            color: #d9534f;
             font-weight: bold;
-            color: #ff0000;
+            display: none;
+        }
+        #balanceContainer {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f8f9fa;
         }
 
-        .card-header .amount {
-            display: block;
-            font-size: 2.5em;
+        #balanceContainer p {
+            margin: 0;
+            line-height: 2.2;
+        }
+
+        #previousBalance,
+        #newBalance {
+            font-weight: bold;
+            margin-left: 10px;
+
         }
     </style>
-
 @endsection
-@section('content')
 
-    <!--Body content start -->
+@section('content')
     <section id="content">
-        <div class="content-wraap mt-3">
-            <div class="container clearfix">
+        <div class="content-wrap">
+            <div class="container">
                 <form id="salesForm">
-                    <div class="row mb-4">
-                        <div class="col-md-8 mb-4">
-                            <div class="card mb-2">
+                    <div class="row">
+                        <div class="col-md-8 col-12 mb-3">
+                            <div class="card mb-3">
                                 <div class="card-header bg-transparent">
-                                    <marquee behavior="" direction="" class="text-danger"><b>Welcome to El-Habib Plumbing
-                                            Material and Services Ltd - {{ auth()->user()->branch->name }} Branch</b>
+                                    <marquee class="text-danger" behavior="scroll" direction="left"
+                                        style="white-space: nowrap;">
+                                        Welcome to El-Habib Plumbing Material and Services Ltd -
+                                        {{ auth()->user()->branch->name }} Branch
                                     </marquee>
                                 </div>
-                                <div class="card-body sales-table">
-                                    <div class="table-responsive container">
-                                        <table class="table table-bordered text-center">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <input type="text" id="productSearch" class="form-control"
+                                            placeholder="Search for products">
+                                        <ul id="productSuggestions"></ul>
+                                        <p id="noMatchFound" class="text-danger">No match found</p>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 2%"></th>
-                                                    <th> </th>
-                                                    <th style="width: 30%">Product</th>
-                                                    <th>Qty</th>
+                                                    <th class="sn-column">S/N</th>
+                                                    <th>Item</th>
                                                     <th>Price</th>
+                                                    <th>Quantity</th>
                                                     <th>Discount</th>
-                                                    <th>Amount</th>
-
+                                                    <th>Total</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="addMoreRow">
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td class="button-group">
-                                                        <a href="#"
-                                                            class="btn mx-1 btn-danger btn-sm remove_row rounded-circle"><i
-                                                                class="fa fa-times-circle"></i></a>
-                                                        <a href="#"
-                                                            class="btn btn-success btn-sm add_row rounded-circle"><i
-                                                                class="fa fa-plus-circle"></i></a>
-                                                    </td>
-                                                    <td>
-
-                                                        <select class="form-select product_id" id="product_id"
-                                                            name="product_id[]" required>
-                                                            <option value=""></option>
-                                                            @foreach ($products as $product)
-                                                                <option data-price="{{ $product->selling_price }}"
-                                                                    data-quantity="{{ $product->quantity }}"
-                                                                    value="{{ $product->id }}">{{ $product->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        <input type="hidden" class="product_qty" value="">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" name="quantity[]" step="any"
-                                                            placeholder="Qty" id="quantity" class="form-control quantity"
-                                                            required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" readonly name="price[]" id="price"
-                                                            class="form-control disabled-input price">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" name="discount[]" placeholder="Discount"
-                                                            id="discount" class="form-control discount">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" readonly name="total_amount[]"
-                                                            id="total_amount"
-                                                            class="form-control disabled-input total_amount">
-                                                    </td>
-
-                                                </tr>
+                                            <tbody id="productTable">
                                             </tbody>
                                         </table>
                                     </div>
+
                                 </div>
+
                             </div>
                             @include('sales.recent_sales_table')
                         </div>
-
-                        <div class="col-md-4 mb-4">
+                        <div class="col-md-4 col-12">
                             <div class="card">
-                                <div class="card-header bg-transparent text-center">
-                                    <p>Total: <b class="total">0.00</b></p>
-                                </div>
-
-                                <input type="hidden" id="total_hidden">
                                 <div class="card-body">
-                                    <div class="panel">
-                                        <div class="row">
-                                            <table class="table table-striped">
-                                                <tr>
-                                                    <td>
-                                                        <label for="customer_name">Customer Name</label>
-                                                        <input type="text" name="customer_name" id="customer_name"
-                                                            class="form-control">
-                                                    </td>
-                                                    <td>
-                                                        <label for="note">Note</label>
-                                                        <input type="text" name="note" id="note"
-                                                            class="form-control">
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <td>
-                                                <div class="col-12 form-group">
-                                                    <label>Payment Method:</label><br>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input required" type="radio"
-                                                            name="payment_method" id="cash" value="cash" required>
-                                                        <label class="form-check-label nott" for="cash"><i
-                                                                class="fa fa-money text-success"></i> Cash</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="payment_method"
-                                                            id="pos" value="pos" required>
-                                                        <label class="form-check-label nott" for="pos"><i
-                                                                class="fa fa-credit-card text-info"></i> POS</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="payment_method"
-                                                            id="transfer" value="transfer" required>
-                                                        <label class="form-check-label nott" for="transfer"><i
-                                                                class="fa fa-university text-danger"></i> Transfer</label>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="form-group">
-                                                    <label for="toggleLabor">Add Labor Costs</label>
-                                                    <label class="switch">
-                                                        <input type="checkbox" name="toggleLabor" id="toggleLabor">
-                                                        <span class="slider round"></span>
-                                                    </label>
-                                                </div>
-                                            </td>
-
-                                            <td>
-                                                <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
-                                                    Labor Cost
-                                                    <input type="number" name="labor_cost" id="laborCost"
-                                                        class="form-control mb-2">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                Paid Amount
-                                                <input type="number" name="paid_amount" id="paid_amount"
-                                                    class="form-control mb-2">
-                                            </td>
-                                            <td>
-                                                Returning Change
-                                                <input type="number" readonly name="balance" id="balance"
-                                                    class="form-control mb-2">
-                                            </td>
-                                            <td>
-                                                <button type="submit" id="submitBtn"
-                                                    class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
-                                            </td>
-                                        </div>
+                                    <div class="total-amount mb-2">
+                                        <p id="totalAmount" class="font-weight-bold">₦0</p>
                                     </div>
+
+                                    <div class="row">
+                                        <table class="table table-striped">
+                                            <tr>
+                                                <td>
+                                                    <label for="customere">Customer Name</label>
+                                                    <select name="customer" id="customer" class="form-select select2">
+                                                        <option value="0">Walk-in Customer</option>
+                                                        @foreach ($customers as $customer)
+                                                            <option value="{{ $customer->id }}">{{ $customer->first_name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+
+                                                <td>
+                                                    <label for="note">Note</label>
+                                                    <input type="text" name="note" id="note"
+                                                        class="form-control">
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <td>
+                                            <div class="col-12 form-group">
+                                                <label>Payment Method:</label><br>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input required" type="radio"
+                                                        name="payment_method" id="cash" value="cash" required>
+                                                    <label class="form-check-label nott" for="cash"><i
+                                                            class="fas fa-money-bill text-success"></i> Cash</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="payment_method"
+                                                        id="pos" value="pos" required>
+                                                    <label class="form-check-label nott" for="pos"><i
+                                                            class="fa fa-credit-card text-info"></i> POS</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="payment_method"
+                                                        id="transfer" value="transfer" required>
+                                                    <label class="form-check-label nott" for="transfer"><i
+                                                            class="fa fa-university text-danger"></i> Bank Transfer</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="payment_method"
+                                                        id="credit" value="credit" required>
+                                                    <label class="form-check-label nott" for="credit"><i
+                                                            class="fa fa-credit-card text-warning"></i> Credit</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="payment_method"
+                                                        id="deposit" value="deposit" required>
+                                                    <label class="form-check-label nott" for="deposit"><i
+                                                            class="fa fa-credit-card text-success"></i> Deposit</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="balanceContainer" class="mb-2"
+                                                style="display: none; margin-top: 0px;">
+                                                <p style="line-height: 1.5;">
+                                                    <span style="font-weight: bold;">Previous Balance:</span>
+                                                    <span id="previousBalance" style="margin-left: 10px;">0</span>
+                                                </p>
+                                                <p style="line-height: 1.5;">
+                                                    <span style="font-weight: bold;">New Balance:</span>
+                                                    <span id="newBalance" style="margin-left: 27px;">0</span>
+                                                </p>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="form-group">
+                                                <label for="toggleLabor">Add Labor Costs</label>
+                                                <label class="switch">
+                                                    <input type="checkbox" name="toggleLabor" id="toggleLabor">
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
+                                                Labor Cost
+                                                <input type="number" name="labor_cost" id="laborCost"
+                                                    class="form-control mb-2">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            Paid Amount
+                                            <input type="number" name="paid_amount" id="paid_amount"
+                                                class="form-control mb-2">
+                                        </td>
+                                        <div id="changeField" style="display: none;">
+                                            Returning Change:
+                                            <span id="balance" class="font-weight-bold"></span>
+                                        </div>
+                                        <td>
+                                            <button type="submit" id="submitBtn"
+                                                class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
+                                        </td>
+                                    </div>
+
+
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </form>
@@ -289,13 +248,228 @@
                         @include('sales.receipt')
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
 @endsection
 
 @section('js')
+    <script>
+        $(document).ready(function() {
+            $('input[name="payment_method"]').change(function() {
+                var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
+                var selectedUserId = $('#customer').val();
+
+                if (selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'deposit') {
+                    if (selectedUserId == 0) {
+                        toastr.warning('Please select a user before choosing the payment method.');
+                        $('input[name="payment_method"]').prop('checked', false);
+                        return;
+                    }
+                    $.ajax({
+                        url: '/fetch-credit-balance',
+                        method: 'GET',
+                        data: {
+                            payment_method: selectedPaymentMethod,
+                            user_id: selectedUserId,
+                        },
+                        success: function(response) {
+
+                            $('#balanceContainer').show();
+                            if (selectedPaymentMethod === 'credit') {
+
+                                $('#previousBalanceLabel').text('Previous Credit Balance:');
+                                $('#previousBalance').text(response.balance_or_deposit);
+
+                                var newCreditBalance = parseFloat(response.balance_or_deposit) +
+                                    parseFloat($('#totalAmount').text().replace('₦', '')
+                                        .replace(',', ''));
+                                $('#newBalanceLabel').text('New Credit Balance:');
+                                $('#newBalance').text(newCreditBalance.toLocaleString());
+                            } else if (selectedPaymentMethod === 'deposit') {
+
+                                $('#previousBalanceLabel').text('Previous Deposit Balance:');
+                                $('#previousBalance').text(response.balance_or_deposit);
+
+                                var newDepositBalance = parseFloat(response
+                                    .balance_or_deposit) - parseFloat($('#totalAmount')
+                                    .text()
+                                    .replace('₦', '').replace(',', ''));
+                                $('#newBalanceLabel').text('New Deposit Balance:');
+                                $('#newBalance').text(newDepositBalance.toLocaleString());
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Error fetching balance:', error);
+                        }
+                    });
+                } else {
+
+                    $('#balanceContainer').hide();
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            var $productSearch = $('#productSearch');
+            var $productSuggestions = $('#productSuggestions');
+            var $productTable = $('#productTable');
+            var $noMatchFound = $('#noMatchFound');
+
+            function fetchProductSuggestions(query) {
+                $.ajax({
+                    url: '/get-product-suggestions',
+                    type: 'GET',
+                    data: {
+                        query: query
+                    },
+                    success: function(suggestions) {
+                        $productSuggestions.empty();
+                        if (suggestions.length === 0) {
+                            $noMatchFound.show();
+                        } else {
+                            $noMatchFound.hide();
+
+                            suggestions.forEach(function(suggestion) {
+                                var $li = $('<li>').text(suggestion.name);
+                                $li.click(function() {
+
+                                    var exists = false;
+                                    $productTable.find('td:nth-child(2)').each(
+                                        function() {
+                                            if ($(this).text() === suggestion
+                                                .name) {
+                                                exists = true;
+                                                return false;
+                                            }
+                                        });
+                                    if (!exists) {
+                                        appendProductToTable(suggestion);
+                                    } else {
+                                        alert('Product already exists in the table.');
+                                    }
+                                });
+                                $productSuggestions.append($li);
+                            });
+                        }
+                    }
+                });
+            }
+
+            function calculateChange() {
+                var totalAmount = parseFloat($('#totalAmount').text().replace('₦', '').replace(',',
+                    ''));
+                var paidAmount = parseFloat($('#paid_amount').val()) || 0;
+                var paymentMethod = $("input[name='payment_method']:checked").val();
+                var change = paidAmount - totalAmount;
+
+                if (paymentMethod === "cash" || paymentMethod === "pos" || paymentMethod === "credit") {
+                    if (change > 0) {
+                        $('#changeField').show();
+                        $('#balance').text('₦' + change
+                            .toLocaleString());
+                    } else {
+                        $('#changeField').hide();
+                    }
+                } else {
+                    $('#changeField').hide();
+                }
+            }
+
+            $('#paid_amount').on('input', calculateChange);
+
+            function calculateRowTotal($row) {
+                var price = parseFloat($row.find('.price').text());
+                var quantity = parseFloat($row.find('.quantity').val()) || 0;
+                var discount = parseFloat($row.find('.discount').val()) || 0;
+                var total = (price * quantity) - discount;
+                return total.toFixed(0);
+            }
+
+            function updateTotalAmount() {
+                var totalAmount = 0;
+                $productTable.find('tr').each(function() {
+                    totalAmount += parseFloat(calculateRowTotal($(this)));
+                });
+                var formattedTotal = '₦' + totalAmount.toLocaleString();
+                $('#totalAmount').text(formattedTotal);
+            }
+
+            function appendProductToTable(product) {
+                var newRow = "<tr>" +
+                    "<td class='sn-column'></td>" +
+                    "<td>" + product.name + "</td>" +
+                    "<td class='price'>" + product.selling_price + "</td>" +
+                    "<td><input type='number' class='form-control quantity' name='quantity[]'></td>" +
+                    "<td><input type='number' class='form-control discount' name='discount[]'></td>" +
+                    "<td class='total'>0</td>" +
+                    "<td>" +
+                    "<input type='hidden' name='product_id[]' value='" + product.id + "'>" +
+                    "<input type='hidden' name='price[]' value='" + product.selling_price + "'>" +
+                    "<button class='btn btn-danger remove-btn'>X</button>" +
+                    "</td>" +
+                    "</tr>";
+
+                var $newRow = $(newRow);
+                var availableQuantity = product.quantity;
+
+                $newRow.find('.quantity').on('input', function() {
+                    var enteredQuantity = parseFloat($(this).val()) || 0;
+
+                    if (enteredQuantity > availableQuantity) {
+                        toastr.warning('Entered quantity (' + enteredQuantity +
+                            ') exceeds available quantity (' + availableQuantity + ').');
+                        $(this).val('');
+                    }
+                });
+
+                $productTable.append($newRow);
+                updateSerialNumbers();
+                $productSearch.val('');
+                $productSuggestions.empty();
+            }
+
+            function updateSerialNumbers() {
+                $productTable.find('.sn-column').each(function(index) {
+                    $(this).text(index + 1);
+                });
+            }
+
+            $productSearch.on('input', function() {
+                var query = $(this).val();
+                if (query.length >= 3) {
+
+                    fetchProductSuggestions(query);
+                } else {
+
+                    $productSuggestions.empty();
+                }
+            });
+
+            $productTable.on('click', '.remove-btn', function() {
+                $(this).closest('tr').remove();
+                updateSerialNumbers();
+                updateTotalAmount();
+            });
+
+
+            $productTable.on('input', '.quantity, .discount', function() {
+                var $row = $(this).closest('tr');
+                var rowTotal = calculateRowTotal($row);
+                $row.find('.total').text(rowTotal);
+                updateTotalAmount();
+            });
+
+
+
+
+
+        });
+    </script>
+
     <script>
         const toggleLaborSwitch = document.getElementById('toggleLabor');
         const laborCostField = document.getElementById('laborCostField');
@@ -311,92 +485,10 @@
             }
         });
 
-        $('.product_id').select2();
-
-        $('.sales-table').on('click', '.add_row', function() {
-            var product = $('.product_id').html();
-            var numberofrow = ($('.addMoreRow tr').length - 0) + 1;
-            var tr = '<tr><td class="no">' + numberofrow + '</td>' +
-                '<td class="button-group"><a class="btn btn-danger btn-sm mx-1 remove_row rounded-circle"><i class="fa fa-times-circle"></i></a> <a href="#" class="btn btn-success btn-sm add_row rounded-circle"><i class="fa fa-plus-circle"></i></a></td>' +
-                '<td><select class="form-select product_id" name="product_id[]" required>' + product +
-                '</select><input type="hidden" class="product_qty" value=""></td>' +
-                '<td><input type="number" name="quantity[]" placeholder="Qty" step="any" class="form-control quantity" required></td>' +
-                '<td><input type="number" readonly name="price[]" class="form-control disabled-input price"></td>' +
-                '<td><input type="number" name="discount[]" placeholder="Dicount" class="form-control discount"></td>' +
-                '<td><input type="number" readonly name="total_amount[]" class="form-control disabled-input total_amount"></td></tr>';
-            $('.addMoreRow').append(tr);
-            $('.product_id').select2();
-        });
-
-
-        $('.addMoreRow').delegate('.remove_row', 'click', function() {
-            $(this).parent().parent().remove();
-        });
-
-
-
-        function TotalAmount() {
-            var total = 0;
-            $('.total_amount').each(function(i, e) {
-                var amount = $(this).val() - 0;
-                total += amount;
-            });
-            $('.total').html('&#8358;' + total.toLocaleString());
-            $('#total_hidden').val(total);
-        }
-
-        $('.addMoreRow').delegate('.product_id', 'change', function() {
-            var tr = $(this).parent().parent();
-            var price = tr.find('.product_id option:selected').attr('data-price');
-            var quantity = tr.find('.product_id option:selected').attr('data-quantity');
-            tr.find('.price').val(price);
-            var qty = tr.find('.quantity').val() - 0;
-
-            if (quantity < 1) {
-                Command: toastr["error"](quantity + ' Remaining')
-
-                tr.find('.quantity').val('');
-            }
-
-
-            var disc = tr.find('.discount').val() - 0;
-            var price = tr.find('.price').val() - 0;
-            var total_amount = (qty * price) - ((qty * price * disc) / 100);
-            tr.find('.total_amount').val(total_amount);
-            tr.find('.product_qty').val(quantity);
-            TotalAmount();
-        });
-
-        $('.addMoreRow').delegate('.quantity, .discount', 'keyup', function() {
-            var tr = $(this).parent().parent();
-            var qty = tr.find('.quantity').val() - 0;
-            var product_qty = tr.find('.product_qty').val() - 0;
-            if (qty > product_qty) {
-                Command: toastr["error"](product_qty + ' Product Quantity Remaining Only.')
-
-                tr.find('.quantity').val('');
-
-            }
-            var disc = tr.find('.discount').val() - 0;
-            var price = tr.find('.price').val() - 0;
-            var total_amount = (qty * price - disc);
-            tr.find('.total_amount').val(total_amount);
-            TotalAmount();
-        });
-
-        $('#paid_amount').keyup(function() {
-            var total = $('#total_hidden').val();
-            var paid_amount = $(this).val();
-            var tot = paid_amount - total;
-            $('#balance').val(tot);
-
-        });
-
-
         function PrintReceiptContent(receipt_no) {
-            data = {
+            var data = {
                 'receipt_no': receipt_no,
-            }
+            };
 
             $.ajaxSetup({
                 headers: {
@@ -413,8 +505,7 @@
                     var total = 0;
 
                     $.each(res.items, function(key, item) {
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td style="text-align: left"><span style="font-size: 12px;">' + item
                             .product.name + '</span></td>' +
                             '<td style="font-size: 12px;">' + item.quantity + '</td>' +
@@ -425,40 +516,34 @@
                         total += item.quantity * item.price;
                     });
 
+                    // Check if labor cost is present
                     if (res.items[0].labor_cost !== null) {
-                        var laborCost = parseInt(res.items[0]
-                        .labor_cost); // Convert labor cost from string to integer
+                        var laborCost = parseInt(res.items[0].labor_cost);
+                        total += laborCost; // Add labor cost to the total
 
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Sub-total</b></td>' +
                             '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
                             '</tr>';
 
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Labor Cost</b></td>' +
                             '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
                             '</tr>';
 
-                        total += laborCost; // Add labor cost to the total
-
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Total</b></td>' +
                             '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
                             '</tr>';
 
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
                             '</tr>';
                     } else {
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Total Amount</b></td>' +
                             '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
@@ -466,20 +551,53 @@
                     }
 
                     $('#receipt_body').html(html);
+
                     $('.tran_id').html('S' + res.items[0].receipt_no);
 
-                    var data = document.getElementById('print').innerHTML;
+                    var printableContent = document.getElementById('print').innerHTML;
 
-                    var myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                    var printWindow = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                    printWindow.screenX = 0;
+                    printWindow.screenY = 0;
+                    printWindow.document.write(printableContent);
+                    printWindow.document.title = "Print Estimate Certificate";
+                    printWindow.focus();
 
-                    myReceipt.screenX = 0;
-                    myReceipt.screenY = 0;
-                    myReceipt.document.write(data);
-                    myReceipt.document.title = "Print Estimate Certificate";
-                    myReceipt.focus();
-                    myReceipt.print();
+                    // Print the content
+                    printWindow.print();
                 },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    if (xhr.status === 419) {
+                        toastr.error("Session expired. Please login again.");
 
+                        setTimeout(function() {
+                            window.location.replace('{{ route('login') }}');
+                        }, 2000);
+                    }
+                },
+            });
+        }
+
+        function updateTable() {
+
+            data = {}
+            $(".recent-table").LoadingOverlay("show");
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('refresh-table') }}",
+                data: data,
+                success: function(res) {
+
+                    $('.recent').load(location.href + ' .recent');
+                    $(".recent-table").LoadingOverlay("hide");
+
+                },
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {
                         Command: toastr["error"](
@@ -492,94 +610,50 @@
                     }
                 },
             });
-
-
-            setTimeout(() => {
-                // myReceipt.close();
-            }, 8000);
         }
     </script>
 
     <script>
         $(document).ready(function() {
+            $('#salesForm').submit(function(event) {
+                event.preventDefault();
 
-            $(document).on('submit', '#salesForm', function(e) {
-                e.preventDefault();
-                let formData = new FormData($('#salesForm')[0]);
+                var formData = $(this).serialize();
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
                 $.LoadingOverlay("show");
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
 
                 $.ajax({
-                    type: "POST",
-                    url: "{{ route('sales.store') }}",
+                    url: '{{ route('sales.store') }}',
+                    type: 'POST',
                     data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(res) {
+                    success: function(response) {
 
-                        if (res.status == 201) {
-                            $.LoadingOverlay("hide");
-                            $('#salesForm')[0].reset();
-                            $('.addMoreRow tr:not(:first)').remove();
-                            $(".product_id").val('none').trigger('change');
-
+                        if (response.status === 201) {
+                            toastr.success(response.message, 'Success');
+                            $('#productTable').empty();
+                            $('#customer').val('0');
+                            $('#balanceContainer').hide();
+                            $('#totalAmount').text('₦0');
+                            $('input[name="payment_method"]').prop('checked', false);
                             updateTable();
-                            toastr.success(res.message, "Success", {
-                                timeOut: 3000
-                            });
-
+                        } else if (response.status === 400) {
+                            toastr.error(response.message, 'Error');
                         }
-                    },
-                    error: function(xhr, status, error) {
+                        $.LoadingOverlay("hide");
 
-                        toastr.error("An error occurred: " + error, "Error", {
-                            timeOut: 3000
-                        });
+                    },
+                    error: function(error) {
+                        console.error(error);
+                        toastr.error('An error occurred while processing the request.',
+                            'Error');
+                        $.LoadingOverlay("hide");
                     }
-                })
+                });
             });
-
-
-            //update table
-            function updateTable() {
-
-                data = {}
-                $(".recent-table").LoadingOverlay("show");
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('refresh-table') }}",
-                    data: data,
-                    success: function(res) {
-
-                        $('.recent').load(location.href + ' .recent');
-                        $(".recent-table").LoadingOverlay("hide");
-
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        if (xhr.status === 419) {
-                            Command: toastr["error"](
-                                "Session expired. please login again."
-                            );
-
-                            setTimeout(() => {
-                                window.location.replace('{{ route('login') }}');
-                            }, 2000);
-                        }
-                    },
-                });
-            }
-
-
         });
     </script>
 @endsection

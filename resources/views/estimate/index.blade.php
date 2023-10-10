@@ -210,7 +210,7 @@
                                                 <tr>
                                                     <td>
                                                         <label for="">Customer Name</label>
-                                                        <input type="text" name="customer_name" id=""
+                                                        <input type="text" name="customer" id=""
                                                             class="form-control" required>
                                                     </td>
                                                     <td>

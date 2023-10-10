@@ -60,7 +60,7 @@ class EstimateController extends Controller
                     $data->discount = $request->discount[$i];
                 }
                 $data->cashier_id = auth()->user()->id;
-                $data->customer = $request->customer_name;
+                $data->customer = $request->customer;
                 $data->note = $request->note;
                 if ($request->input('toggleLabor')) {
                     $data->labor_cost = $request->input('labor_cost');
@@ -139,9 +139,9 @@ class EstimateController extends Controller
                 $data->payment_amount = 0;
                 $data->user_id = auth()->user()->id;
                 if ($request->payment_method == 'credit') {
-                    $data->customer_name = $request->customer;
+                    $data->customer = $request->customer;
                 } else {
-                    $data->customer_name = $estimate->customer;
+                    $data->customer = $estimate->customer;
                 }
                 $data->note = null;
                 $data->save();

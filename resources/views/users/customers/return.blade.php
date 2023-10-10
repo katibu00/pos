@@ -49,7 +49,7 @@
                                 </tbody>
 
                             </table>
-                            <input type="hidden" name="customer_id" value="{{ $sales[0]->customer_name }}"/>
+                            <input type="hidden" name="customer_id" value="{{ $sales[0]->customer }}"/>
                         </div>
                         <button type="submit" class="btn btn-secondary">Submit</button>
                         </form>

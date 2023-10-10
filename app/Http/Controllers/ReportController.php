@@ -468,7 +468,7 @@ class ReportController extends Controller
             $rankedCustomers = [];
             foreach ($customers as $customer) {
                 $totalPurchases = DB::table('sales')
-                    ->where('customer_name', $customer->id)
+                    ->where('customer', $customer->id)
                     ->where('branch_id', $branchId)
                     ->sum(DB::raw('price * quantity'));
 
@@ -478,7 +478,7 @@ class ReportController extends Controller
                     ->sum('payment_amount');
 
                 $totalDiscounts = DB::table('sales')
-                    ->where('customer_name', $customer->id)
+                    ->where('customer', $customer->id)
                     ->where('branch_id', $branchId)
                     ->sum('discount');
 

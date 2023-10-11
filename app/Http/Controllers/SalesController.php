@@ -15,7 +15,7 @@ class SalesController extends Controller
     {
         $user = auth()->user();
         $data['products'] = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $data['recents'] = Sale::select('stock_id', 'receipt_no')->where('payment_method', '!=', 'credit')->whereDate('created_at', Carbon::today())->where('user_id', auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->take(3)->get();
+        $data['recents'] = Sale::select('stock_id', 'receipt_no')->whereDate('created_at', Carbon::today())->where('user_id', auth()->user()->id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->take(3)->get();
         $data['sold_items'] = [];
         $data['customers'] = User::select('id', 'first_name')->where('usertype', 'customer')->where('branch_id', auth()->user()->branch_id)->orderBy('first_name')->get();
         return view('sales.index', $data);

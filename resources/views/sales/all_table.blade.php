@@ -19,8 +19,9 @@
                 @php
                     $total_amount = 0;
                     $total_discount = 0;
-                    $saled = App\Models\Sale::select('price','quantity','discount','customer_name','created_at','receipt_no','note','collected')
+                    $saled = App\Models\Sale::select('price','quantity','discount','customer','created_at','receipt_no','note','collected')
                                             ->where('receipt_no', $row->receipt_no)
+                                            ->with('buyer')
                                             ->get();
                     foreach ($saled as $sale) {
                         $total_amount += ($sale->price*$sale->quantity);
@@ -36,8 +37,13 @@
                 @endif
               <th scope="row">{{ $sale->receipt_no }}</th>
               <td>{{ $saled[0]->created_at->format('l, d F') }}</td>
-              <td>{{ is_numeric($saled[0]->customer_name) ? @$saled[0]->customer->first_name : @$saled[0]->customer_name}}</td>
-              <td class="text-center">{{ number_format($total_amount,0) }}</td>
+              <td>
+                @if (is_null($saled[0]->customer))
+                    Walk-in Customer
+                @elseif (is_numeric($saled[0]->customer))
+                    {{ $saled[0]->buyer->first_name }}
+                @endif
+            </td>              <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
               <td>{{ $saled[0]->note }}</td>

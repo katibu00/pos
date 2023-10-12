@@ -404,7 +404,7 @@
                     "<td class='sn-column'></td>" +
                     "<td>" + product.name + "</td>" +
                     "<td class='price'>" + product.selling_price + "</td>" +
-                    "<td><input type='number' class='form-control quantity' name='quantity[]'></td>" +
+                    "<td><input type='number' class='form-control quantity' step='any' name='quantity[]'></td>" +
                     "<td><input type='number' class='form-control discount' name='discount[]'></td>" +
                     "<td class='total'>0</td>" +
                     "<td>" +

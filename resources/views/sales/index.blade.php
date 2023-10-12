@@ -59,6 +59,7 @@
             font-weight: bold;
             display: none;
         }
+
         #balanceContainer {
             display: none;
             margin-top: 10px;
@@ -426,11 +427,13 @@
                     }
                 });
 
-                $productTable.append($newRow);
+                // Use prepend to add the new row as the first row in the table
+                $productTable.prepend($newRow);
                 updateSerialNumbers();
                 $productSearch.val('');
                 $productSuggestions.empty();
             }
+
 
             function updateSerialNumbers() {
                 $productTable.find('.sn-column').each(function(index) {

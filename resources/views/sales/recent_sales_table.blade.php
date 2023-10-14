@@ -5,42 +5,37 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Sale ID</th>
+                        <th>Transaction No</th>
+                        <th>Transaction Type</th>
                         <th>Amount</th>
-                        <th>Name</th>
+                        <th>Customer</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($recents as $key2 => $recent )
-                    @php
-                    $total_amount = 0;
-                        $sales = App\Models\Sale::select('price','quantity','discount','customer')
-                                                ->where('branch_id', auth()->user()->branch_id)
-                                                ->where('receipt_no', $recent->receipt_no)
-                                                ->with('buyer')
-                                                ->get();
-                        foreach ($sales as $sale) {
-                            $total_amount += ($sale->price*$sale->quantity)-$sale->discount;
-                        }
-                            
-                    @endphp 
-                        <tr>
-                            <td>{{ $key2 + 1 }}</td>
-                            <td>{{ $recent->receipt_no }}</td>
-                            <td>&#8358;{{ number_format($total_amount,0) }}</td>
-                            <td>
-                                @if (is_null($sales[0]->customer))
-                                    Walk-in Customer
-                                @elseif (is_numeric($sales[0]->customer))
-                                    {{ $sales[0]->buyer->first_name }}
-                                @endif
-                            </td>
-                            <td>
-                                <button type="button" onclick="PrintReceiptContent('{{ $recent->receipt_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button>
-                            </td>
-                        </tr>
-                    @endforeach
+                    @foreach ($transactionData as $index => $transaction)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $transaction['transaction_no'] }}</td>
+                                    <td>{{ $transaction['type'] }}</td>
+                                    <td>{{ number_format($transaction['totalAmount'],0) }}</td>
+                                    <td>
+                                        @if ($transaction['customer'])
+                                        {{ $transaction['customer']->first_name }}
+                                    @else
+                                        Walk-in Customer
+                                    @endif
+
+                                    </td>
+                                    <td>
+                                        {{-- <button type="button" onclick="PrintReceiptContent('{{ $transaction['transaction_no'] }}')" class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button> --}}
+                                        <button type="button" class="btn btn-secondary btn-sm print-receipt" onclick="PrintReceiptContent('{{ $transaction['transaction_no'] }}', '{{ $transaction['type'] }}')">
+                                            <i class="fa fa-print text-white"></i>
+                                        </button>
+                                        
+                                    </td>
+                                </tr>
+                                @endforeach
                 </tbody>
             </table>
         </div>

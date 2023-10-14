@@ -157,8 +157,23 @@
                                             </tr>
                                         </table>
 
-                                        <td>
-                                            <div class="col-12 form-group">
+                                            <div class="form-group">
+                                                <label for="transactionType">Transaction Type</label><br>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="transaction_type" id="sales" value="sales" required>
+                                                    <label class="form-check-label" for="sales">Sales</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="transaction_type" id="return" value="return" required>
+                                                    <label class="form-check-label" for="return">Return</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="transaction_type" id="estimate" value="estimate" required>
+                                                    <label class="form-check-label" for="estimate">Estimate</label>
+                                                </div>
+                                            </div>
+                               
+                                            <div id="paymentMethodSection" class="col-12 form-group">
                                                 <label>Payment Method:</label><br>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input required" type="radio"
@@ -191,8 +206,7 @@
                                                             class="fa fa-credit-card text-success"></i> Deposit</label>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td>
+                                   
                                             <div id="balanceContainer" class="mb-2"
                                                 style="display: none; margin-top: 0px;">
                                                 <p style="line-height: 1.5;">
@@ -204,38 +218,30 @@
                                                     <span id="newBalance" style="margin-left: 27px;">0</span>
                                                 </p>
                                             </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="form-group">
+                                      
+                                            <div class="form-group" id="addLaborCostField">
                                                 <label for="toggleLabor">Add Labor Costs</label>
                                                 <label class="switch">
                                                     <input type="checkbox" name="toggleLabor" id="toggleLabor">
                                                     <span class="slider round"></span>
                                                 </label>
                                             </div>
-                                        </td>
-
-                                        <td>
+                                   
                                             <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
                                                 Labor Cost
-                                                <input type="number" name="labor_cost" id="laborCost"
-                                                    class="form-control mb-2">
+                                                <input type="number" name="labor_cost" id="laborCost" class="form-control mb-2">
                                             </div>
-                                        </td>
-                                        <td>
-                                            Paid Amount
-                                            <input type="number" name="paid_amount" id="paid_amount"
-                                                class="form-control mb-2">
-                                        </td>
+                                   
+                                            <div id="paidAmountField" style="padding: 0; margin: 0;">
+                                                Paid Amount
+                                                <input type="number" name="paid_amount" id="paid_amount" class="form-control mb-2">
+                                            </div>
+                                            
                                         <div id="changeField" style="display: none;">
                                             Returning Change:
                                             <span id="balance" class="font-weight-bold"></span>
                                         </div>
-                                        <td>
-                                            <button type="submit" id="submitBtn"
-                                                class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
-                                        </td>
+                                            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
                                     </div>
 
 
@@ -255,6 +261,47 @@
 @endsection
 
 @section('js')
+<script>
+    $(document).ready(function() {
+        updateSections();
+    
+        $("input[name='transaction_type']").change(updateSections);
+    });
+    
+    function updateSections() {
+        var selectedTransactionType = $("input[name='transaction_type']:checked").val();
+        var paymentMethodSection = $("#paymentMethodSection");
+        var paymentMethodInputs = $("input[name='payment_method']");
+        var paidAmountField = $("#paidAmountField");
+    
+        if (selectedTransactionType === "estimate") {
+            paymentMethodSection.hide();
+            paidAmountField.hide();
+            $("#changeField").hide();
+            $("#addLaborCostField").show();
+    
+            // Make payment method not required
+            paymentMethodInputs.removeAttr("required");
+        } else if (selectedTransactionType === "return") {
+            paymentMethodSection.show();
+            $("#changeField").hide();
+            $("#addLaborCostField").hide();
+            paidAmountField.hide();
+    
+            // Make payment method required
+            paymentMethodInputs.attr("required", true);
+        } else {
+            paymentMethodSection.show();
+            paidAmountField.show();
+            $("#addLaborCostField").show();
+    
+            // Make payment method required
+            paymentMethodInputs.attr("required", true);
+        }
+    }
+    </script>
+    
+
     <script>
         $(document).ready(function() {
             $('input[name="payment_method"]').change(function() {
@@ -488,11 +535,12 @@
             }
         });
 
-        function PrintReceiptContent(receipt_no) {
+        function PrintReceiptContent(receipt_no, transaction_type) {
             var data = {
                 'receipt_no': receipt_no,
+                'transaction_type': transaction_type,
             };
-
+            
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -637,12 +685,16 @@
 
                         if (response.status === 201) {
                             toastr.success(response.message, 'Success');
+                            updateTable();
                             $('#productTable').empty();
                             $('#customer').val('0');
                             $('#balanceContainer').hide();
                             $('#totalAmount').text('₦0');
                             $('input[name="payment_method"]').prop('checked', false);
-                            updateTable();
+                            $("#salesForm")[0].reset();
+                            $("input[name='transaction_type']").prop("checked", false);
+                            $("#changeField").hide();
+                           
                         } else if (response.status === 400) {
                             toastr.error(response.message, 'Error');
                         }

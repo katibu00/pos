@@ -28,7 +28,6 @@
 
                                     </td>
                                     <td>
-                                        {{-- <button type="button" onclick="PrintReceiptContent('{{ $transaction['transaction_no'] }}')" class="btn btn-secondary btn-sm"><i class="fa fa-print text-white"></i></button> --}}
                                         <button type="button" class="btn btn-secondary btn-sm print-receipt" onclick="PrintReceiptContent('{{ $transaction['transaction_no'] }}', '{{ $transaction['type'] }}')">
                                             <i class="fa fa-print text-white"></i>
                                         </button>

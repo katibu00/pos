@@ -23,44 +23,44 @@ class SalesController extends Controller
         $user = auth()->user();
         $products = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
         $customers = User::select('id', 'first_name')->where('usertype', 'customer')->where('branch_id', auth()->user()->branch_id)->orderBy('first_name')->get();
-    
+
         $latestTransactions = DB::table('sales')
             ->select('receipt_no as transaction_no', 'created_at', DB::raw("'Sales' as type"))
             ->where('branch_id', $user->branch_id);
-    
+
         $latestTransactions->union(
             DB::table('estimates')
                 ->select('estimate_no as transaction_no', 'created_at', DB::raw("'Estimates' as type"))
                 ->where('branch_id', $user->branch_id)
         );
-    
+
         $latestTransactions->union(
             DB::table('returns')
                 ->select('return_no as transaction_no', 'created_at', DB::raw("'Returns' as type"))
                 ->where('branch_id', $user->branch_id)
         );
-    
+
         $latestTransactions = $latestTransactions
             ->orderBy('created_at', 'desc')
             ->groupBy('transaction_no')
             ->take(3)
             ->get();
-    
+
         $transactionData = [];
-    
+
         foreach ($latestTransactions as $transaction) {
             $table = $transaction->type == 'Sales' ? 'sales' : ($transaction->type == 'Returns' ? 'returns' : 'estimates');
-    
+
             $rows = DB::table($table)
                 ->where('branch_id', $user->branch_id)
                 ->where($transaction->type == 'Sales' ? 'receipt_no' : ($transaction->type == 'Returns' ? 'return_no' : 'estimate_no'), $transaction->transaction_no)
                 ->get();
-    
+
             $totalAmount = 0;
             foreach ($rows as $row) {
                 $totalAmount += ($row->price * $row->quantity) - $row->discount;
             }
-    
+
             // Fetch the customer information for this transaction
             $customer = null;
             if ($transaction->type == 'Sales') {
@@ -69,7 +69,7 @@ class SalesController extends Controller
                     $customer = User::find($sale->customer);
                 }
             }
-    
+
             $transactionData[] = [
                 'transaction_no' => $transaction->transaction_no,
                 'type' => $transaction->type,
@@ -78,10 +78,10 @@ class SalesController extends Controller
                 'customer' => $customer,
             ];
         }
-    
+
         return view('sales.index', compact('transactionData', 'products', 'customers'));
     }
-    
+
     public function getProductSuggestions(Request $request)
     {
         $query = $request->input('query');
@@ -428,12 +428,21 @@ class SalesController extends Controller
                 $totalAmount += ($row->price * $row->quantity) - $row->discount;
             }
 
+            // Fetch the customer information for this transaction
+            $customer = null;
+            if ($transaction->type == 'Sales') {
+                $sale = DB::table('sales')->where('receipt_no', $transaction->transaction_no)->first();
+                if (!is_null($sale) && is_numeric($sale->customer)) {
+                    $customer = User::find($sale->customer);
+                }
+            }
+
             $transactionData[] = [
                 'transaction_no' => $transaction->transaction_no,
                 'type' => $transaction->type,
                 'created_at' => $transaction->created_at,
                 'totalAmount' => $totalAmount,
-                'rows' => $rows,
+                'customer' => $customer,
             ];
         }
 
@@ -442,32 +451,30 @@ class SalesController extends Controller
 
     public function loadReceipt(Request $request)
     {
-  
-            $transactionType = $request->transaction_type;
-            $transactionNo = $request->receipt_no;
-        // dd($request->all());
-            $items = [];
-        
-            if ($transactionType === 'Sales') {
-                $items = Sale::with('product')
-                    ->where('receipt_no', $transactionNo)
-                    ->get();
-            } elseif ($transactionType === 'Returns') {
-                $items = Returns::with('product')
-                    ->where('return_no', $transactionNo)
-                    ->get();
-            } elseif ($transactionType === 'Estimates') {
-                $items = Estimate::with('product')
-                    ->where('estimate_no', $transactionNo)
-                    ->get();
-            }
-        
-            return response()->json([
-                'status' => 200,
-                'items' => $items,
-            ]);
-        
-        
+
+        $transactionType = $request->transaction_type;
+        $transactionNo = $request->receipt_no;
+        $items = [];
+
+        if ($transactionType === 'Sales') {
+            $items = Sale::with('product')
+                ->where('receipt_no', $transactionNo)
+                ->get();
+        } elseif ($transactionType === 'Returns') {
+            $items = Returns::with('product')
+                ->where('return_no', $transactionNo)
+                ->get();
+        } elseif ($transactionType === 'Estimates') {
+            $items = Estimate::with('product')
+                ->where('estimate_no', $transactionNo)
+                ->get();
+        }
+
+        return response()->json([
+            'status' => 200,
+            'items' => $items,
+        ]);
+
     }
 
     public function allIndex()

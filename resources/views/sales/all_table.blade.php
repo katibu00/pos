@@ -56,7 +56,7 @@
                     <span class="dots"></span>
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#" onclick="PrintReceiptContent('{{ $row->receipt_no}}')"><i class="fa fa-print"></i> Receipt</a>
+                    <a class="dropdown-item" href="#" onclick="PrintReceiptContent('{{ $row->receipt_no }}')"><i class="fa fa-print"></i> Receipt</a>
                     @if($saled[0]->collected == 1)
                     <a class="dropdown-item" href="#" onclick="confirmPickup('{{ $row->receipt_no}}')">
                         <i class="fa fa-truck"></i> Awaiting Pickup

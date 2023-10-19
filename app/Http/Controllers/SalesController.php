@@ -451,7 +451,6 @@ class SalesController extends Controller
 
     public function loadReceipt(Request $request)
     {
-
         $transactionType = $request->transaction_type;
         $transactionNo = $request->receipt_no;
         $items = [];
@@ -469,7 +468,12 @@ class SalesController extends Controller
                 ->where('estimate_no', $transactionNo)
                 ->get();
         }
-
+        if(!$transactionType)
+        {
+            $items = Sale::with('product')
+                ->where('receipt_no', $request->receipt_no)
+                ->get();
+        }
         return response()->json([
             'status' => 200,
             'items' => $items,

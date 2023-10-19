@@ -41,7 +41,7 @@
                 @if (is_null($saled[0]->customer))
                     Walk-in Customer
                 @elseif (is_numeric($saled[0]->customer))
-                    {{ $saled[0]->buyer->first_name }}
+                    {{ @$saled[0]->buyer->first_name }}
                 @endif
             </td>              <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>

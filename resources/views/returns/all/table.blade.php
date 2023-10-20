@@ -32,7 +32,13 @@
 
               <th scope="row">{{ $sale->return_no }}</th>
               <td>{{ $saled[0]->created_at->format('l, d F') }}</td>
-              <td>{{ is_numeric($saled[0]->customer) ? @$saled[0]->customer->first_name : @$saled[0]->customer}}</td>
+              <td>
+                @if ($saled[0]->customer == 0)
+                    Walk-in Customer
+                @elseif (is_numeric($saled[0]->customer))
+                    {{ @$saled[0]->buyer->first_name }}
+                @endif
+            </td>
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>

@@ -31,7 +31,13 @@
 
               <th scope="row">{{ $estimate->estimate_no }}</th>
               <td>{{ $estimated[0]->created_at->format('l, d F') }}</td>
-              <td>{{ $estimated[0]->customer }}</td>
+              <td>
+                @if ($estimated[0]->customer == 0)
+                    Walk-in Customer
+                @elseif (is_numeric($estimated[0]->customer))
+                    {{ @$estimated[0]->buyer->first_name }}
+                @endif
+            </td>
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>

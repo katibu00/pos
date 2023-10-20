@@ -13,7 +13,7 @@ class Returns extends Model
         return $this->belongsTo(Stock::class, 'product_id','id');
     }
 
-    public function customer(){
+    public function buyer(){
         return $this->belongsTo(User::class, 'customer','id');
     }
 

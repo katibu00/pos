@@ -157,91 +157,97 @@
                                             </tr>
                                         </table>
 
-                                            <div class="form-group">
-                                                <label for="transactionType">Transaction Type</label><br>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="transaction_type" id="sales" value="sales" required>
-                                                    <label class="form-check-label" for="sales">Sales</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="transaction_type" id="return" value="return" required>
-                                                    <label class="form-check-label" for="return">Return</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="transaction_type" id="estimate" value="estimate" required>
-                                                    <label class="form-check-label" for="estimate">Estimate</label>
-                                                </div>
+                                        <div class="form-group">
+                                            <label for="transactionType">Transaction Type</label><br>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="transaction_type"
+                                                    id="sales" value="sales" required>
+                                                <label class="form-check-label" for="sales">Sales</label>
                                             </div>
-                               
-                                            <div id="paymentMethodSection" class="col-12 form-group">
-                                                <label>Payment Method:</label><br>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input required" type="radio"
-                                                        name="payment_method" id="cash" value="cash" required>
-                                                    <label class="form-check-label nott" for="cash"><i
-                                                            class="fas fa-money-bill text-success"></i> Cash</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="payment_method"
-                                                        id="pos" value="pos" required>
-                                                    <label class="form-check-label nott" for="pos"><i
-                                                            class="fa fa-credit-card text-info"></i> POS</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="payment_method"
-                                                        id="transfer" value="transfer" required>
-                                                    <label class="form-check-label nott" for="transfer"><i
-                                                            class="fa fa-university text-danger"></i> Bank Transfer</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="payment_method"
-                                                        id="credit" value="credit" required>
-                                                    <label class="form-check-label nott" for="credit"><i
-                                                            class="fa fa-credit-card text-warning"></i> Credit</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="payment_method"
-                                                        id="deposit" value="deposit" required>
-                                                    <label class="form-check-label nott" for="deposit"><i
-                                                            class="fa fa-credit-card text-success"></i> Deposit</label>
-                                                </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="transaction_type"
+                                                    id="return" value="return" required>
+                                                <label class="form-check-label" for="return">Return</label>
                                             </div>
-                                   
-                                            <div id="balanceContainer" class="mb-2"
-                                                style="display: none; margin-top: 0px;">
-                                                <p style="line-height: 1.5;">
-                                                    <span style="font-weight: bold;">Previous Balance:</span>
-                                                    <span id="previousBalance" style="margin-left: 10px;">0</span>
-                                                </p>
-                                                <p style="line-height: 1.5;">
-                                                    <span style="font-weight: bold;">New Balance:</span>
-                                                    <span id="newBalance" style="margin-left: 27px;">0</span>
-                                                </p>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="transaction_type"
+                                                    id="estimate" value="estimate" required>
+                                                <label class="form-check-label" for="estimate">Estimate</label>
                                             </div>
-                                      
-                                            <div class="form-group" id="addLaborCostField">
-                                                <label for="toggleLabor">Add Labor Costs</label>
-                                                <label class="switch">
-                                                    <input type="checkbox" name="toggleLabor" id="toggleLabor">
-                                                    <span class="slider round"></span>
-                                                </label>
+                                        </div>
+
+                                        <div id="paymentMethodSection" class="col-12 form-group">
+                                            <label>Payment Method:</label><br>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input required" type="radio"
+                                                    name="payment_method" id="cash" value="cash" required>
+                                                <label class="form-check-label nott" for="cash"><i
+                                                        class="fas fa-money-bill text-success"></i> Cash</label>
                                             </div>
-                                   
-                                            <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
-                                                Labor Cost
-                                                <input type="number" name="labor_cost" id="laborCost" class="form-control mb-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="payment_method"
+                                                    id="pos" value="pos" required>
+                                                <label class="form-check-label nott" for="pos"><i
+                                                        class="fa fa-credit-card text-info"></i> POS</label>
                                             </div>
-                                   
-                                            <div id="paidAmountField" style="padding: 0; margin: 0;">
-                                                Paid Amount
-                                                <input type="number" name="paid_amount" id="paid_amount" class="form-control mb-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="payment_method"
+                                                    id="transfer" value="transfer" required>
+                                                <label class="form-check-label nott" for="transfer"><i
+                                                        class="fa fa-university text-danger"></i> Bank Transfer</label>
                                             </div>
-                                            
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="payment_method"
+                                                    id="credit" value="credit" required>
+                                                <label class="form-check-label nott" for="credit"><i
+                                                        class="fa fa-credit-card text-warning"></i> Credit</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="payment_method"
+                                                    id="deposit" value="deposit" required>
+                                                <label class="form-check-label nott" for="deposit"><i
+                                                        class="fa fa-credit-card text-success"></i> Deposit</label>
+                                            </div>
+                                        </div>
+
+                                        <div id="balanceContainer" class="mb-2"
+                                            style="display: none; margin-top: 0px;">
+                                            <p style="line-height: 1.5;">
+                                                <span style="font-weight: bold;">Previous Balance:</span>
+                                                <span id="previousBalance" style="margin-left: 10px;">0</span>
+                                            </p>
+                                            <p style="line-height: 1.5;">
+                                                <span style="font-weight: bold;">New Balance:</span>
+                                                <span id="newBalance" style="margin-left: 27px;">0</span>
+                                            </p>
+                                        </div>
+
+                                        <div class="form-group" id="addLaborCostField">
+                                            <label for="toggleLabor">Add Labor Costs</label>
+                                            <label class="switch">
+                                                <input type="checkbox" name="toggleLabor" id="toggleLabor">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </div>
+
+                                        <div id="laborCostField" style="display: none; padding: 0; margin: 0;">
+                                            Labor Cost
+                                            <input type="number" name="labor_cost" id="laborCost"
+                                                class="form-control mb-2">
+                                        </div>
+
+                                        <div id="paidAmountField" style="padding: 0; margin: 0;">
+                                            Paid Amount
+                                            <input type="number" name="paid_amount" id="paid_amount"
+                                                class="form-control mb-2">
+                                        </div>
+
                                         <div id="changeField" style="display: none;">
                                             Returning Change:
                                             <span id="balance" class="font-weight-bold"></span>
                                         </div>
-                                            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
+                                        <button type="submit" id="submitBtn"
+                                            class="btn btn-primary btn-lg btn-block mt-2">Record Sale</button>
                                     </div>
 
 
@@ -261,46 +267,46 @@
 @endsection
 
 @section('js')
-<script>
-    $(document).ready(function() {
-        updateSections();
-    
-        $("input[name='transaction_type']").change(updateSections);
-    });
-    
-    function updateSections() {
-        var selectedTransactionType = $("input[name='transaction_type']:checked").val();
-        var paymentMethodSection = $("#paymentMethodSection");
-        var paymentMethodInputs = $("input[name='payment_method']");
-        var paidAmountField = $("#paidAmountField");
-    
-        if (selectedTransactionType === "estimate") {
-            paymentMethodSection.hide();
-            paidAmountField.hide();
-            $("#changeField").hide();
-            $("#addLaborCostField").show();
-    
-            // Make payment method not required
-            paymentMethodInputs.removeAttr("required");
-        } else if (selectedTransactionType === "return") {
-            paymentMethodSection.show();
-            $("#changeField").hide();
-            $("#addLaborCostField").hide();
-            paidAmountField.hide();
-    
-            // Make payment method required
-            paymentMethodInputs.attr("required", true);
-        } else {
-            paymentMethodSection.show();
-            paidAmountField.show();
-            $("#addLaborCostField").show();
-    
-            // Make payment method required
-            paymentMethodInputs.attr("required", true);
+    <script>
+        $(document).ready(function() {
+            updateSections();
+
+            $("input[name='transaction_type']").change(updateSections);
+        });
+
+        function updateSections() {
+            var selectedTransactionType = $("input[name='transaction_type']:checked").val();
+            var paymentMethodSection = $("#paymentMethodSection");
+            var paymentMethodInputs = $("input[name='payment_method']");
+            var paidAmountField = $("#paidAmountField");
+
+            if (selectedTransactionType === "estimate") {
+                paymentMethodSection.hide();
+                paidAmountField.hide();
+                $("#changeField").hide();
+                $("#addLaborCostField").show();
+
+                // Make payment method not required
+                paymentMethodInputs.removeAttr("required");
+            } else if (selectedTransactionType === "return") {
+                paymentMethodSection.show();
+                $("#changeField").hide();
+                $("#addLaborCostField").hide();
+                paidAmountField.hide();
+
+                // Make payment method required
+                paymentMethodInputs.attr("required", true);
+            } else {
+                paymentMethodSection.show();
+                paidAmountField.show();
+                $("#addLaborCostField").show();
+
+                // Make payment method required
+                paymentMethodInputs.attr("required", true);
+            }
         }
-    }
     </script>
-    
+
 
     <script>
         $(document).ready(function() {
@@ -360,7 +366,14 @@
     </script>
 
     <script>
+        var transactionType = $("input[name='transaction_type']:checked").val();
+
+        $("input[name='transaction_type']").change(function() {
+            transactionType = $(this).val();
+        });
+
         $(document).ready(function() {
+
 
             var $productSearch = $('#productSearch');
             var $productSuggestions = $('#productSuggestions');
@@ -464,15 +477,19 @@
                 var $newRow = $(newRow);
                 var availableQuantity = product.quantity;
 
-                $newRow.find('.quantity').on('input', function() {
-                    var enteredQuantity = parseFloat($(this).val()) || 0;
+                console.log(transactionType)
 
-                    if (enteredQuantity > availableQuantity) {
-                        toastr.warning('Entered quantity (' + enteredQuantity +
-                            ') exceeds available quantity (' + availableQuantity + ').');
-                        $(this).val('');
-                    }
-                });
+                if (transactionType === "sales" || transactionType === undefined) {
+                    $newRow.find('.quantity').on('input', function() {
+                        var enteredQuantity = parseFloat($(this).val()) || 0;
+
+                        if (enteredQuantity > availableQuantity) {
+                            toastr.warning('Entered quantity (' + enteredQuantity +
+                                ') exceeds available quantity (' + availableQuantity + ').');
+                            $(this).val('');
+                        }
+                    });
+                }
 
                 // Use prepend to add the new row as the first row in the table
                 $productTable.prepend($newRow);
@@ -480,6 +497,7 @@
                 $productSearch.val('');
                 $productSuggestions.empty();
             }
+
 
 
             function updateSerialNumbers() {
@@ -540,7 +558,7 @@
                 'receipt_no': receipt_no,
                 'transaction_type': transaction_type,
             };
-            
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -694,7 +712,7 @@
                             $("#salesForm")[0].reset();
                             $("input[name='transaction_type']").prop("checked", false);
                             $("#changeField").hide();
-                           
+
                         } else if (response.status === 400) {
                             toastr.error(response.message, 'Error');
                         }

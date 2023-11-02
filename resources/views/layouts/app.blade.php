@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="/css/custom.css" type="text/css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" integrity="sha512-arEjGlJIdHpZzNfZD2IidQjDZ+QY9r4VFJIm2M/DhXLjvvPyXFj+cIotmo0DLgvL3/DOlIaEDwzEiClEPQaAFQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />    
     <link rel="stylesheet" href="/css/colors.php?color=0275d8" type="text/css" />
     @yield('css')
     <style>
@@ -95,9 +95,11 @@
                                         class="rounded-circle" src="/default.png"
                                         alt="{{ auth()->user()->first_name }}"></a>
                                 <div class="dropdown-menu dropdown-menu-end py-0 m-0" aria-labelledby="profilelink">
+                                    <span class="dropdown-item disabled">{{ auth()->user()->first_name.' '.auth()->user()->last_name.' - '.auth()->user()->usertype }}</span>
                                     <a class="dropdown-item" href="{{ route('sms.compose') }}"><i class="icon-line-mail me-2"></i>Compose SMS</a>
                                     <a class="dropdown-item" href="{{ route('sms.balance') }}"><i class="icon-line-speech-bubble me-2"></i>SMS Balance</a>
                                     <div class="line m-0"></div>
+                                    <a class="dropdown-item" href="{{ route('change.password') }}"><i class="icon-line-lock me-2"></i>Change Password</a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"><i class="icon-line-log-out me-2"></i>Sign Out</a>
                                 </div>
                             </div>
@@ -178,7 +180,7 @@
 
     <!-- Footer Scripts -->
     <script src="/js/functions.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.full.min.js" integrity="sha512-m7x59G4+NdYoUUKUscYq2qKkineVwmjXA/7WfXm8pukxYiFavrh9uFImpPtbmZGAnHR0rouVWWk+dgcHNurQ5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
     <script src="/toastr/toastr.min.js"></script>
     {!! Toastr::message() !!}
 

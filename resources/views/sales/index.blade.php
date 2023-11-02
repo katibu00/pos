@@ -80,6 +80,21 @@
             margin-left: 10px;
 
         }
+        .thin-input {
+            width: 100%;
+        }
+
+        .form-control.thin-input {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.755rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+        .form-control.thin-input:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
     </style>
 @endsection
 
@@ -139,20 +154,27 @@
                                         <table class="table table-striped">
                                             <tr>
                                                 <td>
-                                                    <label for="customere">Customer Name</label>
-                                                    <select name="customer" id="customer" class="form-select select2">
-                                                        <option value="0">Walk-in Customer</option>
-                                                        @foreach ($customers as $customer)
-                                                            <option value="{{ $customer->id }}">{{ $customer->first_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </td>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="customer">Customer Name</label>
+                                                                <select class="form-control select2" name="customer"
+                                                                    id="customer">
+                                                                    <option value="0">Walk-in Customer</option>
+                                                                    @foreach ($customers as $customer)
+                                                                        <option value="{{ $customer->id }}">
+                                                                            {{ $customer->first_name.' '. $customer->last_name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="note">Note</label>
+                                                            <input type="text" name="note" id="note"
+                                                                class="form-control thin-input">
+                                                        </div>
+                                                    </div>
 
-                                                <td>
-                                                    <label for="note">Note</label>
-                                                    <input type="text" name="note" id="note"
-                                                        class="form-control">
                                                 </td>
                                             </tr>
                                         </table>
@@ -267,6 +289,13 @@
 @endsection
 
 @section('js')
+<script>
+    $(document).ready(function() {
+        $('#customer').select2({
+            theme: 'classic'
+        });
+    });
+</script>
     <script>
         $(document).ready(function() {
             updateSections();

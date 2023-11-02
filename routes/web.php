@@ -61,6 +61,8 @@ Route::get('/home', function () {
 Route::get('/login', [AuthController::class, 'loginIndex'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/change/password', [AuthController::class, 'changePasswordIndex'])->name('change.password');
+Route::post('/change/password', [AuthController::class, 'changePasswordStore']);
 
 Route::group(['middleware' => ['auth', 'admin']], function () {
     Route::get('/admin/home', [HomeController::class, 'admin'])->name('admin.home');
@@ -144,6 +146,10 @@ Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], functi
 
     Route::get('/all/index', [EstimateController::class, 'allIndex'])->name('estimate.all.index');
     Route::post('/all/store', [EstimateController::class, 'allStore'])->name('estimate.all.store');
+
+
+    Route::post('/all/search', [EstimateController::class, 'allSearch'])->name('estimate.all.search');
+    Route::post('/all/sort', [EstimateController::class, 'filterSales'])->name('estimate.all.sort');
 
 });
 

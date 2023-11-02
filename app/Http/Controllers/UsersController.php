@@ -379,7 +379,7 @@ class UsersController extends Controller
         return view('users.customers.return', $data);
 
     }
-    public function returnStore(Request $request)
+    public function returnStoreaaa(Request $request)
     {
 
         $sale = Sale::find($request->sale_id[0]);
@@ -463,6 +463,96 @@ class UsersController extends Controller
         }
         Toastr::success('Credit Sales was Updated Successfully');
         return redirect()->route('customers.profile', $sale->customer);
+
+    }
+
+
+    public function returnStore(Request $request)
+    {
+        $fistRow = Sale::select('receipt_no','customer')->where('id', $request->sale_id[0])->first();
+
+        $branchId = auth()->user()->branch_id;
+
+        $sales = Sale::where('receipt_no', $fistRow->receipt_no)
+        ->where('customer', $fistRow->customer)
+        ->where('branch_id', $branchId)
+        ->get();
+         
+        $net_amount = 0;
+       
+        foreach($sales as $sale)
+       {
+        $net_amount += ($sale->quantity - $sale->returned_qty) * $sale->price - $sale->discount;
+       
+       }
+       $remaining_balance = $net_amount - ($sales[0]->payment_amount ?? 0);
+
+       $returned_amount = 0;
+       $saleIdCount = count($request->sale_id);
+       if ($saleIdCount != null) {
+           for ($i = 0; $i < $saleIdCount; $i++) {
+                $sale = Sale::select('returned_qty','quantity','price','discount')->where('id',$request->sale_id[$i])->first();
+                $returned_amount += ($sale->price * $sale->quantity - $sale->discount);
+            }
+        }
+    //   dd($remaining_balance);
+    //   if($returned_amount > $remaining_balance)
+    //   {
+    //     Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
+    //     return redirect()->back();
+
+    //   }
+
+        $productCount = count($request->sale_id);
+        if ($productCount != null) {
+            for ($i = 0; $i < $productCount; $i++) {
+
+                $sale = Sale::select('id','returned_qty','quantity')->where('id',$request->sale_id[$i])->first();
+
+                if ($request->returned_qty[$i] != '') {
+
+                    if ($request->returned_qty[$i] <= $sale->quantity) {
+
+                        $sale->returned_qty += $request->returned_qty[$i];
+                        $sale->update();
+
+                        $data = new Returns();
+                        $data->branch_id = auth()->user()->branch_id;
+                        $data->return_no = 'R' . $fistRow->receipt_no;
+                        $data->product_id = $request->product_id[$i];
+                        $data->price = $request->price[$i];
+                        $data->quantity = $request->returned_qty[$i];
+                        if ($request->discount[$i] == null) {
+                            $data->discount = 0;
+
+                        } else {
+                            $discount = $request->discount[$i] / $request->quantity[$i] * $request->returned_qty[$i];
+                            $data->discount = $discount;
+                        }
+                        $data->cashier_id = auth()->user()->id;
+                        $data->customer = $sale->customer;
+                        $data->channel = 'credit';
+                        $data->note = $sale->note;
+                        $data->save();
+
+                        $data = Stock::find($request->product_id[$i]);
+                        $data->quantity += $request->returned_qty[$i];
+                        $data->update();
+
+                        $user = User::find($request->customer_id);
+                        if ($request->discount[$i] == null) {
+                            $user->balance -= $request->price[$i] * $request->returned_qty[$i];
+                        } else {
+                            $user->balance -= $request->price[$i] * $request->returned_qty[$i] - $discount;
+
+                        }
+                        $user->update();
+                    }
+                }
+            }
+        }
+        Toastr::success('Credit Sales was Updated Successfully');
+        return redirect()->route('customers.profile', $fistRow->customer);
 
     }
 

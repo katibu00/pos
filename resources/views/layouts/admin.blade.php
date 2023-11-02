@@ -8,29 +8,18 @@
             <li class="menu-item"><a class="menu-link" href="{{ route('admin.home') }}">
                     <div>Home</div>
                 </a></li>
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('credit.index') }}">
-                    <div>Credit Sales</div>
-                </a>
-            </li>
+            
             <li class="menu-item">
                 <a class="menu-link" href="{{ route('sales.all.index') }}">
                     <div>All Sales</div>
                 </a>
             </li>
             <li class="menu-item">
-                <a class="menu-link" href="{{ route('estimate.index') }}">
-                    <div>Estimate</div>
+                <a class="menu-link" href="{{ route('customers.index') }}">
+                    <div>Customers</div>
                 </a>
             </li>
-            <li class="menu-item"><a class="menu-link" href="{{ route('returns') }}">
-                    <div>Returns</div>
-                </a></li>
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('report.index') }}">
-                    <div>Report</div>
-                </a>
-            </li>
+
             <li class="menu-item">
                 <a class="menu-link " href="{{ route('reorder.index') }}">
                     <div>New Reorder</div>
@@ -39,17 +28,7 @@
             <li class="menu-item"><a class="menu-link" href="{{ route('expense.index') }}">
                     <div>Expense</div>
                 </a></li>
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('customers.index') }}">
-                    <div>Customers</div>
-                </a>
-            </li>
-
-            <li class="menu-item {{ $route == 'reorder.index' ? 'current' : '' }}">
-                <a class="menu-link " href="{{ route('reorder.index') }}">
-                    <div>New Reorder</div>
-                </a>
-            </li>
+           
             <li class="menu-item {{ $route == 'reorder.all.index' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('reorder.all.index') }}">
                     <div>All Reorders</div>

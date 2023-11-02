@@ -6,6 +6,7 @@
                 <th scope="col">Estimate ID</th>
                 <th scope="col">Date</th>
                 <th scope="col">Name</th>
+                <th scope="col">Note</th>
                 <th scope="col" class="text-center">Amount (&#8358;)</th>
                 <th scope="col" class="text-center">Discount (&#8358;)</th>
                 <th scope="col" class="text-center">Discounted Amount (&#8358;)</th>
@@ -27,7 +28,12 @@
                     }         
                 @endphp 
             <tr>
-              <td class="text-center">{{ $key + $estimates->firstItem() }}</td>
+
+              @if ($estimates instanceof Illuminate\Pagination\LengthAwarePaginator)
+                    <td class="text-center">{{ $key + $estimates->firstItem() }}</td>
+                @else
+                    <td class="text-center">{{ $key + 1 }}</td>
+                @endif
 
               <th scope="row">{{ $estimate->estimate_no }}</th>
               <td>{{ $estimated[0]->created_at->format('l, d F') }}</td>
@@ -38,6 +44,7 @@
                     {{ @$estimated[0]->buyer->first_name }}
                 @endif
             </td>
+            <td>{{ $estimate->note }}</td>
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
@@ -54,7 +61,9 @@
     </div>
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
-          {{ $estimates->links() }}
+            @if ($estimates instanceof Illuminate\Pagination\LengthAwarePaginator && $estimates->hasPages())
+                {{ $estimates->links() }}
+            @endif
         </ul>
     </nav>
 

@@ -24,6 +24,8 @@ class EstimateController extends Controller
         $user = auth()->user();
         $data['estimates'] = Estimate::select('product_id', 'estimate_no')->where('branch_id', auth()->user()->branch_id)->groupBy('estimate_no')->orderBy('created_at', 'desc')->paginate(10);
         $data['customers'] = User::select('id', 'first_name')->where('branch_id', $user->branch_id)->where('usertype', 'customer')->orderBy('first_name')->get();
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
+
         return view('estimate.all_index', $data);
     }
 
@@ -119,10 +121,9 @@ class EstimateController extends Controller
 
         foreach ($estimates as $estimate) {
 
-            $product = Stock::select('id','quantity','selling_price')->where('id', $estimate->product_id)->first();
+            $product = Stock::select('id', 'quantity', 'selling_price')->where('id', $estimate->product_id)->first();
 
-            if($product->quantity >= $estimate->quantity)
-            {
+            if ($product->quantity >= $estimate->quantity) {
                 $data = new Sale();
                 $data->branch_id = auth()->user()->branch_id;
                 $data->receipt_no = $stored;
@@ -145,24 +146,69 @@ class EstimateController extends Controller
                 }
                 $data->note = null;
                 $data->save();
-               
+
                 $product->quantity -= $estimate->quantity;
                 $product->update();
                 $estimate->delete();
-            }else
-            {
+            } else {
                 Toastr::error('Out of Stock occured in one or more items');
             }
         }
 
         if ($request->payment_method == 'credit') {
             $user = User::select('id', 'balance')->where('id', $request->customer)->first();
-            $user->balance +=  $total_amount;
+            $user->balance += $total_amount;
             $user->update();
-        } 
+        }
 
         Toastr::success('Estimate has been Marked as Sold sucessfully', 'Done');
         return redirect()->route('estimate.all.index');
+    }
+
+    public function allSearch(Request $request)
+    {
+        $query = $request->input('query');
+        $user = auth()->user();
+
+        // Perform the search query on the Sale model
+        $data['estimates'] = Estimate::select('product_id', 'estimate_no')
+        ->where('branch_id', auth()->user()->branch_id)
+        ->where(function($queryBuilder) use ($query) {
+            $queryBuilder->where('estimate_no', 'LIKE', '%' . $query . '%')
+                ->orWhere('note', 'LIKE', '%' . $query . '%');
+        })
+        ->groupBy('estimate_no')
+        ->orderBy('created_at', 'desc')
+        ->take(100)
+        ->get();
+    
+        $data['customers'] = User::select('id', 'first_name')->where('branch_id', $user->branch_id)->where('usertype', 'customer')->orderBy('first_name')->get();
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
+
+        return view('estimate.all_table', $data)->render();
+
+    }
+
+    public function filterSales(Request $request)
+    {
+        $cashierId = $request->input('cashier_id');
+        $user = auth()->user();
+        $query = Estimate::select('product_id', 'estimate_no')
+            ->where('branch_id', auth()->user()->branch_id);
+
+        if ($cashierId && $cashierId != 'all') {
+            $query->where('cashier_id', $cashierId);
+        }
+
+        $data['estimates'] = $query->groupBy('estimate_no')
+            ->orderBy('created_at', 'desc')
+            ->take(100)
+            ->get();
+
+        $data['customers'] = User::select('id', 'first_name')->where('branch_id', $user->branch_id)->where('usertype', 'customer')->orderBy('first_name')->get();
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
+
+        return view('estimate.all_table', $data)->render();
     }
 
 }

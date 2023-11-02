@@ -6,10 +6,30 @@
             <div class="container">
 
                 <div class="card">
-                    <!-- Default panel contents -->
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="col-2 d-none d-md-block"><span class="text-bold fs-16">Estimates</span></div>
-                    </div>
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+                        <div class="col-12 col-md-4 mb-2 mb-md-0">
+                            <h2 class="text-bold fs-20">All Estimates</h2>
+                        </div>
+                        <div class="col-12 col-md-4 mb-2 mb-md-0">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search by Estimate ID or Note">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <div class="form-group">
+                                <select class="form-select" id="cashier_id">
+                                    <option value="">Sort by Cashier</option>
+                                    <option value="all">All</option>
+                                    @foreach ($staffs as $staff)
+                                        <option value="{{ $staff->id }}">
+                                            {{ $staff->first_name . ' ' . $staff->last_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>                  
                     <div class="card-body">
                         <div class="table-data">
                             @include('estimate.all_table')
@@ -31,47 +51,82 @@
 
 @section('js')
 
+<script>
+    function handleSearch() {
+        var query = $('#searchInput').val();
 
-    <script>
-        //search
-        $(document).on('keyup', function(e) {
-            e.preventDefault();
+        $('.pagination').hide();
 
-            let query = $('#search').val();
-            let branch_id = $('#branch').val();
-
-            if (branch_id == '') {
-                alert('please choose a branch');
-                return;
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
+        });
+        $.ajax({
+            url: '{{ route('estimate.all.search') }}',
+            method: 'POST',
+            data: {
+                query: query
+            },
+            success: function(response) {
+                // Empty the table
+                $('.table').empty();
+
+                // Check if the response is empty
+                if ($(response).find('tbody tr').length > 0) {
+                    $('.table').html(response);
+                } else {
+                    // Display a message if no rows are found
+                    $('.table tbody').empty().append(
+                        '<tr><td colspan="9" class="text-center">No results found.</td></tr>');
+                    toastr.warning('No results found.');
+                }
+
+            },
+
+            error: function(xhr) {
+                // Handle the error response here
+                console.log(xhr.responseText);
+            }
+        });
+    }
+    $('#searchInput').on('input', handleSearch);
+</script>
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#cashier_id').on('change', function() {
+
+            var cashierId = $('#cashier_id').val();
+            $.LoadingOverlay("show")
+            $('.pagination').hide();
 
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
             $.ajax({
-                url: "{{ route('search-stocks') }}",
+                url: '{{ route('estimate.all.sort') }}',
                 method: 'POST',
                 data: {
-                    'query': query,
-                    'branch_id': branch_id
+                    cashier_id: cashierId,
                 },
-
                 success: function(response) {
-                    $('.table-data').html(response);
-                    $('.table').removeClass('d-none');
-
-                    if (response.status == 404) {
-                        $('.table-data').html(
-                            '<p class="text-danger text-center">No Data Matched the Query</p>');
-                    }
+                    $('.table').empty();
+                    $.LoadingOverlay("hide")
+                    $('.table').html(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
                 }
             });
-
         });
-    </script>
+    });
+</script>
+   
 
     <script>
         function PrintReceiptContent(estimate_no) {
@@ -183,85 +238,6 @@
     </script>
 
 
-    <script>
-        $(document).on('click', '.delete', function(e) {
-            e.preventDefault();
-
-            let id = $(this).data('id');
-
-            swal({
-                    title: "Delete Product?",
-                    text: "Once deleted, you will not be able to recover it!",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                })
-                .then((willDelete) => {
-                    if (willDelete) {
-
-                        var data = {
-                            'id': id,
-                        }
-
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('stock.delete') }}",
-                            data: data,
-                            dataType: "json",
-                            success: function(response) {
-
-                                $('.table').load(location.href + ' .table');
-
-
-                            }
-                        });
-
-                    }
-                });
-        });
-
-        $(document).on('click', '.saleItem', function(e) {
-            e.preventDefault();
-
-            $('#estimate_no').html();
-            $('#payable').html();
-            $('#customer').html();
-            $('#note').html();
-
-            let estimate_no = $(this).data('estimate_no');
-            let payable = $(this).data('payable');
-            let customer = $(this).data('customer');
-            let note = $(this).data('note');
-            let total_amount = $(this).data('payable');
-
-            $('#estimate_no_span').html(estimate_no);
-            $('#estimate_no').val(estimate_no);
-            $('#total_amount').val(total_amount);
-            $('#payable').html(payable);
-            $('#customer').html(customer);
-            $('#note').html(note);
-
-
-        });
-        $(document).on('change', '#payment_method', function() {
-
-            var payment_method = $('#payment_method').val();
-
-            if (payment_method == 'credit') {
-                $('.customer_div').removeClass('d-none');
-                $('#customer').attr('required', true);
-            } else {
-                $('.customer_div').addClass('d-none');
-                $('#customer').attr('required', false);
-            }
-
-        });
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
         integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>

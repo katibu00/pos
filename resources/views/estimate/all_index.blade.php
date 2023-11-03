@@ -12,7 +12,8 @@
                         </div>
                         <div class="col-12 col-md-4 mb-2 mb-md-0">
                             <div class="form-group">
-                                <input type="text" class="form-control" id="searchInput" placeholder="Search by Estimate ID or Note">
+                                <input type="text" class="form-control" id="searchInput"
+                                    placeholder="Search by Estimate ID or Note">
                             </div>
                         </div>
                         <div class="col-12 col-md-3 mb-2 mb-md-0">
@@ -29,13 +30,76 @@
                             </div>
                         </div>
 
-                    </div>                  
+                    </div>
                     <div class="card-body">
                         <div class="table-data">
                             @include('estimate.all_table')
                         </div>
                     </div>
                 </div>
+
+                <div class="modal fade addModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="">Mark As Sold </h4>
+                                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
+                            </div>
+                            <form action="{{ route('estimate.all.store') }}" method="POST">
+                                @csrf
+                            <div class="modal-body">
+                              
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-1">
+                                           <select class="form-select form-select-sm" id="payment_method" name="payment_method" required>
+                                                <option value="">--Payment Method--</option>
+                                                <option value="cash">Cash</option>
+                                                <option value="transfer">Transfer</option>
+                                                <option value="pos">POS</option>
+                                                <option value="credit">Credit</option>
+                                           </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 customer_div d-none">
+                                        <div class="mb-1">
+                                           <select class="form-select form-select-sm" id="customer" name="customer" required>
+                                                <option value="">-- Customer --</option>
+                                                @foreach ($customers as $customer)   
+                                                    <option value="{{ @$customer->id }}">{{ @$customer->first_name }}</option>
+                                                @endforeach
+                                           </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-1">
+                                          Estimate ID:<span id="estimate_no_span"></span>
+                                        </div>
+                                        <div class="mb-1">
+                                          Amount Payable:<span id="payable"></span>
+                                        </div>
+                                        <div class="mb-1">
+                                          Customer Name:<span id="name"></span>
+                                        </div>
+                                        <div class="mb-1">
+                                          Note:<span id="note"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="estimate_no" name="estimate_no">
+                                <input type="hidden" id="total_amount" name="total_amount">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary ml-2">Mark as Sold</button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="modal">
                     <div id="print">
@@ -51,56 +115,11 @@
 
 @section('js')
 
-<script>
-    function handleSearch() {
-        var query = $('#searchInput').val();
+    <script>
+      
+        function handleSearch() {
+            var query = $('#searchInput').val();
 
-        $('.pagination').hide();
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            url: '{{ route('estimate.all.search') }}',
-            method: 'POST',
-            data: {
-                query: query
-            },
-            success: function(response) {
-                // Empty the table
-                $('.table').empty();
-
-                // Check if the response is empty
-                if ($(response).find('tbody tr').length > 0) {
-                    $('.table').html(response);
-                } else {
-                    // Display a message if no rows are found
-                    $('.table tbody').empty().append(
-                        '<tr><td colspan="9" class="text-center">No results found.</td></tr>');
-                    toastr.warning('No results found.');
-                }
-
-            },
-
-            error: function(xhr) {
-                // Handle the error response here
-                console.log(xhr.responseText);
-            }
-        });
-    }
-    $('#searchInput').on('input', handleSearch);
-</script>
-
-
-
-<script>
-    $(document).ready(function() {
-        $('#cashier_id').on('change', function() {
-
-            var cashierId = $('#cashier_id').val();
-            $.LoadingOverlay("show")
             $('.pagination').hide();
 
             $.ajaxSetup({
@@ -109,24 +128,106 @@
                 }
             });
             $.ajax({
-                url: '{{ route('estimate.all.sort') }}',
+                url: '{{ route('estimate.all.search') }}',
                 method: 'POST',
                 data: {
-                    cashier_id: cashierId,
+                    query: query
                 },
                 success: function(response) {
+                    // Empty the table
                     $('.table').empty();
-                    $.LoadingOverlay("hide")
-                    $('.table').html(response);
+
+                    // Check if the response is empty
+                    if ($(response).find('tbody tr').length > 0) {
+                        $('.table').html(response);
+                    } else {
+                        // Display a message if no rows are found
+                        $('.table tbody').empty().append(
+                            '<tr><td colspan="9" class="text-center">No results found.</td></tr>');
+                        toastr.warning('No results found.');
+                    }
+
                 },
+
                 error: function(xhr) {
+                    // Handle the error response here
                     console.log(xhr.responseText);
                 }
             });
+        }
+        $('#searchInput').on('input', handleSearch);
+    </script>
+
+
+
+    <script>
+        $(document).ready(function() {
+            $('#cashier_id').on('change', function() {
+
+                var cashierId = $('#cashier_id').val();
+                $.LoadingOverlay("show")
+                $('.pagination').hide();
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route('estimate.all.sort') }}',
+                    method: 'POST',
+                    data: {
+                        cashier_id: cashierId,
+                    },
+                    success: function(response) {
+                        $('.table').empty();
+                        $.LoadingOverlay("hide")
+                        $('.table').html(response);
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
         });
-    });
-</script>
-   
+        $(document).on('change', '#payment_method', function() {
+
+            var payment_method = $('#payment_method').val();
+
+            if (payment_method == 'credit') {
+                $('.customer_div').removeClass('d-none');
+                $('#customer').attr('required', true);
+            } else {
+                $('.customer_div').addClass('d-none');
+                $('#customer').attr('required', false);
+            }
+
+        });
+        $(document).on('click', '.saleItem', function(e) {
+            e.preventDefault();
+
+            $('#estimate_no').html();
+            $('#payable').html();
+            $('#customer').html();
+            $('#note').html();
+
+            let estimate_no = $(this).data('estimate_no');
+            let payable = $(this).data('payable');
+            let customer = $(this).data('customer');
+            let note = $(this).data('note');
+            let total_amount = $(this).data('payable');
+
+            $('#estimate_no_span').html(estimate_no);
+            $('#estimate_no').val(estimate_no);
+            $('#total_amount').val(total_amount);
+            $('#payable').html(payable);
+            $('#customer').html(customer);
+            $('#note').html(note);
+
+
+        });
+    </script>
+
 
     <script>
         function PrintReceiptContent(estimate_no) {
@@ -165,7 +266,7 @@
 
                     if (res.items[0].labor_cost !== null) {
                         var laborCost = parseInt(res.items[0]
-                        .labor_cost); // Convert labor cost from string to integer
+                            .labor_cost); // Convert labor cost from string to integer
 
                         html +=
                             '<tr style="text-align: center">' +

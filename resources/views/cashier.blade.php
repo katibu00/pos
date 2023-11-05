@@ -5,7 +5,7 @@
         <div class="content-wrap">
 
 
-            <div class="container">
+            {{-- <div class="container">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card">
@@ -62,12 +62,11 @@
 
 
                 </div>
-            </div>
+            </div> --}}
 
             <div class="container mt-2">
 
-                {{-- <h3>Today's Stats >>></h3> --}}
-                <div class="row col-mb-50 mb-0">
+                {{-- <div class="row col-mb-50 mb-0">
                     <div class="col-md-6">
                         <ul class="iconlist fw-medium">
 
@@ -217,10 +216,10 @@
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
 
 
-                <div class="row col-mb-50 mb-0">
+                {{-- <div class="row col-mb-50 mb-0">
                     <div class="col-md-6">
                         <h5>Today's Sales by the Time of the Day</h5>
                         <canvas id="salesByTimeChart" width="400" height="250"></canvas>
@@ -229,7 +228,7 @@
                         <h5>Best Selling Items over the last 7 days</h5>
                         <canvas id="bestSellersChart" width="400" height="250"></canvas>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
         </div>

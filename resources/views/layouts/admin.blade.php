@@ -1,4 +1,4 @@
-@if ($route == 'sales.index')
+{{-- @if ($route == 'sales.index')
     <li class="menu-item">
         <a class="menu-link" href="#">
             <div>Menu</div>
@@ -37,7 +37,7 @@
             
         </ul>
     </li>
-@else
+@else --}}
     <li class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}"><a class="menu-link"
             href="{{ route('admin.home') }}">
             <div>Home</div>
@@ -83,7 +83,6 @@
 
         </ul>
     </li>
-
 
     <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}"><a class="menu-link"
             href="{{ route('stock.index') }}">
@@ -162,4 +161,4 @@
     </li>
 
 
-@endif
+{{-- @endif --}}

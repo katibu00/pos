@@ -1,28 +1,3 @@
-@if ($route == 'sales.index')
-    <li class="menu-item">
-        <a class="menu-link" href="#">
-            <div>Menu</div>
-        </a>
-        <ul class="sub-menu-container">
-            <li class="menu-item"><a class="menu-link" href="{{ route('cashier.home') }}">
-                    <div>Home</div>
-                </a></li>
-          
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('sales.all.index') }}">
-                    <div>All Sales</div>
-                </a>
-            </li>
-            <li class="menu-item"><a class="menu-link" href="{{ route('customers.index') }}">
-                <div>Customers</div>
-            </a></li>
-            <li class="menu-item"><a class="menu-link" href="{{ route('expense.index') }}">
-                    <div>Expense</div>
-                </a></li>
-
-        </ul>
-    </li>
-@else
     <li class="menu-item {{ $route == 'cashier.home' ? 'current' : '' }} "><a class="menu-link"
             href="{{ route('cashier.home') }}">
             <div>Home</div>
@@ -88,4 +63,3 @@
 
         </ul>
     </li>
-@endif

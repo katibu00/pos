@@ -1,43 +1,4 @@
-{{-- @if ($route == 'sales.index')
-    <li class="menu-item">
-        <a class="menu-link" href="#">
-            <div>Menu</div>
-        </a>
-        <ul class="sub-menu-container">
 
-            <li class="menu-item"><a class="menu-link" href="{{ route('admin.home') }}">
-                    <div>Home</div>
-                </a></li>
-            
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('sales.all.index') }}">
-                    <div>All Sales</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('customers.index') }}">
-                    <div>Customers</div>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a class="menu-link " href="{{ route('reorder.index') }}">
-                    <div>New Reorder</div>
-                </a>
-            </li>
-            <li class="menu-item"><a class="menu-link" href="{{ route('expense.index') }}">
-                    <div>Expense</div>
-                </a></li>
-           
-            <li class="menu-item {{ $route == 'reorder.all.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('reorder.all.index') }}">
-                    <div>All Reorders</div>
-                </a>
-            </li>
-            
-        </ul>
-    </li>
-@else --}}
     <li class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}"><a class="menu-link"
             href="{{ route('admin.home') }}">
             <div>Home</div>
@@ -159,6 +120,3 @@
             </li>
         </ul>
     </li>
-
-
-{{-- @endif --}}

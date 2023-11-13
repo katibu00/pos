@@ -643,12 +643,12 @@
 
         html += '<tr style="text-align: center">' +
             '<td></td>' +
-            '<td colspan="2"><b>Totala</b></td>' +
+            '<td colspan="2"><b>Total</b></td>' +
             '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
             '</tr>';
 
         html += '<tr style="text-align: center">' +
-            '<td colspan="4"><i>Labora cost is separate, not related to the above company.</i></td>' +
+            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
             '</tr>';
     } else {
         html += '<tr style="text-align: center">' +

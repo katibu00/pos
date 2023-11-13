@@ -79,7 +79,7 @@ class SalesController extends Controller
             ];
         }
 
-        return view('sales.index', compact('transactionData', 'products', 'customers'));
+        return view('sales.indexa', compact('transactionData', 'products', 'customers'));
     }
 
     public function getProductSuggestions(Request $request)

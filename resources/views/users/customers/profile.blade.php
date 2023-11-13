@@ -241,6 +241,16 @@
                                                     </tr>
                                                     <tr>
                                                         <td colspan="4"></td>
+                                                        <td><em>Partial Amount Paid (Before Full Payment)</em></td>
+                                                        <td><strong>&#8358;{{ number_format(@$purchase->payment_amount,0) }}</strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="4"></td>
+                                                        <td><em>Payment Status</em></td>
+                                                        <td><strong>{{ ucfirst($purchase->status) }}</strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="4"></td>
                                                         <td><em>Note</em></td>
                                                         <td><strong>{{ @$purchase->note }}</strong></td>
                                                     </tr>
@@ -249,7 +259,7 @@
                                         </div>
                                     @endforeach
                                     
-                                    <h3>Total Money Spent = &#8358;{{ number_format($total_spent, 0) }}</h3>
+                                    <h3>Total Money Spent Via Credit = &#8358;{{ number_format($total_spent, 0) }}</h3>
                                     
                                     </div>
 

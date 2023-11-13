@@ -296,12 +296,22 @@ class SalesController extends Controller
                 })
                 ->sum();
 
+                if($request->payment_method == 'credit' || $request->payment_method == 'deposit')
+                {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Wrong Payment Channel Selected.',
+                    ]);
+                }
+
             if (!$this->checkBalance($request->payment_method, $total_price)) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'Low Balance in the Payment Channel.',
                 ]);
             }
+
+          
 
             $year = date('Y');
             $month = Carbon::now()->format('m');

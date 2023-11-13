@@ -238,10 +238,10 @@
                                                 <span style="font-weight: bold;">Previous Balance:</span>
                                                 <span id="previousBalance" style="margin-left: 10px;">0</span>
                                             </p>
-                                            <p style="line-height: 1.5;">
+                                            {{-- <p style="line-height: 1.5;">
                                                 <span style="font-weight: bold;">New Balance:</span>
                                                 <span id="newBalance" style="margin-left: 27px;">0</span>
-                                            </p>
+                                            </p> --}}
                                         </div>
 
                                         <div class="form-group" id="addLaborCostField">
@@ -259,7 +259,7 @@
                                         </div>
 
                                         <div id="paidAmountField" style="padding: 0; margin: 0;">
-                                            Paid Amount
+                                            <span id="paid_amount_span">Cash Amount Paid</span>
                                             <input type="number" name="paid_amount" id="paid_amount"
                                                 class="form-control mb-2">
                                         </div>
@@ -308,91 +308,104 @@
             var paymentMethodSection = $("#paymentMethodSection");
             var paymentMethodInputs = $("input[name='payment_method']");
             var paidAmountField = $("#paidAmountField");
+            var addLaborCostField = $("#addLaborCostField");
+            var laborCostField = $("#laborCostField");
 
             if (selectedTransactionType === "estimate") {
                 paymentMethodSection.hide();
                 paidAmountField.hide();
                 $("#changeField").hide();
-                $("#addLaborCostField").show();
-
-                // Make payment method not required
+                $('#balanceContainer').hide();
+                addLaborCostField.show();
                 paymentMethodInputs.removeAttr("required");
             } else if (selectedTransactionType === "return") {
                 paymentMethodSection.show();
                 $("#changeField").hide();
-                $("#addLaborCostField").hide();
                 paidAmountField.hide();
-
-                // Make payment method required
+                $('#balanceContainer').hide();
+                addLaborCostField.hide();
+                laborCostField.hide();
                 paymentMethodInputs.attr("required", true);
             } else {
                 paymentMethodSection.show();
                 paidAmountField.show();
-                $("#addLaborCostField").show();
+                addLaborCostField.show();
 
-                // Make payment method required
                 paymentMethodInputs.attr("required", true);
             }
         }
     </script>
 
 
-    <script>
-        $(document).ready(function() {
-            $('input[name="payment_method"]').change(function() {
-                var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
-                var selectedUserId = $('#customer').val();
 
-                if (selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'deposit') {
-                    if (selectedUserId == 0) {
-                        toastr.warning('Please select a user before choosing the payment method.');
-                        $('input[name="payment_method"]').prop('checked', false);
-                        return;
-                    }
-                    $.ajax({
-                        url: '/fetch-credit-balance',
-                        method: 'GET',
-                        data: {
-                            payment_method: selectedPaymentMethod,
-                            user_id: selectedUserId,
-                        },
-                        success: function(response) {
+<script>
+    $(document).ready(function() {
+        $('input[name="payment_method"]').change(function() {
+            var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
+            var selectedUserId = $('#customer').val();
 
-                            $('#balanceContainer').show();
-                            if (selectedPaymentMethod === 'credit') {
-
-                                $('#previousBalanceLabel').text('Previous Credit Balance:');
-                                $('#previousBalance').text(response.balance_or_deposit);
-
-                                var newCreditBalance = parseFloat(response.balance_or_deposit) +
-                                    parseFloat($('#totalAmount').text().replace('₦', '')
-                                        .replace(',', ''));
-                                $('#newBalanceLabel').text('New Credit Balance:');
-                                $('#newBalance').text(newCreditBalance.toLocaleString());
-                            } else if (selectedPaymentMethod === 'deposit') {
-
-                                $('#previousBalanceLabel').text('Previous Deposit Balance:');
-                                $('#previousBalance').text(response.balance_or_deposit);
-
-                                var newDepositBalance = parseFloat(response
-                                    .balance_or_deposit) - parseFloat($('#totalAmount')
-                                    .text()
-                                    .replace('₦', '').replace(',', ''));
-                                $('#newBalanceLabel').text('New Deposit Balance:');
-                                $('#newBalance').text(newDepositBalance.toLocaleString());
-                            }
-                        },
-                        error: function(error) {
-                            console.error('Error fetching balance:', error);
-                        }
-                    });
-                } else {
-
-                    $('#balanceContainer').hide();
+            if (selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'deposit') {
+                if (selectedUserId == 0) {
+                    toastr.warning('Please select a user before choosing the payment method.');
+                    $('input[name="payment_method"]').prop('checked', false);
+                    return;
                 }
-            });
+                
+                $.ajax({
+                    url: '/fetch-credit-balance',
+                    method: 'GET',
+                    data: {
+                        payment_method: selectedPaymentMethod,
+                        user_id: selectedUserId,
+                    },
+                    success: function(response) {
+
+                        $('#balanceContainer').show();
+                        if (selectedPaymentMethod === 'credit') {
+
+                            $('#previousBalanceLabel').text('Previous Credit Balance:');
+                            $('#previousBalance').text(response.balance_or_deposit);
+
+                            var newCreditBalance = parseFloat(response.balance_or_deposit) +
+                                parseFloat($('#totalAmount').text().replace('₦', '')
+                                    .replace(',', ''));
+                            $('#newBalanceLabel').text('New Credit Balance:');
+                            $('#newBalance').text(newCreditBalance.toLocaleString());
+
+                            $("#paid_amount_span").text('Partial Cash Amount Paid (if any)');
+                            $("#paidAmountField").show();
+
+                        } else if (selectedPaymentMethod === 'deposit') {
+
+                            $('#previousBalanceLabel').text('Previous Deposit Balance:');
+                            $('#previousBalance').text(response.balance_or_deposit);
+
+                            var newDepositBalance = parseFloat(response
+                                .balance_or_deposit) - parseFloat($('#totalAmount')
+                                .text()
+                                .replace('₦', '').replace(',', ''));
+                            $('#newBalanceLabel').text('New Deposit Balance:');
+                            $('#newBalance').text(newDepositBalance.toLocaleString());
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error fetching balance:', error);
+                    }
+                });
+            } else {
+
+                $('#balanceContainer').hide();
+                $("#paid_amount_span").text('Cash Amount Paid');
+            }
+            if(selectedPaymentMethod === 'cash'){
+                    $("#paidAmountField").show();
+                }else{
+                    $("#paidAmountField").hide();
+             }
+           
         });
-    </script>
+    });
+</script>
 
     <script>
         var transactionType = $("input[name='transaction_type']:checked").val();
@@ -734,13 +747,15 @@
                             toastr.success(response.message, 'Success');
                             updateTable();
                             $('#productTable').empty();
-                            $('#customer').val('0');
+                            $('#customer').val('0').change();
                             $('#balanceContainer').hide();
                             $('#totalAmount').text('₦0');
                             $('input[name="payment_method"]').prop('checked', false);
                             $("#salesForm")[0].reset();
                             $("input[name='transaction_type']").prop("checked", false);
                             $("#changeField").hide();
+                            $("#laborCostField").hide();
+                            $("#paid_amount_span").text('Cash Amount Paid');
 
                         } else if (response.status === 400) {
                             toastr.error(response.message, 'Error');

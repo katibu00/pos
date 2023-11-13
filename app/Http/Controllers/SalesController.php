@@ -133,19 +133,21 @@ class SalesController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $transaction_type = $request->input('transaction_type');
 
+        if (in_array(null, $request->quantity, true)) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Quantity cannot be empty for any product.',
+            ]);
+        }
+
         if ($transaction_type == "sales") {
-            if (in_array(null, $request->quantity, true)) {
-                return response()->json([
-                    'status' => 400,
-                    'message' => 'Quantity cannot be empty for any product.',
-                ]);
-            }
+           
 
             $paymentMethod = $request->input('payment_method');
+            $status = null;
+            $payment_amount = null;
 
             $year = date('Y');
             $month = Carbon::now()->format('m');
@@ -176,13 +178,35 @@ class SalesController extends Controller
                 $user->update();
 
             } elseif ($paymentMethod == 'credit') {
-                $user = User::find($request->customer);
-                $user->balance += $totalPrice;
-                $user->update();
 
-            } else {
+                if($request->paid_amount != null && $request->paid_amount > 0)
+                {
+                    $payment = new Payment();
+                    $payment->payment_method = 'cash';
+                    $payment->branch_id = auth()->user()->branch_id;
+                    $payment->payment_amount = $request->paid_amount;
+                    $payment->customer_id = $request->customer;
+                    $payment->receipt_nos = $trxId;
+                    $payment->user_id = auth()->user()->id;
+                    $payment->payment_type = 'credit';
+                    $payment->save();
 
-            }
+                    $status = 'partial';
+                    $payment_amount = $request->paid_amount;
+
+                    $user = User::find($request->customer);
+                    $user->balance += ($totalPrice - $payment_amount);
+                    $user->update();
+                }else
+                {
+                    $user = User::find($request->customer);
+                    $user->balance += $totalPrice;
+                    $user->update();
+                }
+
+              
+
+            } 
 
             foreach ($request->product_id as $index => $productId) {
                 $data = new Sale();
@@ -196,13 +220,13 @@ class SalesController extends Controller
                 $data->user_id = auth()->user()->id;
                 $data->customer = $request->customer === '0' ? null : $request->customer;
                 $data->note = $request->note;
-                $data->payment_method = $paymentMethod;
 
                 // Handle labor cost if necessary
                 if ($request->input('toggleLabor')) {
                     $data->labor_cost = $request->input('labor_cost');
                 }
-
+                $data->payment_amount = $payment_amount;
+                $data->status = $status;
                 $data->save();
 
                 // Update stock quantity
@@ -211,6 +235,7 @@ class SalesController extends Controller
                 $stock->update();
             }
 
+           
             return response()->json([
                 'status' => 201,
                 'message' => 'Sale has been recorded successfully',

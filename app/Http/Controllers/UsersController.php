@@ -46,7 +46,7 @@ class UsersController extends Controller
         $user->password = Hash::make(12345678);
         $user->save();
         Toastr::success('Customer has been created sucessfully', 'Done');
-        return redirect()->route('customers.index');
+        return redirect()->route('customers.index')->with('success','Customer has been created sucessfully');
     }
 
     public function store(Request $request)

@@ -24,6 +24,7 @@
                                         <th scope="col">Branch</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Position</th>
+                                        <th scope="col">Max Salary Adv.</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -35,6 +36,7 @@
                                             <td>{{ @$user->branch->name }}</td>
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->usertype }}</td>
+                                            <td>{{ number_format($user->max_salary,0) }}</td>
                                             <td>
                                                 <a class="btn btn-sm btn-primary mb-1"
                                                     href="{{ route('users.edit', $user->id) }}"> <i

@@ -43,59 +43,63 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h4 class="modal-title" id="">Mark As Sold </h4>
-                                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
+                                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"
+                                    aria-hidden="true"></button>
                             </div>
                             <form action="{{ route('estimate.all.store') }}" method="POST">
                                 @csrf
-                            <div class="modal-body">
-                              
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="mb-1">
-                                           <select class="form-select form-select-sm" id="payment_method" name="payment_method" required>
-                                                <option value="">--Payment Method--</option>
-                                                <option value="cash">Cash</option>
-                                                <option value="transfer">Transfer</option>
-                                                <option value="pos">POS</option>
-                                                <option value="credit">Credit</option>
-                                           </select>
+                                <div class="modal-body">
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-1">
+                                                <select class="form-select form-select-sm" id="payment_method"
+                                                    name="payment_method" required>
+                                                    <option value="">--Payment Method--</option>
+                                                    <option value="cash">Cash</option>
+                                                    <option value="transfer">Transfer</option>
+                                                    <option value="pos">POS</option>
+                                                    <option value="credit">Credit</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 customer_div d-none">
+                                            <div class="mb-1">
+                                                <select class="form-select form-select-sm" id="customer" name="customer"
+                                                    required>
+                                                    <option value="">-- Customer --</option>
+                                                    @foreach ($customers as $customer)
+                                                        <option value="{{ @$customer->id }}">{{ @$customer->first_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 customer_div d-none">
-                                        <div class="mb-1">
-                                           <select class="form-select form-select-sm" id="customer" name="customer" required>
-                                                <option value="">-- Customer --</option>
-                                                @foreach ($customers as $customer)   
-                                                    <option value="{{ @$customer->id }}">{{ @$customer->first_name }}</option>
-                                                @endforeach
-                                           </select>
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="mb-1">
+                                                Estimate ID:<span id="estimate_no_span"></span>
+                                            </div>
+                                            <div class="mb-1">
+                                                Amount Payable:<span id="payable"></span>
+                                            </div>
+                                            <div class="mb-1">
+                                                Customer Name:<span id="name"></span>
+                                            </div>
+                                            <div class="mb-1">
+                                                Note:<span id="note"></span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <input type="hidden" id="estimate_no" name="estimate_no">
+                                    <input type="hidden" id="total_amount" name="total_amount">
                                 </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-4">
-                                        <div class="mb-1">
-                                          Estimate ID:<span id="estimate_no_span"></span>
-                                        </div>
-                                        <div class="mb-1">
-                                          Amount Payable:<span id="payable"></span>
-                                        </div>
-                                        <div class="mb-1">
-                                          Customer Name:<span id="name"></span>
-                                        </div>
-                                        <div class="mb-1">
-                                          Note:<span id="note"></span>
-                                        </div>
-                                    </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary ml-2">Mark as Sold</button>
                                 </div>
-                                <input type="hidden" id="estimate_no" name="estimate_no">
-                                <input type="hidden" id="total_amount" name="total_amount">
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary ml-2">Mark as Sold</button>
-                            </div>
-                        </form>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -107,6 +111,47 @@
                     </div>
                 </div>
 
+
+                <div class="modal fade" id="editEstimateModal" tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Edit Estimate</h5>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="estimateTableBody">
+                                        <!-- Rows will be dynamically added here -->
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-success addRow">+ Add More Rows</button>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="updateEstimateBtn">Update
+                                    Estimate</button>
+                                <div>Total Price: <span id="totalPrice">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
             </div>
         </div>
     </section><!-- #content end -->
@@ -115,8 +160,184 @@
 
 @section('js')
 
+
     <script>
-      
+        $(document).on('click', '.editEstimate', function() {
+            var estimateNo = $(this).data('estimate_no');
+            var modal = $('#editEstimateModal');
+
+            // Encode the estimate number
+            var encodedEstimateNo = encodeURIComponent(estimateNo);
+
+            // Show loading spinner
+            modal.find('.modal-body').html(
+                '<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i></div>');
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: '{{ route('estimate.edit') }}',
+                method: 'POST',
+                data: {
+                    encoded_estimate_no: encodedEstimateNo,
+                },
+                success: function(response) {
+                    if (response.error) {
+                        console.error(response.error);
+                    } else {
+                        estimates = response.estimates;
+                        products = response.products;
+
+                        var formHtml = '<form id="editEstimateForm">';
+                        formHtml += '<table class="table">';
+                        formHtml +=
+                            '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Action</th></tr></thead>';
+                        formHtml += '<tbody class="modaltbody">';
+
+                        for (var i = 0; i < estimates.length; i++) {
+                            var estimate = estimates[i];
+                            formHtml += '<tr>';
+                            formHtml += '<td>' + estimate.product.name +
+                                '<input type="hidden" name="product[]" value="' + estimate.product.id +
+                                '"><input type="hidden" name="estimate_no" value="' + estimate
+                                .estimate_no + '"></td>';
+                            formHtml +=
+                                '<td><input type="number" class="form-control price-field" name="price[]" value="' +
+                                estimate.price + '" readonly></td>';
+                            formHtml +=
+                                '<td><input type="text" class="form-control" name="quantity[]" value="' +
+                                estimate.quantity + '"></td>';
+                            formHtml +=
+                                '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' +
+                                estimate.id + '">X</button></td>';
+                            formHtml += '</tr>';
+                        }
+
+                        formHtml += '</tbody></table>';
+                        formHtml +=
+                            '<button type="button" class="btn btn-success addRow">+ Add More Rows</button>';
+                        formHtml += '</form>';
+
+                        modal.find('.modal-body').html(formHtml);
+                        modal.modal('show');
+
+                        $('.addRow').on('click', function() {
+                            var newRow = '<tr>';
+                            newRow +=
+                                '<td><select class="form-select product-select" name="product[]">' +
+                                '<option value="">Select Product</option>';
+                            for (var j = 0; j < products.length; j++) {
+                                newRow += '<option value="' + products[j].id +
+                                    '" data-price="' + products[j].selling_price + '">' +
+                                    products[j].name + '</option>';
+                            }
+                            newRow += '</select></td>';
+                            newRow +=
+                                '<td><input type="text" class="form-control price-field" name="price[]" readonly></td>';
+                            newRow +=
+                                '<td><input type="text" class="form-control" name="quantity[]"></td>';
+                            newRow +=
+                                '<td><button class="btn btn-danger removeRow">X</button></td>';
+                            newRow += '</tr>';
+
+                            $('.modaltbody').append(newRow);
+
+                            $('.removeRow').on('click', function() {
+                                $(this).closest('tr').remove();
+                                updateTotalPrice();
+                            });
+
+                            $('.product-select').on('change', function() {
+                                updatePriceField($(this));
+                            });
+                        });
+
+                        $('.removeEstimate').on('click', function() {
+                            var estimateId = $(this).data('estimate_id');
+                            $(this).closest('tr').remove();
+                            updateTotalPrice();
+                        });
+                        $('#editEstimateForm').on('input', '[name="quantity[]"]', function() {
+                            updateTotalPrice();
+                        });
+                        $('#editEstimateForm').on('submit', function(event) {
+                            event.preventDefault();
+                            console.log(123);
+                        });
+                    }
+                },
+
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+        function updatePriceField(productSelect) {
+            var selectedProduct = products.find(product => product.id == productSelect.val());
+
+            if (selectedProduct) {
+                productSelect.closest('tr').find('.price-field').val(selectedProduct.selling_price);
+                updateTotalPrice();
+            }
+        }
+
+        function updateTotalPrice() {
+            var totalPrice = 0;
+
+            $('tbody tr').each(function() {
+                var price = parseFloat($(this).find('.price-field').val()) || 0;
+                var quantity = parseInt($(this).find('[name="quantity[]"]').val()) || 0;
+
+                totalPrice += price * quantity;
+            });
+
+            $('#totalPrice').text(totalPrice.toFixed(2));
+        }
+
+
+
+        // Add logic to update estimate data when the "Update Estimate" button is clicked
+        $(document).on('click', '#updateEstimateBtn', function() {
+            var modal = $('#editEstimateModal');
+            var formData = modal.find('form').serialize();
+
+            // Use AJAX to send updated data to the server
+            $.ajax({
+                url: '/estimate/update',
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle success response
+                    modal.modal('hide');
+                    $('.maintable').load(location.href+' .maintable');
+                    toastr.success('Estimates updated successfully');
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    // Handle error response
+                    var errors = JSON.parse(xhr.responseText);
+        
+                    if (errors && errors.errors) {
+                        var errorMessage = 'Error:';
+                        $.each(errors.errors, function(key, value) {
+                            errorMessage += '\n' + value;
+                        });
+                        toastr.error(errorMessage);
+                    } else {
+                        toastr.error('An error occurred while updating estimates.');
+                    }
+                }
+            });
+        });
+    </script>
+
+
+
+    <script>
         function handleSearch() {
             var query = $('#searchInput').val();
 

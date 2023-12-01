@@ -151,6 +151,11 @@ Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], functi
     Route::post('/all/search', [EstimateController::class, 'allSearch'])->name('estimate.all.search');
     Route::post('/all/sort', [EstimateController::class, 'filterSales'])->name('estimate.all.sort');
 
+    Route::post('/update', [EstimateController::class, 'update'])->name('estimate.update');
+    Route::post('/edit', [EstimateController::class, 'edit'])->name('estimate.edit');
+
+
+
 });
 
 
@@ -250,6 +255,10 @@ Route::group(['prefix' => 'customers', 'middleware' => ['auth', 'staff']], funct
     Route::post('/admin/salary_advance/approve', [SalaryAdvanceController::class, 'approve'])->name('cashier.salary_advance.approve');
     Route::post('/admin/salary_advance/reject', [SalaryAdvanceController::class, 'reject'])->name('cashier.salary_advance.reject');
     Route::post('/admin/salary_advance/delete', [SalaryAdvanceController::class, 'delete'])->name('cashier.salary_advance.delete');
+
+
+    Route::get('/cashier/salary_advance/fetch', [SalaryAdvanceController::class, 'fetchSalaryAdvances'])->name('cashier.salary_advance.fetch');
+
 
 });
 

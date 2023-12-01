@@ -1,5 +1,5 @@
 <div class="table-responsive text-nowrap">
-    <table class="table table-hover" style="width:100%">
+    <table class="table maintable table-hover" style="width:100%">
         <thead>
             <tr>
                 <th scope="col" class="text-center">#</th>
@@ -53,6 +53,9 @@
               <td>
                 <button type="button" onclick="PrintReceiptContent('{{ $row->estimate_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print"></i></button>
                 <button type="button" class="btn btn-success btn-sm saleItem" data-note="{{ $estimate->note }}" data-name="{{ $estimate->customer }}" data-estimate_no="{{ $estimate->estimate_no  }}" data-payable="{{ $total_amount-$total_discount }}"><i class="fas fa-shopping-cart" data-bs-toggle="modal" data-bs-target=".addModal"></i></button>
+                <button type="button" class="btn btn-primary btn-sm editEstimate" data-estimate_no="{{ $estimate->estimate_no }}">
+                    <i class="fas fa-edit"></i>
+                </button>
               </td>
             </tr>
             @endforeach

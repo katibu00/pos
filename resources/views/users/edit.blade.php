@@ -36,6 +36,10 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label for="max_salary" class="col-form-label">Max Salary Advance:</label>
+                                <input type="text" class="form-control" id="max_salary" name="max_salary" value="{{$user->max_salary}}" required>
+                            </div>
+                            <div class="form-group">
                                     <label for="position">Position</label>
                                     <select class="form-select" id="position" name="position" required>
                                         <option value=""></option>
@@ -45,7 +49,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="password" class="col-form-label">Password:</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="if no password change, leave it blank">
                             </div>
                             
                             <div class="form-group row">

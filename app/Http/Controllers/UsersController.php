@@ -118,16 +118,25 @@ class UsersController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::find($id);
+    
         $user->branch_id = $request->branch_id;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
+        $user->max_salary = $request->max_salary;
         $user->usertype = $request->position;
-        $user->password = Hash::make($request->password);
+    
+        // Check if the password is provided in the request
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+    
         $user->update();
-        Toastr::success('User has been updated sucessfully', 'Done');
+    
+        Toastr::success('User has been updated successfully', 'Done');
         return redirect()->route('users.index');
     }
+    
 
     public function updateCustomer(Request $request, $id)
     {
@@ -466,7 +475,6 @@ class UsersController extends Controller
 
     }
 
-
     public function returnStore(Request $request)
     {
         $fistRow = Sale::select('receipt_no','customer')->where('id', $request->sale_id[0])->first();
@@ -495,13 +503,13 @@ class UsersController extends Controller
                 $returned_amount += ($sale->price * $sale->quantity - $sale->discount);
             }
         }
-    //   dd($remaining_balance);
-    //   if($returned_amount > $remaining_balance)
-    //   {
-    //     Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
-    //     return redirect()->back();
+        //   dd($remaining_balance);
+        //   if($returned_amount > $remaining_balance)
+        //   {
+        //     Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
+        //     return redirect()->back();
 
-    //   }
+        //   }
 
         $productCount = count($request->sale_id);
         if ($productCount != null) {

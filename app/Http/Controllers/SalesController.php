@@ -14,6 +14,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 
 class SalesController extends Controller
 {
@@ -142,6 +144,9 @@ class SalesController extends Controller
             ]);
         }
 
+        $transaction_id = Str::uuid();
+
+
         if ($transaction_type == "sales") {
            
 
@@ -149,14 +154,6 @@ class SalesController extends Controller
             $status = null;
             $payment_amount = null;
 
-            $year = date('Y');
-            $month = Carbon::now()->format('m');
-            $day = Carbon::now()->format('d');
-            $last = Sale::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
-            $lastRecord = $last ? $last->receipt_no : '1/0';
-            [$prefix, $number] = explode("/", $lastRecord);
-            $number = sprintf("%04d", $number + 1);
-            $trxId = $year . $month . $day . '/' . $number;
 
             $totalPrice = 0;
             foreach ($request->product_id as $index => $productId) {
@@ -186,7 +183,7 @@ class SalesController extends Controller
                     $payment->branch_id = auth()->user()->branch_id;
                     $payment->payment_amount = $request->paid_amount;
                     $payment->customer_id = $request->customer;
-                    $payment->receipt_nos = $trxId;
+                    $payment->receipt_nos = $transaction_id;
                     $payment->user_id = auth()->user()->id;
                     $payment->payment_type = 'credit';
                     $payment->save();
@@ -204,14 +201,12 @@ class SalesController extends Controller
                     $user->update();
                 }
 
-              
-
             } 
 
             foreach ($request->product_id as $index => $productId) {
                 $data = new Sale();
                 $data->branch_id = auth()->user()->branch_id;
-                $data->receipt_no = $trxId;
+                $data->receipt_no = $transaction_id;
                 $data->stock_id = $productId;
                 $data->price = $request->price[$index];
                 $data->quantity = $request->quantity[$index];
@@ -243,19 +238,6 @@ class SalesController extends Controller
         }
 
         if ($transaction_type == "estimate") {
-            $year = date('Y');
-            $month = Carbon::now()->format('m');
-            $day = Carbon::now()->format('d');
-            $last = Estimate::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
-            if ($last == null) {
-                $last_record = '1/0';
-            } else {
-                $last_record = $last->estimate_no;
-            }
-            $exploded = explode("/", $last_record);
-            $number = $exploded[1] + 1;
-            $padded = sprintf("%04d", $number);
-            $stored = $year . $month . $day . '/' . $padded;
 
             $productCount = count($request->product_id);
             if ($productCount != null) {
@@ -263,16 +245,11 @@ class SalesController extends Controller
 
                     $data = new Estimate();
                     $data->branch_id = auth()->user()->branch_id;
-                    $data->estimate_no = $stored;
+                    $data->estimate_no = $transaction_id;
                     $data->product_id = $request->product_id[$i];
                     $data->price = $request->price[$i];
                     $data->quantity = $request->quantity[$i];
-                    if ($request->discount[$i] == null) {
-                        $data->discount = 0;
-
-                    } else {
-                        $data->discount = $request->discount[$i];
-                    }
+                    $data->discount = $request->discount[$i] ?? 0;
                     $data->cashier_id = auth()->user()->id;
                     $data->customer = $request->customer;
                     $data->note = $request->note;
@@ -311,29 +288,13 @@ class SalesController extends Controller
                 ]);
             }
 
-          
-
-            $year = date('Y');
-            $month = Carbon::now()->format('m');
-            $day = Carbon::now()->format('d');
-            $last = Returns::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
-            if ($last == null) {
-                $last_record = '1/0';
-            } else {
-                $last_record = $last->return_no;
-            }
-            $exploded = explode("/", $last_record);
-            $number = $exploded[1] + 1;
-            $padded = sprintf("%04d", $number);
-            $stored = $year . $month . $day . '/' . $padded;
-
             $productCount = count($request->product_id);
             if ($productCount != null) {
                 for ($i = 0; $i < $productCount; $i++) {
 
                     $data = new Returns();
                     $data->branch_id = auth()->user()->branch_id;
-                    $data->return_no = $stored;
+                    $data->return_no = $transaction_id;
                     $data->product_id = $request->product_id[$i];
                     $data->price = $request->price[$i];
                     $data->quantity = $request->quantity[$i];

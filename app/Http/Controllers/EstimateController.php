@@ -9,6 +9,8 @@ use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 
 class EstimateController extends Controller
 {
@@ -31,19 +33,8 @@ class EstimateController extends Controller
 
     public function store(Request $request)
     {
-        $year = date('Y');
-        $month = Carbon::now()->format('m');
-        $day = Carbon::now()->format('d');
-        $last = Estimate::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
-        if ($last == null) {
-            $last_record = '1/0';
-        } else {
-            $last_record = $last->estimate_no;
-        }
-        $exploded = explode("/", $last_record);
-        $number = $exploded[1] + 1;
-        $padded = sprintf("%04d", $number);
-        $stored = $year . $month . $day . '/' . $padded;
+        $transaction_id = Str::uuid();
+
 
         $productCount = count($request->product_id);
         if ($productCount != null) {
@@ -51,7 +42,7 @@ class EstimateController extends Controller
 
                 $data = new Estimate();
                 $data->branch_id = auth()->user()->branch_id;
-                $data->estimate_no = $stored;
+                $data->estimate_no = $transaction_id;
                 $data->product_id = $request->product_id[$i];
                 $data->price = $request->price[$i];
                 $data->quantity = $request->quantity[$i];
@@ -94,22 +85,9 @@ class EstimateController extends Controller
 
     public function allStore(Request $request)
     {
-        // dd($request->all());
         $estimates = Estimate::where('estimate_no', $request->estimate_no)->get();
 
-        $year = date('Y');
-        $month = Carbon::now()->format('m');
-        $day = Carbon::now()->format('d');
-        $last = Sale::whereDate('created_at', '=', date('Y-m-d'))->latest()->first();
-        if ($last == null) {
-            $last_record = '1/0';
-        } else {
-            $last_record = $last->receipt_no;
-        }
-        $exploded = explode("/", $last_record);
-        $number = $exploded[1] + 1;
-        $padded = sprintf("%04d", $number);
-        $stored = $year . $month . $day . '/' . $padded;
+        $transaction_id = Str::uuid();
 
         $total_amount = 0;
 
@@ -126,16 +104,11 @@ class EstimateController extends Controller
             if ($product->quantity >= $estimate->quantity) {
                 $data = new Sale();
                 $data->branch_id = auth()->user()->branch_id;
-                $data->receipt_no = $stored;
+                $data->receipt_no = $transaction_id;
                 $data->stock_id = $estimate->product_id;
                 $data->price = $product->selling_price;
                 $data->quantity = $estimate->quantity;
-                if ($estimate->discount == null) {
-                    $data->discount = 0;
-
-                } else {
-                    $data->discount = $estimate->discount;
-                }
+                $data->discount = $estimate->discount ?? 0;
                 $data->payment_method = $request->payment_method;
                 $data->payment_amount = 0;
                 $data->user_id = auth()->user()->id;

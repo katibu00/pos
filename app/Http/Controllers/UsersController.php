@@ -354,12 +354,12 @@ class UsersController extends Controller
         // return $request->all();
         $payment = Payment::find($request->payment_id);
         $date = $payment->created_at->format('l, d F, Y');
-        @$balance = User::select('balance')->where('id', $payment->customer_id)->first();
+        $user = User::select('balance','id')->where('id', $payment->customer_id)->first();
         return response()->json([
             'status' => 200,
             'payment' => $payment,
             'date' => $date,
-            'balance' => @$balance->balance,
+            'balance' => $user->balance,
         ]);
     }
 

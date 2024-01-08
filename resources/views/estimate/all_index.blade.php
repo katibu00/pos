@@ -112,7 +112,8 @@
                 </div>
 
 
-                <div class="modal fade" id="editEstimateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="editEstimateModal" tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -141,13 +142,14 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" id="updateEstimateBtn">Update Estimate</button>
+                                <button type="button" class="btn btn-primary" id="updateEstimateBtn">Update
+                                    Estimate</button>
                                 <div>Total Price: <span id="totalPrice">0</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
 
 
 
@@ -159,25 +161,41 @@
 @endsection
 
 @section('js')
+<!-- Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<!-- Popper.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js" integrity="sha256-ugq4/dTj2B5O5p9l0IqgExPvPeMx7F/DvFAE7g8KuqI=" crossorigin="anonymous"></script>
+
+<!-- Bootstrap CSS and JS CDN -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 
     <script>
-       $(document).on('click', '.editEstimate', function() {
+$(document).on('click', '.editEstimate', function() {
     var estimateNo = $(this).data('estimate_no');
     var modal = $('#editEstimateModal');
 
     // Encode the estimate number
     var encodedEstimateNo = encodeURIComponent(estimateNo);
 
+    // Show the modal immediately
+    modal.modal('show');
+
     // Show loading spinner
-    modal.find('.modal-body').html(
-        '<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i></div>');
+    modal.find('.modal-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i></div>');
 
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
     $.ajax({
         url: '{{ route('estimate.edit') }}',
         method: 'POST',
@@ -193,8 +211,7 @@
 
                 var formHtml = '<form id="editEstimateForm">';
                 formHtml += '<table class="table">';
-                formHtml +=
-                    '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
+                formHtml += '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
                 formHtml += '<tbody class="modaltbody">';
 
                 for (var i = 0; i < estimates.length; i++) {
@@ -202,40 +219,32 @@
                     formHtml += '<tr>';
                     formHtml += '<td>' + estimate.product.name +
                         '<input type="hidden" name="product[]" value="' + estimate.product.id +
-                        '"><input type="hidden" name="estimate_no" value="' + estimate
-                        .estimate_no + '"></td>';
+                        '"><input type="hidden" name="estimate_no" value="' + estimate.estimate_no + '"></td>';
                     formHtml +=
-                        '<td><input type="number" class="form-control price-field" name="price[]" value="' +
-                        estimate.price + '" readonly></td>';
+                        '<td><input type="number" class="form-control price-field" name="price[]" value="' + estimate.price + '" readonly></td>';
                     formHtml +=
-                        '<td><input type="text" class="form-control" name="quantity[]" value="' +
-                        estimate.quantity + '"></td>';
+                        '<td><input type="text" class="form-control" name="quantity[]" value="' + estimate.quantity + '"></td>';
                     formHtml +=
-                        '<td><input type="text" class="form-control" name="discount[]" value="' +
-                        estimate.discount + '"></td>';
+                        '<td><input type="text" class="form-control" name="discount[]" value="' + estimate.discount + '"></td>';
                     formHtml +=
-                        '<td><input type="text" class="form-control total-price-field" name="total_price[]" value="' +
-                        (estimate.price * estimate.quantity) + '" readonly></td>';
+                        '<td><input type="text" class="form-control total-price-field" name="total_price[]" value="' + (estimate.price * estimate.quantity) + '" readonly></td>';
                     formHtml +=
-                        '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' +
-                        estimate.id + '">X</button></td>';
+                        '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' + estimate.id + '">X</button></td>';
                     formHtml += '</tr>';
                 }
 
                 formHtml += '</tbody></table>';
-                formHtml +=
-                    '<button type="button" class="btn btn-success addRow">+ Add More Rows</button>';
+                formHtml += '<button type="button" class="btn btn-success addRow">+ Add More Rows</button>';
                 formHtml += '</form>';
 
                 modal.find('.modal-body').html(formHtml);
-                modal.modal('show');
 
                 $('.product-select').select2();
 
                 $('.addRow').on('click', function() {
                     var newRow = '<tr>';
                     newRow +=
-                        '<td><select class="form-select product-select select2" name="product[]">' +
+                        '<td><select class="form-select product-select" name="product[]">' +
                         '<option value="">Select Product</option>';
                     for (var j = 0; j < products.length; j++) {
                         newRow += '<option value="' + products[j].id +
@@ -294,30 +303,31 @@
     });
 });
 
-function updatePriceField(productSelect) {
-    var selectedProduct = products.find(product => product.id == productSelect.val());
-    if (selectedProduct) {
-        productSelect.closest('tr').find('.price-field').val(selectedProduct.selling_price);
-        updateTotalPrice();
-    }
-}
 
-function updateTotalPrice() {
-    var total = 0;
-    $('.modaltbody tr').each(function() {
-        var quantity = parseFloat($(this).find('[name="quantity[]"]').val()) || 0;
-        var price = parseFloat($(this).find('.price-field').val()) || 0;
-        var discount = parseFloat($(this).find('[name="discount[]"]').val()) || 0;
-        var totalPerRow = (price * quantity) - discount;
-        total += totalPerRow;
-        $(this).find('.total-price-field').val(totalPerRow.toFixed(2));
-    });
-    $('#totalPrice').text(total.toFixed(2));
-}
+        function updatePriceField(productSelect) {
+            var selectedProduct = products.find(product => product.id == productSelect.val());
+            if (selectedProduct) {
+                productSelect.closest('tr').find('.price-field').val(selectedProduct.selling_price);
+                updateTotalPrice();
+            }
+        }
 
-       
+        function updateTotalPrice() {
+            var total = 0;
+            $('.modaltbody tr').each(function() {
+                var quantity = parseFloat($(this).find('[name="quantity[]"]').val()) || 0;
+                var price = parseFloat($(this).find('.price-field').val()) || 0;
+                var discount = parseFloat($(this).find('[name="discount[]"]').val()) || 0;
+                var totalPerRow = (price * quantity) - discount;
+                total += totalPerRow;
+                $(this).find('.total-price-field').val(totalPerRow.toFixed(2));
+            });
+            $('#totalPrice').text(total.toFixed(2));
+        }
 
-        
+
+
+
 
 
 
@@ -334,21 +344,27 @@ function updateTotalPrice() {
                 success: function(response) {
                     // Handle success response
                     modal.modal('hide');
-                    $('.maintable').load(location.href+' .maintable');
+                    $('.maintable').load(location.href + ' .maintable');
                     toastr.success('Estimates updated successfully');
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
                     // Handle error response
                     var errors = JSON.parse(xhr.responseText);
-        
+
                     if (errors && errors.errors) {
                         var errorMessage = 'Error:';
-                        $.each(errors.errors, function(key, value) {
+                        $.each(errors.errors, function (key, value) {
                             errorMessage += '\n' + value;
                         });
-                        toastr.error(errorMessage);
-                    } else {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: errorMessage,
+                        });
+                    }
+                    else {
                         toastr.error('An error occurred while updating estimates.');
                     }
                 }
@@ -356,6 +372,7 @@ function updateTotalPrice() {
         });
     </script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 
     <script>

@@ -3,14 +3,12 @@
         <thead>
             <tr>
                 <th scope="col" class="text-center">#</th>
-                <th scope="col">Estimate ID</th>
                 <th scope="col">Date</th>
                 <th scope="col">Name</th>
                 <th scope="col">Note</th>
                 <th scope="col" class="text-center">Amount (&#8358;)</th>
                 <th scope="col" class="text-center">Discount (&#8358;)</th>
                 <th scope="col" class="text-center">Discounted Amount (&#8358;)</th>
-                <th scope="col">Note</th>
                 <th scope="col" class="text-center">Action</th>
             </tr>
         </thead>
@@ -35,7 +33,6 @@
                     <td class="text-center">{{ $key + 1 }}</td>
                 @endif
 
-              <th scope="row">{{ $estimate->estimate_no }}</th>
               <td>{{ $estimated[0]->created_at->format('l, d F') }}</td>
               <td>
                 @if ($estimated[0]->customer == 0)
@@ -48,8 +45,6 @@
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
-              <td>{{ $estimated[0]->note }}</td>
-
               <td>
                 <button type="button" onclick="PrintReceiptContent('{{ $row->estimate_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print"></i></button>
                 <button type="button" class="btn btn-success btn-sm saleItem" data-note="{{ $estimate->note }}" data-name="{{ $estimate->customer }}" data-estimate_no="{{ $estimate->estimate_no  }}" data-payable="{{ $total_amount-$total_discount }}"><i class="fas fa-shopping-cart" data-bs-toggle="modal" data-bs-target=".addModal"></i></button>

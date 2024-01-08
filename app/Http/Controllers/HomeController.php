@@ -72,22 +72,30 @@ class HomeController extends Controller
         //     return $total;
         // }, 0);
 
+        $uniquePosReceipts = [];
+
         $data['posSales'] = $todaySales
             ->filter(function ($sale) {
                 return $sale->payment_method == 'pos' || $sale->payment_method == 'multiple';
             })
-            ->reduce(function ($total, $sale) {
+            ->reduce(function ($total, $sale) use (&$uniquePosReceipts) {
                 if ($sale->payment_method == 'multiple') {
-                    $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
-                        ->where('payment_type', 'multiple')
-                        ->where('payment_method', 'pos')
-                        ->value('payment_amount');
-
-                    $total += $paymentAmount ?? 0;
+                    // Check if the receipt number is not already in the uniquePosReceipts array
+                    if (!in_array($sale->receipt_no, $uniquePosReceipts)) {
+                        $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                            ->where('payment_type', 'multiple')
+                            ->where('payment_method', 'pos')
+                            ->value('payment_amount');
+        
+                        $total += $paymentAmount ?? 0;
+        
+                        // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
+                        $uniquePosReceipts[] = $sale->receipt_no;
+                    }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-
+        
                 return $total;
             }, 0);
 
@@ -96,22 +104,30 @@ class HomeController extends Controller
         //     return $total;
         // }, 0);
 
+        $uniqueCashReceipts = [];
+
         $data['cashSales'] = $todaySales
             ->filter(function ($sale) {
                 return $sale->payment_method == 'cash' || $sale->payment_method == 'multiple';
             })
-            ->reduce(function ($total, $sale) {
+            ->reduce(function ($total, $sale) use (&$uniqueCashReceipts) {
                 if ($sale->payment_method == 'multiple') {
-                    $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
-                        ->where('payment_type', 'multiple')
-                        ->where('payment_method', 'cash')
-                        ->value('payment_amount');
-
-                    $total += $paymentAmount ?? 0;
+                    // Check if the receipt number is not already in the uniquePosReceipts array
+                    if (!in_array($sale->receipt_no, $uniqueCashReceipts)) {
+                        $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                            ->where('payment_type', 'multiple')
+                            ->where('payment_method', 'cash')
+                            ->value('payment_amount');
+        
+                        $total += $paymentAmount ?? 0;
+        
+                        // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
+                        $uniqueCashReceipts[] = $sale->receipt_no;
+                    }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-
+        
                 return $total;
             }, 0);
 
@@ -120,22 +136,30 @@ class HomeController extends Controller
         //     return $total;
         // }, 0);
 
+        $uniqueTransferReceipts = [];
+
         $data['transferSales'] = $todaySales
             ->filter(function ($sale) {
                 return $sale->payment_method == 'transfer' || $sale->payment_method == 'multiple';
             })
-            ->reduce(function ($total, $sale) {
+            ->reduce(function ($total, $sale) use (&$uniqueTransferReceipts) {
                 if ($sale->payment_method == 'multiple') {
-                    $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
-                        ->where('payment_type', 'multiple')
-                        ->where('payment_method', 'transfer')
-                        ->value('payment_amount');
-
-                    $total += $paymentAmount ?? 0;
+                    // Check if the receipt number is not already in the uniquePosReceipts array
+                    if (!in_array($sale->receipt_no, $uniqueTransferReceipts)) {
+                        $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                            ->where('payment_type', 'multiple')
+                            ->where('payment_method', 'transfer')
+                            ->value('payment_amount');
+        
+                        $total += $paymentAmount ?? 0;
+        
+                        // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
+                        $uniqueTransferReceipts[] = $sale->receipt_no;
+                    }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-
+        
                 return $total;
             }, 0);
 

@@ -13,6 +13,7 @@ use App\Models\Stock;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 
@@ -80,7 +81,7 @@ class SalesController extends Controller
             ];
         }
 
-        return view('sales.indexa', compact('transactionData', 'products', 'customers'));
+        return view('transactions.index', compact('transactionData', 'products', 'customers'));
     }
 
     public function getProductSuggestions(Request $request)
@@ -134,21 +135,43 @@ class SalesController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
+
+        $productIds = $request->input('product_id');
+        $quantities = $request->input('quantity');
+        $remainingQuantities = $request->input('remaining_quantity');
         $transaction_type = $request->input('transaction_type');
 
-        if (in_array(null, $request->quantity, true)) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Quantity cannot be empty for any product.',
-            ]);
+        foreach ($productIds as $key => $productId) {
+            
+            if (!isset($quantities[$key]) || $quantities[$key] < 1) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => "Row " . ($key + 1) . ": Quantity field is required.",
+                ]);
+            };
+
+            if($transaction_type == 'sales')
+            {
+                if ($remainingQuantities[$key] < 1) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => "Row " . ($key + 1) . ": The product has finished",
+                    ]);
+                }
+                if ($quantities[$key] > $remainingQuantities[$key]) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => "Row " . ($key + 1) . ":The entered quantity exceeds the remaining quantity.",
+                    ]);
+                }
+            };
         }
 
         $transaction_id = Str::uuid();
 
-
         if ($transaction_type == "sales") {
            
-
             $paymentMethod = $request->input('payment_method');
             $status = null;
             $payment_amount = null;
@@ -202,12 +225,13 @@ class SalesController extends Controller
 
             } 
 
-            foreach ($request->product_id as $index => $productId) {
+            foreach ($productIds as $index => $productId) {
                 $data = new Sale();
                 $data->branch_id = auth()->user()->branch_id;
                 $data->receipt_no = $transaction_id;
                 $data->stock_id = $productId;
                 $data->price = $request->price[$index];
+                $data->buying_price = $request->buying_price[$index];
                 $data->quantity = $request->quantity[$index];
                 $data->discount = $request->discount[$index] ?? 0;
                 $data->payment_method = $paymentMethod;
@@ -226,7 +250,44 @@ class SalesController extends Controller
                 // Update stock quantity
                 $stock = Stock::find($productId);
                 $stock->quantity -= $request->quantity[$index];
-                $stock->update();
+                $stock->save();
+            }
+
+            if($paymentMethod == 'multiple')
+            {
+                if($request->cashAmount != null)
+                {
+                    $payment = new Payment();
+                    $payment->payment_type = 'multiple';
+                    $payment->payment_method = 'cash';
+                    $payment->payment_amount = $request->cashAmount;
+                    $payment->user_id = auth()->user()->id;
+                    $payment->customer_id = 0;
+                    $payment->receipt_nos =  $transaction_id;
+                    $payment->save();
+                }
+                if($request->posAmount != null)
+                {
+                    $payment = new Payment();
+                    $payment->payment_type = 'multiple';
+                    $payment->payment_method = 'pos';
+                    $payment->payment_amount = $request->posAmount;
+                    $payment->user_id = auth()->user()->id;
+                    $payment->customer_id = 0;
+                    $payment->receipt_nos =  $transaction_id;
+                    $payment->save();
+                }
+                if($request->transferAmount != null)
+                {
+                    $payment = new Payment();
+                    $payment->payment_type = 'multiple';
+                    $payment->payment_method = 'transfer';
+                    $payment->payment_amount = $request->transferAmount;
+                    $payment->user_id = auth()->user()->id;
+                    $payment->customer_id = 0;
+                    $payment->receipt_nos =  $transaction_id;
+                    $payment->save();
+                }
             }
 
            
@@ -441,7 +502,7 @@ class SalesController extends Controller
             ];
         }
 
-        return view('sales.recent_sales_table', compact('transactionData'))->render();
+        return view('transactions.recent_sales_table', compact('transactionData'))->render();
     }
 
     public function loadReceipt(Request $request)

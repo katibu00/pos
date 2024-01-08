@@ -116,18 +116,16 @@ Route::group(['prefix' => 'purchases', 'middleware' => ['auth', 'admin']], funct
 
 });
 
-Route::group(['prefix' => 'sales', 'middleware' => ['auth', 'staff']], function () {
-    Route::get('/index', [SalesController::class, 'index'])->name('sales.index');
-    Route::post('/store', [SalesController::class, 'store'])->name('sales.store');
+Route::group(['prefix' => 'transactions', 'middleware' => ['auth', 'staff']], function () {
+    Route::get('/', [SalesController::class, 'index'])->name('transactions.index');
+    Route::post('/store', [SalesController::class, 'store'])->name('transactions.store');
     Route::post('/sales/details', [SalesController::class, 'details']);
-    Route::post('/fetch-sales', [SalesController::class, 'fetchSales'])->name('fetch-sales');
+    Route::post('/fetch-sales', [SalesController::class, 'fetchSales'])->name('fetch-transactions');
     Route::post('/refresh-table', [SalesController::class, 'refresh'])->name('refresh-table');
     Route::post('/refresh-receipt', [SalesController::class, 'loadReceipt'])->name('refresh-receipt');
-    Route::get('/credit_sales/index', [SalesController::class, 'creditIndex'])->name('credit.index');
-    Route::post('/credit_sales/store', [SalesController::class, 'creditStore'])->name('credit.store');
+    // Route::get('/credit_sales/index', [SalesController::class, 'creditIndex'])->name('credit.index');
+    // Route::post('/credit_sales/store', [SalesController::class, 'creditStore'])->name('credit.store');
     Route::post('/fetch-balance', [SalesController::class, 'fetchBalance'])->name('fetch-balance');
-    Route::get('/credit/index', [SalesController::class, 'index'])->name('sales.credit.index');
-    Route::post('/credit/store', [SalesController::class, 'store'])->name('sales.credit.store');
     Route::get('/all/index', [SalesController::class, 'allIndex'])->name('sales.all.index');
 
     Route::post('/all/search', [SalesController::class, 'allSearch'])->name('sales.all.search');

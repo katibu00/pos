@@ -67,18 +67,78 @@ class HomeController extends Controller
             return $sale->price * $sale->quantity;
         });
         $data['totalDiscount'] = $todaySales->sum('discount');
-        $data['posSales'] = $todaySales->where('payment_method', 'pos')->reduce(function ($total, $sale) {
-            $total += ($sale->price * $sale->quantity) - $sale->discount;
-            return $total;
-        }, 0);
-        $data['cashSales'] = $todaySales->where('payment_method', 'cash')->reduce(function ($total, $sale) {
-            $total += ($sale->price * $sale->quantity) - $sale->discount;
-            return $total;
-        }, 0);
-        $data['transferSales'] = $todaySales->where('payment_method', 'transfer')->reduce(function ($total, $sale) {
-            $total += ($sale->price * $sale->quantity) - $sale->discount;
-            return $total;
-        }, 0);
+        // $data['posSales'] = $todaySales->where('payment_method', 'pos')->reduce(function ($total, $sale) {
+        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
+        //     return $total;
+        // }, 0);
+
+        $data['posSales'] = $todaySales
+            ->filter(function ($sale) {
+                return $sale->payment_method == 'pos' || $sale->payment_method == 'multiple';
+            })
+            ->reduce(function ($total, $sale) {
+                if ($sale->payment_method == 'multiple') {
+                    $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                        ->where('payment_type', 'multiple')
+                        ->where('payment_method', 'pos')
+                        ->value('payment_amount');
+
+                    $total += $paymentAmount ?? 0;
+                } else {
+                    $total += ($sale->price * $sale->quantity) - $sale->discount;
+                }
+
+                return $total;
+            }, 0);
+
+        // $data['cashSales'] = $todaySales->where('payment_method', 'cash')->reduce(function ($total, $sale) {
+        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
+        //     return $total;
+        // }, 0);
+
+        $data['cashSales'] = $todaySales
+            ->filter(function ($sale) {
+                return $sale->payment_method == 'cash' || $sale->payment_method == 'multiple';
+            })
+            ->reduce(function ($total, $sale) {
+                if ($sale->payment_method == 'multiple') {
+                    $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                        ->where('payment_type', 'multiple')
+                        ->where('payment_method', 'cash')
+                        ->value('payment_amount');
+
+                    $total += $paymentAmount ?? 0;
+                } else {
+                    $total += ($sale->price * $sale->quantity) - $sale->discount;
+                }
+
+                return $total;
+            }, 0);
+
+        // $data['transferSales'] = $todaySales->where('payment_method', 'transfer')->reduce(function ($total, $sale) {
+        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
+        //     return $total;
+        // }, 0);
+
+        $data['transferSales'] = $todaySales
+            ->filter(function ($sale) {
+                return $sale->payment_method == 'transfer' || $sale->payment_method == 'multiple';
+            })
+            ->reduce(function ($total, $sale) {
+                if ($sale->payment_method == 'multiple') {
+                    $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                        ->where('payment_type', 'multiple')
+                        ->where('payment_method', 'transfer')
+                        ->value('payment_amount');
+
+                    $total += $paymentAmount ?? 0;
+                } else {
+                    $total += ($sale->price * $sale->quantity) - $sale->discount;
+                }
+
+                return $total;
+            }, 0);
+
         $data['creditSales'] = $todaySales->where('payment_method', 'credit')->reduce(function ($total, $sale) {
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
@@ -88,7 +148,7 @@ class HomeController extends Controller
             return $total;
         }, 0);
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
-            return (($sale->price - @$sale->product->buying_price) * $sale->quantity);
+            return (($sale->price-@$sale->product->buying_price) * $sale->quantity);
         });
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');
@@ -111,7 +171,7 @@ class HomeController extends Controller
         $data['returnDiscounts'] = $todayReturns->sum('discount');
 
         $data['returnProfit'] = $todayReturns->sum(function ($return) {
-            return (($return->price - @$return->product->buying_price) * $return->quantity);
+            return (($return->price-@$return->product->buying_price) * $return->quantity);
         });
         $data['uncollectedSales'] = Sale::where('branch_id', $branch_id)
             ->where('collected', 0)
@@ -224,79 +284,78 @@ class HomeController extends Controller
         if (isset($request->end_date)) {
             $startDate = \Carbon\Carbon::parse($request->start_date);
             $endDate = \Carbon\Carbon::parse($request->end_date);
-        
+
             if ($endDate->isFuture()) {
                 Toastr::error('End date cannot be in the future');
                 return redirect()->route('admin.home');
             }
-        
+
             $todaySales = Sale::where('branch_id', $branch_id)
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-        
+
             $todayReturns = Returns::where('branch_id', $branch_id)
                 ->whereNull('channel')
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-        
+
             $todayExpenses = Expense::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-        
+
             $creditPayments = Payment::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-        
+
             $estimates = Estimate::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-        
+
             $purchases = Purchase::select('stock_id', 'quantity')
                 ->where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-        
+
             $data['start_date'] = $startDate;
             $data['end_date'] = $endDate;
-        
+
             $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->sum('amount');
-        
+
             $paymentSums = [
                 'cash' => 0,
                 'transfer' => 0,
                 'pos' => 0,
             ];
-        
+
             $payments = DB::table('cash_credit_payments')
                 ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->groupBy('payment_method')
                 ->get();
-        
+
             foreach ($payments as $payment) {
                 if (array_key_exists($payment->payment_method, $paymentSums)) {
                     $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
                 }
             }
-        
+
             $data['CreditPaymentSummary'] = [
                 'cash' => $paymentSums['cash'],
                 'transfer' => $paymentSums['transfer'],
                 'pos' => $paymentSums['pos'],
             ];
-        }
-         else {
+        } else {
             $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
             $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
             $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
@@ -337,7 +396,7 @@ class HomeController extends Controller
             ->whereRaw('amount > amount_paid')
             ->sum(DB::raw('amount - amount_paid'));
 
-        $data['deposits'] = User::where('branch_id',$branch_id)->sum('deposit');
+        $data['deposits'] = User::where('branch_id', $branch_id)->sum('deposit');
 
         $data['totalDiscounts'] = $todaySales->sum('discount');
         //sales
@@ -345,18 +404,105 @@ class HomeController extends Controller
             return $sale->price * $sale->quantity;
         });
         $data['totalDiscount'] = $todaySales->sum('discount');
-        $data['posSales'] = $todaySales->where('payment_method', 'pos')->reduce(function ($total, $sale) {
+        // $data['posSales'] = $todaySales->where('payment_method', 'pos')->reduce(function ($total, $sale) {
+        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
+        //     return $total;
+        // }, 0);
+
+        $uniquePosReceipts = [];
+
+        $data['posSales'] = $todaySales
+            ->filter(function ($sale) {
+                return $sale->payment_method == 'pos' || $sale->payment_method == 'multiple';
+            })
+            ->reduce(function ($total, $sale) use (&$uniquePosReceipts) {
+                if ($sale->payment_method == 'multiple') {
+                    // Check if the receipt number is not already in the uniquePosReceipts array
+                    if (!in_array($sale->receipt_no, $uniquePosReceipts)) {
+                        $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                            ->where('payment_type', 'multiple')
+                            ->where('payment_method', 'pos')
+                            ->value('payment_amount');
+        
+                        $total += $paymentAmount ?? 0;
+        
+                        // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
+                        $uniquePosReceipts[] = $sale->receipt_no;
+                    }
+                } else {
+                    $total += ($sale->price * $sale->quantity) - $sale->discount;
+                }
+        
+                return $total;
+            }, 0);
+        
+
+        // $data['cashSales'] = $todaySales->where('payment_method', 'cash')->reduce(function ($total, $sale) {
+        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
+        //     return $total;
+        // }, 0);
+
+        $uniqueReceipts = [];
+
+$data['cashSales'] = $todaySales
+    ->filter(function ($sale) {
+        return $sale->payment_method == 'cash' || $sale->payment_method == 'multiple';
+    })
+    ->reduce(function ($total, $sale) use (&$uniqueReceipts) {
+        if ($sale->payment_method == 'multiple') {
+            // Check if the receipt number is not already in the uniqueReceipts array
+            if (!in_array($sale->receipt_no, $uniqueReceipts)) {
+                $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                    ->where('payment_type', 'multiple')
+                    ->where('payment_method', 'cash')
+                    ->value('payment_amount');
+
+                $total += $paymentAmount ?? 0;
+
+                // Add the receipt number to the uniqueReceipts array to ensure uniqueness
+                $uniqueReceipts[] = $sale->receipt_no;
+            }
+        } else {
             $total += ($sale->price * $sale->quantity) - $sale->discount;
-            return $total;
-        }, 0);
-        $data['cashSales'] = $todaySales->where('payment_method', 'cash')->reduce(function ($total, $sale) {
-            $total += ($sale->price * $sale->quantity) - $sale->discount;
-            return $total;
-        }, 0);
-        $data['transferSales'] = $todaySales->where('payment_method', 'transfer')->reduce(function ($total, $sale) {
-            $total += ($sale->price * $sale->quantity) - $sale->discount;
-            return $total;
-        }, 0);
+        }
+
+        return $total;
+    }, 0);
+
+
+        // $data['transferSales'] = $todaySales->where('payment_method', 'transfer')->reduce(function ($total, $sale) {
+        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
+        //     return $total;
+        // }, 0);
+
+        $uniqueTransferReceipts = [];
+
+        $data['transferSales'] = $todaySales
+            ->filter(function ($sale) {
+                return $sale->payment_method == 'transfer' || $sale->payment_method == 'multiple';
+            })
+            ->reduce(function ($total, $sale) use (&$uniqueTransferReceipts) {
+                if ($sale->payment_method == 'multiple') {
+                    // Check if the receipt number is not already in the uniqueTransferReceipts array
+                    if (!in_array($sale->receipt_no, $uniqueTransferReceipts)) {
+                        $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                            ->where('payment_type', 'multiple')
+                            ->where('payment_method', 'transfer')
+                            ->value('payment_amount');
+        
+                        $total += $paymentAmount ?? 0;
+        
+                        // Add the receipt number to the uniqueTransferReceipts array to ensure uniqueness
+                        $uniqueTransferReceipts[] = $sale->receipt_no;
+                    }
+                } else {
+                    $total += ($sale->price * $sale->quantity) - $sale->discount;
+                }
+        
+                return $total;
+            }, 0);
+        
+
         $data['creditSales'] = $todaySales->where('payment_method', 'credit')->reduce(function ($total, $sale) {
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
@@ -365,9 +511,17 @@ class HomeController extends Controller
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
         }, 0);
+
+
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
-            return (($sale->price - @$sale->product->buying_price) * $sale->quantity);
+            if ($sale->buying_price != 0) {
+                return ($sale->price - $sale->buying_price) * $sale->quantity;
+            } else {
+                return ($sale->price - @$sale->product->buying_price) * $sale->quantity;
+            }
         });
+        
+
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');
         //returns
@@ -389,7 +543,7 @@ class HomeController extends Controller
         $data['returnDiscounts'] = $todayReturns->sum('discount');
 
         $data['returnProfit'] = $todayReturns->sum(function ($return) {
-            return (($return->price - @$return->product->buying_price) * $return->quantity);
+            return (($return->price-@$return->product->buying_price) * $return->quantity);
         });
 
         //Expenses

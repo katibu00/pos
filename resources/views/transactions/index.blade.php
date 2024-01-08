@@ -141,7 +141,7 @@
                                 </div>
 
                             </div>
-                            @include('sales.recent_sales_table')
+                            @include('transactions.recent_sales_table')
                         </div>
                         <div class="col-md-4 col-12">
                             <div class="card">
@@ -230,6 +230,12 @@
                                                 <label class="form-check-label nott" for="deposit"><i
                                                         class="fa fa-credit-card text-success"></i> Deposit</label>
                                             </div>
+                                            <!-- Add the "Multiple" option -->
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="payment_method" id="multiple" value="multiple" required>
+                                                <label class="form-check-label nott" for="multiple"><i class="fa fa-list text-primary"></i> Multiple</label>
+                                            </div>
+
                                         </div>
 
                                         <div id="balanceContainer" class="mb-2"
@@ -258,6 +264,28 @@
                                                 class="form-control mb-2">
                                         </div>
 
+                                        <style>
+                                            .multiple-payment-field {
+                                                border-color: red;
+                                            }
+                                        </style>
+
+                                        <div id="multiplePaymentsSection" class="col-12 form-group" style="display: none;">
+                                            <label>Multiple Payments:</label><br>
+                                            <div class="form-group">
+                                                <label for="cashAmount">Cash:</label>
+                                                <input type="number" class="form-control" name="cashAmount" id="cashAmount">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="posAmount">POS:</label>
+                                                <input type="number" class="form-control" name="posAmount" id="posAmount">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="transferAmount">Transfer:</label>
+                                                <input type="number" class="form-control" name="transferAmount" id="transferAmount">
+                                            </div>
+                                        </div>
+
                                         <div id="paidAmountField" style="padding: 0; margin: 0;">
                                             <span id="paid_amount_span">Cash Amount Paid</span>
                                             <input type="number" name="paid_amount" id="paid_amount"
@@ -280,7 +308,7 @@
                 </form>
                 <div class="modal">
                     <div id="print">
-                        @include('sales.receipt')
+                        @include('transactions.receipt')
                     </div>
                 </div>
             </div>
@@ -316,6 +344,7 @@
                 paidAmountField.hide();
                 $("#changeField").hide();
                 $('#balanceContainer').hide();
+                $('#multiplePaymentsSection').hide();
                 addLaborCostField.show();
                 paymentMethodInputs.removeAttr("required");
             } else if (selectedTransactionType === "return") {
@@ -323,6 +352,7 @@
                 $("#changeField").hide();
                 paidAmountField.hide();
                 $('#balanceContainer').hide();
+                $('#multiplePaymentsSection').hide();
                 addLaborCostField.hide();
                 laborCostField.hide();
                 paymentMethodInputs.attr("required", true);
@@ -340,13 +370,35 @@
 
 <script>
     $(document).ready(function() {
+
+        function updateTotalMultiplePayments() {
+            var cashAmount = parseFloat($('#cashAmount').val()) || 0;
+            var posAmount = parseFloat($('#posAmount').val()) || 0;
+            var transferAmount = parseFloat($('#transferAmount').val()) || 0;
+            var totalMultiplePayments = cashAmount + posAmount + transferAmount;
+
+            // Create or update the totalAmountMultiplePayments element
+            var totalAmountMultiplePayments = $('#totalAmountMultiplePayments');
+            if (totalAmountMultiplePayments.length === 0) {
+                totalAmountMultiplePayments = $('<p id="totalAmountMultiplePayments" class="font-weight-bold"></p>');
+                $('#multiplePaymentsSection').append(totalAmountMultiplePayments);
+            }
+
+            totalAmountMultiplePayments.text('₦' + totalMultiplePayments.toLocaleString());
+        }
+            
         $('input[name="payment_method"]').change(function() {
+
             var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
             var selectedUserId = $('#customer').val();
 
             if (selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'deposit') {
                 if (selectedUserId == 0) {
-                    toastr.warning('Please select a user before choosing the payment method.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select a user before choosing the payment method.',
+                    }); 
                     $('input[name="payment_method"]').prop('checked', false);
                     return;
                 }
@@ -402,8 +454,24 @@
                 }else{
                     $("#paidAmountField").hide();
              }
+
+             if (selectedPaymentMethod === 'multiple') {
+                // Show additional form fields for multiple payments
+                $('#multiplePaymentsSection').show();
+                updateTotalMultiplePayments();
+                
+            }else{
+                $('#multiplePaymentsSection').hide();
+
+            } 
            
         });
+
+        $('#multiplePaymentsSection input').on('input', function() {
+            updateTotalMultiplePayments();
+        });
+
+
     });
 </script>
 
@@ -511,27 +579,12 @@
                     "<td class='total'>0</td>" +
                     "<td>" +
                     "<input type='hidden' name='product_id[]' value='" + product.id + "'>" +
-                    "<input type='hidden' name='price[]' value='" + product.selling_price + "'>" +
+                    "<input type='hidden' name='price[]' value='" + product.selling_price + "'><input type='hidden' name='buying_price[]' value='" + product.buying_price + "'><input type='hidden' name='remaining_quantity[]' value='" + product.quantity + "'>" +
                     "<button class='btn btn-danger remove-btn'>X</button>" +
                     "</td>" +
                     "</tr>";
 
                 var $newRow = $(newRow);
-                var availableQuantity = product.quantity;
-
-                if (transactionType === "sales" || transactionType === undefined) {
-                    $newRow.find('.quantity').on('input', function() {
-                        var enteredQuantity = parseFloat($(this).val()) || 0;
-
-                        if (enteredQuantity > availableQuantity) {
-                            toastr.warning('Entered quantity (' + enteredQuantity +
-                                ') exceeds available quantity (' + availableQuantity + ').');
-                            $(this).val('');
-                        }
-                    });
-                }
-
-                // Use prepend to add the new row as the first row in the table
                 $productTable.prepend($newRow);
                 updateSerialNumbers();
                 $productSearch.val('');
@@ -606,74 +659,74 @@
                 url: "{{ route('refresh-receipt') }}",
                 data: data,
                 success: function(res) {
-    var html = '';
-    var total = 0;
+                        var html = '';
+                        var total = 0;
 
-    $.each(res.items, function(key, item) {
-        html += '<tr style="text-align: center">' +
-            '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
-            '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-            '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
-            '</tr>';
-        total += item.quantity * item.price;
-    });
+                        $.each(res.items, function(key, item) {
+                            html += '<tr style="text-align: center">' +
+                                '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
+                                '<td style="font-size: 12px;">' + item.quantity + '</td>' +
+                                '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                                '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
+                                '</tr>';
+                            total += item.quantity * item.price;
+                        });
 
-    // Check if labor cost is present
-    if (res.items[0].labor_cost !== null) {
-        var laborCost = parseInt(res.items[0].labor_cost);
+                        // Check if labor cost is present
+                        if (res.items[0].labor_cost !== null) {
+                            var laborCost = parseInt(res.items[0].labor_cost);
         
-        // Calculate total before adding labor cost
-        var subTotal = total;
+                        // Calculate total before adding labor cost
+                        var subTotal = total;
 
-        // Add labor cost to the total
-        total += laborCost; 
+                        // Add labor cost to the total
+                        total += laborCost; 
 
-        html += '<tr style="text-align: center">' +
-            '<td></td>' +
-            '<td colspan="2"><b>Sub-total</b></td>' +
-            '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
-            '</tr>';
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
+                            '</tr>';
 
-        html += '<tr style="text-align: center">' +
-            '<td></td>' +
-            '<td colspan="2"><b>Labor Cost</b></td>' +
-            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
-            '</tr>';
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
+                            '</tr>';
 
-        html += '<tr style="text-align: center">' +
-            '<td></td>' +
-            '<td colspan="2"><b>Total</b></td>' +
-            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-            '</tr>';
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
 
-        html += '<tr style="text-align: center">' +
-            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
-            '</tr>';
-    } else {
-        html += '<tr style="text-align: center">' +
-            '<td></td>' +
-            '<td colspan="2"><b>Total Amount</b></td>' +
-            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-            '</tr>';
-    }
+                        html += '<tr style="text-align: center">' +
+                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                            '</tr>';
+                    } else {
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Total Amount</b></td>' +
+                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
 
-    $('#receipt_body').html(html);
+                    $('#receipt_body').html(html);
 
-    $('.tran_id').html('S' + res.items[0].receipt_no);
+                    $('.tran_id').html('S' + res.items[0].receipt_no);
 
-    var printableContent = document.getElementById('print').innerHTML;
+                    var printableContent = document.getElementById('print').innerHTML;
 
-    var printWindow = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-    printWindow.screenX = 0;
-    printWindow.screenY = 0;
-    printWindow.document.write(printableContent);
-    printWindow.document.title = "Print Estimate Certificate";
-    printWindow.focus();
+                    var printWindow = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                    printWindow.screenX = 0;
+                    printWindow.screenY = 0;
+                    printWindow.document.write(printableContent);
+                    printWindow.document.title = "Print Estimate Certificate";
+                    printWindow.focus();
 
-    // Print the content
-    printWindow.print();
-},
+                    // Print the content
+                    printWindow.print();
+                },
 
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {
@@ -721,11 +774,28 @@
             });
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
             $('#salesForm').submit(function(event) {
                 event.preventDefault();
+
+                var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
+
+                if (selectedPaymentMethod === 'multiple') {
+                    var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(',', ''));
+                    var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace('₦', '').replace(',', ''));
+
+                    if (totalAmountEntered !== totalAmountDisplayed) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Total amount entered does not match the displayed total. Please check the amounts again.'
+                        });           
+                     return;
+                    }
+                }
 
                 var formData = $(this).serialize();
                 $.ajaxSetup({
@@ -736,7 +806,7 @@
                 $.LoadingOverlay("show");
 
                 $.ajax({
-                    url: '{{ route('sales.store') }}',
+                    url: '{{ route('transactions.store') }}',
                     type: 'POST',
                     data: formData,
                     success: function(response) {
@@ -757,14 +827,27 @@
 
                         } else if (response.status === 400) {
                             toastr.error(response.message, 'Error');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                            }); 
                         }
                         $.LoadingOverlay("hide");
 
                     },
                     error: function(error) {
-                        console.error(error);
-                        toastr.error('An error occurred while processing the request.',
-                            'Error');
+                        if (error.responseJSON && error.responseJSON.status === 400 && error.responseJSON.message) {
+                            // Display validation error using Swal
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: error.responseJSON.message,
+                            });
+                        } else {
+                            toastr.error('An error occurred while processing the request.', 'Error');
+                        }
+
                         $.LoadingOverlay("hide");
                     }
                 });

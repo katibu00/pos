@@ -51,13 +51,13 @@
         </a></li>
 
     <li
-        class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}  {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
+        class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }}  {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
         <a class="menu-link" href="#">
             <div>Transactions</div>
         </a>
         <ul class="sub-menu-container">
-            <li class="menu-item {{ $route == 'sales.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('sales.index') }}">
+            <li class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('transactions.index') }}">
                     <div>Record Transactions</div>
                 </a>
             </li>

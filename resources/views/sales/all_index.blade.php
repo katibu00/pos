@@ -51,7 +51,7 @@
 
                 <div class="modal">
                     <div id="print">
-                        @include('sales.receipt')
+                        @include('transactions.receipt')
                     </div>
                 </div>
 

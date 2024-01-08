@@ -112,9 +112,8 @@
                 </div>
 
 
-                <div class="modal fade" id="editEstimateModal" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
+                <div class="modal fade" id="editEstimateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">Edit Estimate</h5>
@@ -129,6 +128,7 @@
                                             <th>Product</th>
                                             <th>Price</th>
                                             <th>Quantity</th>
+                                            <th>Discount</th>
                                             <th>Total Price</th>
                                             <th>Action</th>
                                         </tr>
@@ -141,13 +141,13 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" id="updateEstimateBtn">Update
-                                    Estimate</button>
+                                <button type="button" class="btn btn-primary" id="updateEstimateBtn">Update Estimate</button>
                                 <div>Total Price: <span id="totalPrice">0</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
 
 
 
@@ -162,141 +162,162 @@
 
 
     <script>
-        $(document).on('click', '.editEstimate', function() {
-            var estimateNo = $(this).data('estimate_no');
-            var modal = $('#editEstimateModal');
+       $(document).on('click', '.editEstimate', function() {
+    var estimateNo = $(this).data('estimate_no');
+    var modal = $('#editEstimateModal');
 
-            // Encode the estimate number
-            var encodedEstimateNo = encodeURIComponent(estimateNo);
+    // Encode the estimate number
+    var encodedEstimateNo = encodeURIComponent(estimateNo);
 
-            // Show loading spinner
-            modal.find('.modal-body').html(
-                '<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i></div>');
+    // Show loading spinner
+    modal.find('.modal-body').html(
+        '<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i></div>');
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        url: '{{ route('estimate.edit') }}',
+        method: 'POST',
+        data: {
+            encoded_estimate_no: encodedEstimateNo,
+        },
+        success: function(response) {
+            if (response.error) {
+                console.error(response.error);
+            } else {
+                estimates = response.estimates;
+                products = response.products;
+
+                var formHtml = '<form id="editEstimateForm">';
+                formHtml += '<table class="table">';
+                formHtml +=
+                    '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
+                formHtml += '<tbody class="modaltbody">';
+
+                for (var i = 0; i < estimates.length; i++) {
+                    var estimate = estimates[i];
+                    formHtml += '<tr>';
+                    formHtml += '<td>' + estimate.product.name +
+                        '<input type="hidden" name="product[]" value="' + estimate.product.id +
+                        '"><input type="hidden" name="estimate_no" value="' + estimate
+                        .estimate_no + '"></td>';
+                    formHtml +=
+                        '<td><input type="number" class="form-control price-field" name="price[]" value="' +
+                        estimate.price + '" readonly></td>';
+                    formHtml +=
+                        '<td><input type="text" class="form-control" name="quantity[]" value="' +
+                        estimate.quantity + '"></td>';
+                    formHtml +=
+                        '<td><input type="text" class="form-control" name="discount[]" value="' +
+                        estimate.discount + '"></td>';
+                    formHtml +=
+                        '<td><input type="text" class="form-control total-price-field" name="total_price[]" value="' +
+                        (estimate.price * estimate.quantity) + '" readonly></td>';
+                    formHtml +=
+                        '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' +
+                        estimate.id + '">X</button></td>';
+                    formHtml += '</tr>';
                 }
-            });
-            $.ajax({
-                url: '{{ route('estimate.edit') }}',
-                method: 'POST',
-                data: {
-                    encoded_estimate_no: encodedEstimateNo,
-                },
-                success: function(response) {
-                    if (response.error) {
-                        console.error(response.error);
-                    } else {
-                        estimates = response.estimates;
-                        products = response.products;
 
-                        var formHtml = '<form id="editEstimateForm">';
-                        formHtml += '<table class="table">';
-                        formHtml +=
-                            '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Action</th></tr></thead>';
-                        formHtml += '<tbody class="modaltbody">';
+                formHtml += '</tbody></table>';
+                formHtml +=
+                    '<button type="button" class="btn btn-success addRow">+ Add More Rows</button>';
+                formHtml += '</form>';
 
-                        for (var i = 0; i < estimates.length; i++) {
-                            var estimate = estimates[i];
-                            formHtml += '<tr>';
-                            formHtml += '<td>' + estimate.product.name +
-                                '<input type="hidden" name="product[]" value="' + estimate.product.id +
-                                '"><input type="hidden" name="estimate_no" value="' + estimate
-                                .estimate_no + '"></td>';
-                            formHtml +=
-                                '<td><input type="number" class="form-control price-field" name="price[]" value="' +
-                                estimate.price + '" readonly></td>';
-                            formHtml +=
-                                '<td><input type="text" class="form-control" name="quantity[]" value="' +
-                                estimate.quantity + '"></td>';
-                            formHtml +=
-                                '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' +
-                                estimate.id + '">X</button></td>';
-                            formHtml += '</tr>';
-                        }
+                modal.find('.modal-body').html(formHtml);
+                modal.modal('show');
 
-                        formHtml += '</tbody></table>';
-                        formHtml +=
-                            '<button type="button" class="btn btn-success addRow">+ Add More Rows</button>';
-                        formHtml += '</form>';
+                $('.product-select').select2();
 
-                        modal.find('.modal-body').html(formHtml);
-                        modal.modal('show');
-
-                        $('.addRow').on('click', function() {
-                            var newRow = '<tr>';
-                            newRow +=
-                                '<td><select class="form-select product-select" name="product[]">' +
-                                '<option value="">Select Product</option>';
-                            for (var j = 0; j < products.length; j++) {
-                                newRow += '<option value="' + products[j].id +
-                                    '" data-price="' + products[j].selling_price + '">' +
-                                    products[j].name + '</option>';
-                            }
-                            newRow += '</select></td>';
-                            newRow +=
-                                '<td><input type="text" class="form-control price-field" name="price[]" readonly></td>';
-                            newRow +=
-                                '<td><input type="text" class="form-control" name="quantity[]"></td>';
-                            newRow +=
-                                '<td><button class="btn btn-danger removeRow">X</button></td>';
-                            newRow += '</tr>';
-
-                            $('.modaltbody').append(newRow);
-
-                            $('.removeRow').on('click', function() {
-                                $(this).closest('tr').remove();
-                                updateTotalPrice();
-                            });
-
-                            $('.product-select').on('change', function() {
-                                updatePriceField($(this));
-                            });
-                        });
-
-                        $('.removeEstimate').on('click', function() {
-                            var estimateId = $(this).data('estimate_id');
-                            $(this).closest('tr').remove();
-                            updateTotalPrice();
-                        });
-                        $('#editEstimateForm').on('input', '[name="quantity[]"]', function() {
-                            updateTotalPrice();
-                        });
-                        $('#editEstimateForm').on('submit', function(event) {
-                            event.preventDefault();
-                            console.log(123);
-                        });
+                $('.addRow').on('click', function() {
+                    var newRow = '<tr>';
+                    newRow +=
+                        '<td><select class="form-select product-select select2" name="product[]">' +
+                        '<option value="">Select Product</option>';
+                    for (var j = 0; j < products.length; j++) {
+                        newRow += '<option value="' + products[j].id +
+                            '" data-price="' + products[j].selling_price + '">' +
+                            products[j].name + '</option>';
                     }
-                },
+                    newRow += '</select></td>';
+                    newRow +=
+                        '<td><input type="text" class="form-control price-field" name="price[]" readonly></td>';
+                    newRow +=
+                        '<td><input type="text" class="form-control" name="quantity[]"></td>';
+                    newRow +=
+                        '<td><input type="text" class="form-control" name="discount[]"></td>';
+                    newRow +=
+                        '<td><input type="text" class="form-control total-price-field" name="total_price[]" readonly></td>';
+                    newRow +=
+                        '<td><button class="btn btn-danger removeRow">X</button></td>';
+                    newRow += '</tr>';
 
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                }
-            });
-        });
+                    $('.modaltbody').append(newRow);
 
-        function updatePriceField(productSelect) {
-            var selectedProduct = products.find(product => product.id == productSelect.val());
+                    $('.removeRow').on('click', function() {
+                        $(this).closest('tr').remove();
+                        updateTotalPrice();
+                    });
 
-            if (selectedProduct) {
-                productSelect.closest('tr').find('.price-field').val(selectedProduct.selling_price);
-                updateTotalPrice();
+                    $('.product-select').on('change', function() {
+                        updatePriceField($(this));
+                    });
+
+                    $('[name="quantity[]"], [name="discount[]"]').on('input', function() {
+                        updateTotalPrice();
+                    });
+                });
+
+                $('.removeEstimate').on('click', function() {
+                    var estimateId = $(this).data('estimate_id');
+                    $(this).closest('tr').remove();
+                    updateTotalPrice();
+                });
+
+                $('[name="quantity[]"], [name="discount[]"]').on('input', function() {
+                    updateTotalPrice();
+                });
+
+                $('#editEstimateForm').on('submit', function(event) {
+                    event.preventDefault();
+                    console.log(123);
+                });
             }
+        },
+
+        error: function(xhr) {
+            console.error(xhr.responseText);
         }
+    });
+});
 
-        function updateTotalPrice() {
-            var totalPrice = 0;
+function updatePriceField(productSelect) {
+    var selectedProduct = products.find(product => product.id == productSelect.val());
+    if (selectedProduct) {
+        productSelect.closest('tr').find('.price-field').val(selectedProduct.selling_price);
+        updateTotalPrice();
+    }
+}
 
-            $('tbody tr').each(function() {
-                var price = parseFloat($(this).find('.price-field').val()) || 0;
-                var quantity = parseInt($(this).find('[name="quantity[]"]').val()) || 0;
+function updateTotalPrice() {
+    var total = 0;
+    $('.modaltbody tr').each(function() {
+        var quantity = parseFloat($(this).find('[name="quantity[]"]').val()) || 0;
+        var price = parseFloat($(this).find('.price-field').val()) || 0;
+        var discount = parseFloat($(this).find('[name="discount[]"]').val()) || 0;
+        var totalPerRow = (price * quantity) - discount;
+        total += totalPerRow;
+        $(this).find('.total-price-field').val(totalPerRow.toFixed(2));
+    });
+    $('#totalPrice').text(total.toFixed(2));
+}
 
-                totalPrice += price * quantity;
-            });
+       
 
-            $('#totalPrice').text(totalPrice.toFixed(2));
-        }
+        
 
 
 

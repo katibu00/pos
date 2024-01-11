@@ -12,23 +12,17 @@
                             <div class="card-body">
                                 <h5 class="card-title">Cash Balance</h5>
                                 <?php
-                                $cashResult = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'];
-                                $formattedCashResult = number_format($cashResult);
+                                $result = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'] + $cashFundTransfer;
+                                $formattedResult = number_format($result);
                                 ?>
 
-                                <p class="card-text">&#8358;{{ $formattedCashResult }}</p>
-
+                                <p class="card-text">&#8358;{{ $formattedResult }}</p>
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $cashSales . ' Returns: ' . $cashReturns . ' Expenses: ' . $cashExpenses . ' Repayments: ' . $cashCreditPayments . ' Deposit ' . $cashDepositPayments . ' Cash Credit: ' . $cashCreditToday . ' CCP: ' . $CreditPaymentSummary['cash'] }}
+                                    {{ 'Sales: ' . $cashSales . ', Returns: ' . $cashReturns . ', Expenses: ' . $cashExpenses . ', Repayments: ' . $cashCreditPayments . ', Deposit ' . $cashDepositPayments . ', Cash Credit: ' . $cashCreditToday . ', CC Repayment: ' . $CreditPaymentSummary['cash'] . ', Funds Transfer ' . $cashFundTransfer }}
                                 </h6>
                             </div>
                         </div>
                     </div>
-
-                    
-                   
-
-
                 </div>
             </div>
 
@@ -38,13 +32,13 @@
                     <div class="col-md-6">
                         <ul class="iconlist fw-medium">
 
-                            
+
                             <li class="border border-success py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>Cash Returns: <span class="fw-bold"
                                         style="margin-left: 5px;">&#8358;{{ number_format($cashReturns, 0) }}</span></span>
                             </li>
-                           
+
                             <li class="border border-success py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>Cash Expenses: <span class="fw-bold"
@@ -78,14 +72,13 @@
                                 <span style="margin-left: auto;"></span>
                             </li>
 
-                        </li>
-                       
+                            </li>
+
 
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <ul class="iconlist fw-medium">
-
 
                             <li class="border border-success py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
@@ -98,7 +91,7 @@
                                 <span>Cash Credit Payments: <span class="fw-bold"
                                         style="margin-left: 5px;">&#8358;{{ number_format($cashCreditPayments, 0) }}</span></span>
                             </li>
-                           
+
                             <li class="border border-danger py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>Cash Sales: <span class="fw-bold" style="margin-left: 5px;">
@@ -108,26 +101,26 @@
                                 </span>
                             </li>
 
-                           
+
                             <li class="border border-success py-2 px-3 rounded mb-2"
-                            style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Awaiting Pickup: <span class="fw-bold"
-                                    style="margin-left: 5px;">{{ number_format(@$uncollectedSales->count(), 0) }}</span></span>
-                            <span style="margin-left: auto;"></span>
-                        </li>
-                        <li class="border border-success py-2 px-3 rounded mb-2"
-                            style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Total Cash Credit Balance Remaining: <span class="fw-bold"
-                                    style="margin-left: 5px;">&#8358;{{ number_format(@$TotalcashCredit, 0) }}</span></span>
-                            <span style="margin-left: auto;"></span>
-                        </li>
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Awaiting Pickup: <span class="fw-bold"
+                                        style="margin-left: 5px;">{{ number_format(@$uncollectedSales->count(), 0) }}</span></span>
+                                <span style="margin-left: auto;"></span>
+                            </li>
                             <li class="border border-success py-2 px-3 rounded mb-2"
-                            style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Low Stock Counts: <span class="fw-bold"
-                                    style="margin-left: 5px;">{{ $lows . ' of ' . $total_stock }}</span></span>
-                            <span style="margin-left: auto;"></span>
-                        </li>
-                      
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Total Cash Credit Balance Remaining: <span class="fw-bold"
+                                        style="margin-left: 5px;">&#8358;{{ number_format(@$TotalcashCredit, 0) }}</span></span>
+                                <span style="margin-left: auto;"></span>
+                            </li>
+                            <li class="border border-success py-2 px-3 rounded mb-2"
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Low Stock Counts: <span class="fw-bold"
+                                        style="margin-left: 5px;">{{ $lows . ' of ' . $total_stock }}</span></span>
+                                <span style="margin-left: auto;"></span>
+                            </li>
+
                         </ul>
                     </div>
                 </div>

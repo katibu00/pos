@@ -87,16 +87,16 @@ class HomeController extends Controller
                             ->where('payment_type', 'multiple')
                             ->where('payment_method', 'pos')
                             ->value('payment_amount');
-        
+
                         $total += $paymentAmount ?? 0;
-        
+
                         // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
                         $uniquePosReceipts[] = $sale->receipt_no;
                     }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-        
+
                 return $total;
             }, 0);
 
@@ -119,16 +119,16 @@ class HomeController extends Controller
                             ->where('payment_type', 'multiple')
                             ->where('payment_method', 'cash')
                             ->value('payment_amount');
-        
+
                         $total += $paymentAmount ?? 0;
-        
+
                         // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
                         $uniqueCashReceipts[] = $sale->receipt_no;
                     }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-        
+
                 return $total;
             }, 0);
 
@@ -151,16 +151,16 @@ class HomeController extends Controller
                             ->where('payment_type', 'multiple')
                             ->where('payment_method', 'transfer')
                             ->value('payment_amount');
-        
+
                         $total += $paymentAmount ?? 0;
-        
+
                         // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
                         $uniqueTransferReceipts[] = $sale->receipt_no;
                     }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-        
+
                 return $total;
             }, 0);
 
@@ -283,6 +283,26 @@ class HomeController extends Controller
         $data['chartData'] = $chartData;
 
         //////////////
+
+        $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
+
+
+        $cashTransfers = FundTransfer::where('from_account', 'cash')->orWhere('to_account', 'cash')->get();
+        $transferTransfers = FundTransfer::where('from_account', 'transfer')->orWhere('to_account', 'transfer')->get();
+        $posTransfers = FundTransfer::where('from_account', 'pos')->orWhere('to_account', 'pos')->get();
+
+        // Adjust the account balances based on funds transfers
+        $data['cashFundTransfer'] += $cashTransfers->sum(function ($transfer) {
+            return $transfer->from_account === 'cash' ? -$transfer->amount : ($transfer->to_account === 'cash' ? $transfer->amount : 0);
+        });
+
+        $data['transferFundTransfer'] += $transferTransfers->sum(function ($transfer) {
+            return $transfer->from_account === 'transfer' ? -$transfer->amount : ($transfer->to_account === 'transfer' ? $transfer->amount : 0);
+        });
+
+        $data['posFundTransfer'] += $posTransfers->sum(function ($transfer) {
+            return $transfer->from_account === 'pos' ? -$transfer->amount : ($transfer->to_account === 'pos' ? $transfer->amount : 0);
+        });
 
         return view('cashier', $data);
 
@@ -448,19 +468,18 @@ class HomeController extends Controller
                             ->where('payment_type', 'multiple')
                             ->where('payment_method', 'pos')
                             ->value('payment_amount');
-        
+
                         $total += $paymentAmount ?? 0;
-        
+
                         // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
                         $uniquePosReceipts[] = $sale->receipt_no;
                     }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-        
+
                 return $total;
             }, 0);
-        
 
         // $data['cashSales'] = $todaySales->where('payment_method', 'cash')->reduce(function ($total, $sale) {
         //     $total += ($sale->price * $sale->quantity) - $sale->discount;
@@ -469,31 +488,30 @@ class HomeController extends Controller
 
         $uniqueReceipts = [];
 
-$data['cashSales'] = $todaySales
-    ->filter(function ($sale) {
-        return $sale->payment_method == 'cash' || $sale->payment_method == 'multiple';
-    })
-    ->reduce(function ($total, $sale) use (&$uniqueReceipts) {
-        if ($sale->payment_method == 'multiple') {
-            // Check if the receipt number is not already in the uniqueReceipts array
-            if (!in_array($sale->receipt_no, $uniqueReceipts)) {
-                $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
-                    ->where('payment_type', 'multiple')
-                    ->where('payment_method', 'cash')
-                    ->value('payment_amount');
+        $data['cashSales'] = $todaySales
+            ->filter(function ($sale) {
+                return $sale->payment_method == 'cash' || $sale->payment_method == 'multiple';
+            })
+            ->reduce(function ($total, $sale) use (&$uniqueReceipts) {
+                if ($sale->payment_method == 'multiple') {
+                    // Check if the receipt number is not already in the uniqueReceipts array
+                    if (!in_array($sale->receipt_no, $uniqueReceipts)) {
+                        $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                            ->where('payment_type', 'multiple')
+                            ->where('payment_method', 'cash')
+                            ->value('payment_amount');
 
-                $total += $paymentAmount ?? 0;
+                        $total += $paymentAmount ?? 0;
 
-                // Add the receipt number to the uniqueReceipts array to ensure uniqueness
-                $uniqueReceipts[] = $sale->receipt_no;
-            }
-        } else {
-            $total += ($sale->price * $sale->quantity) - $sale->discount;
-        }
+                        // Add the receipt number to the uniqueReceipts array to ensure uniqueness
+                        $uniqueReceipts[] = $sale->receipt_no;
+                    }
+                } else {
+                    $total += ($sale->price * $sale->quantity) - $sale->discount;
+                }
 
-        return $total;
-    }, 0);
-
+                return $total;
+            }, 0);
 
         // $data['transferSales'] = $todaySales->where('payment_method', 'transfer')->reduce(function ($total, $sale) {
         //     $total += ($sale->price * $sale->quantity) - $sale->discount;
@@ -514,19 +532,18 @@ $data['cashSales'] = $todaySales
                             ->where('payment_type', 'multiple')
                             ->where('payment_method', 'transfer')
                             ->value('payment_amount');
-        
+
                         $total += $paymentAmount ?? 0;
-        
+
                         // Add the receipt number to the uniqueTransferReceipts array to ensure uniqueness
                         $uniqueTransferReceipts[] = $sale->receipt_no;
                     }
                 } else {
                     $total += ($sale->price * $sale->quantity) - $sale->discount;
                 }
-        
+
                 return $total;
             }, 0);
-        
 
         $data['creditSales'] = $todaySales->where('payment_method', 'credit')->reduce(function ($total, $sale) {
             $total += ($sale->price * $sale->quantity) - $sale->discount;
@@ -537,15 +554,13 @@ $data['cashSales'] = $todaySales
             return $total;
         }, 0);
 
-
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
             if ($sale->buying_price != 0) {
                 return ($sale->price - $sale->buying_price) * $sale->quantity;
             } else {
-                return ($sale->price - @$sale->product->buying_price) * $sale->quantity;
+                return ($sale->price-@$sale->product->buying_price) * $sale->quantity;
             }
         });
-        
 
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();
         $data['totalItemsSold'] = $todaySales->sum('quantity');
@@ -685,7 +700,6 @@ $data['cashSales'] = $todaySales
 
         $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
 
-
         $cashTransfers = FundTransfer::where('from_account', 'cash')->orWhere('to_account', 'cash')->get();
         $transferTransfers = FundTransfer::where('from_account', 'transfer')->orWhere('to_account', 'transfer')->get();
         $posTransfers = FundTransfer::where('from_account', 'pos')->orWhere('to_account', 'pos')->get();
@@ -702,9 +716,8 @@ $data['cashSales'] = $todaySales
         $data['posFundTransfer'] += $posTransfers->sum(function ($transfer) {
             return $transfer->from_account === 'pos' ? -$transfer->amount : ($transfer->to_account === 'pos' ? $transfer->amount : 0);
         });
-        
+
 // dd($data['posResult']);
-      
 
         return view('admin', $data);
 

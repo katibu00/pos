@@ -51,7 +51,7 @@
         </a></li>
 
     <li
-        class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }}  {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
+        class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }} {{ $route == 'fund_transfer.index' ? 'current' : '' }} {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
         <a class="menu-link" href="#">
             <div>Transactions</div>
         </a>
@@ -75,6 +75,11 @@
         <li class="menu-item {{ $route == 'returns.all' ? 'current' : '' }}">
             <a class="menu-link" href="{{ route('returns.all') }}">
                 <div>View Returns</div>
+            </a>
+        </li>
+        <li class="menu-item {{ $route == 'fund_transfer.index' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('fund_transfer.index') }}">
+                <div>Funds Transfer</div>
             </a>
         </li>
 

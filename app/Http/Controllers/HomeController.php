@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\CashCredit;
 use App\Models\Estimate;
 use App\Models\Expense;
+use App\Models\FundTransfer;
 use App\Models\Payment;
 use App\Models\Purchase;
 use App\Models\Returns;
@@ -681,6 +682,29 @@ $data['cashSales'] = $todaySales
         $data['pieChartData'] = $pieChartData;
 
         ///////////
+
+        $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
+
+
+        $cashTransfers = FundTransfer::where('from_account', 'cash')->orWhere('to_account', 'cash')->get();
+        $transferTransfers = FundTransfer::where('from_account', 'transfer')->orWhere('to_account', 'transfer')->get();
+        $posTransfers = FundTransfer::where('from_account', 'pos')->orWhere('to_account', 'pos')->get();
+
+        // Adjust the account balances based on funds transfers
+        $data['cashFundTransfer'] += $cashTransfers->sum(function ($transfer) {
+            return $transfer->from_account === 'cash' ? -$transfer->amount : ($transfer->to_account === 'cash' ? $transfer->amount : 0);
+        });
+
+        $data['transferFundTransfer'] += $transferTransfers->sum(function ($transfer) {
+            return $transfer->from_account === 'transfer' ? -$transfer->amount : ($transfer->to_account === 'transfer' ? $transfer->amount : 0);
+        });
+
+        $data['posFundTransfer'] += $posTransfers->sum(function ($transfer) {
+            return $transfer->from_account === 'pos' ? -$transfer->amount : ($transfer->to_account === 'pos' ? $transfer->amount : 0);
+        });
+        
+// dd($data['posResult']);
+      
 
         return view('admin', $data);
 

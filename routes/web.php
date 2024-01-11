@@ -7,6 +7,7 @@ use App\Http\Controllers\CashCreditsController;
 use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpensesController;
+use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PurchasesController;
@@ -268,3 +269,16 @@ Route::post('/data-sync/send', [DataSyncController::class, 'sendData'])->name('d
 
 Route::get('/get-product-suggestions',[SalesController::class, 'getProductSuggestions']);
 Route::get('/fetch-credit-balance', [SalesController::class, 'fetchBalanceOrDeposit']);
+
+
+Route::group(['prefix' => 'funds-transfer', 'middleware' => ['auth', 'staff']], function () {
+
+Route::get('/', [FundTransferController::class, 'index'])->name('fund_transfer.index');
+Route::post('/store', [FundTransferController::class, 'store'])->name('fund_transfer.store');
+
+// Additional routes for editing and deleting transfers if needed
+// Route::get('/funds-transfer/{id}/edit', [FundTransferController::class, 'edit'])->name('fund_transfer.edit');
+// Route::put('/funds-transfer/{id}/update', [FundTransferController::class, 'update'])->name('fund_transfer.update');
+// Route::delete('/funds-transfer/{id}/delete', [FundTransferController::class, 'destroy'])->name('fund_transfer.destroy');
+
+});

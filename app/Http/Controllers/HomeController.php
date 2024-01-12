@@ -285,11 +285,31 @@ class HomeController extends Controller
         //////////////
 
         $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
-
-
-        $cashTransfers = FundTransfer::where('from_account', 'cash')->orWhere('to_account', 'cash')->whereDate('created_at', today())->get();
-        $transferTransfers = FundTransfer::where('from_account', 'transfer')->orWhere('to_account', 'transfer')->whereDate('created_at', today())->get();
-        $posTransfers = FundTransfer::where('from_account', 'pos')->orWhere('to_account', 'pos')->whereDate('created_at', today())->get();
+        
+        // Get cash transfers created today
+        $cashTransfers = FundTransfer::where(function ($query) {
+            $query->where('from_account', 'cash')
+                  ->orWhere('to_account', 'cash');
+        })
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+        
+        // Get transfer transfers created today
+        $transferTransfers = FundTransfer::where(function ($query) {
+            $query->where('from_account', 'transfer')
+                  ->orWhere('to_account', 'transfer');
+        })
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+        
+        // Get pos transfers created today
+        $posTransfers = FundTransfer::where(function ($query) {
+            $query->where('from_account', 'pos')
+                  ->orWhere('to_account', 'pos');
+        })
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+        
 
         // Adjust the account balances based on funds transfers
         $data['cashFundTransfer'] += $cashTransfers->sum(function ($transfer) {
@@ -691,7 +711,7 @@ class HomeController extends Controller
         foreach ($salesByBranch as $sale) {
             $pieChartData['labels'][] = $sale->name;
             $pieChartData['data'][] = $sale->revenue;
-            $pieChartData['backgroundColor'][] = '#' . substr(md5(rand()), 0, 6); 
+            $pieChartData['backgroundColor'][] = '#' . substr(md5(rand()), 0, 6); // Generate random color for each branch
         }
 
         $data['pieChartData'] = $pieChartData;
@@ -700,9 +720,33 @@ class HomeController extends Controller
 
         $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
 
-        $cashTransfers = FundTransfer::where('from_account', 'cash')->orWhere('to_account', 'cash')->whereDate('created_at', today())->get();
-        $transferTransfers = FundTransfer::where('from_account', 'transfer')->orWhere('to_account', 'transfer')->whereDate('created_at', today())->get();
-        $posTransfers = FundTransfer::where('from_account', 'pos')->orWhere('to_account', 'pos')->whereDate('created_at', today())->get();
+
+        // ...
+        
+        // Get cash transfers created today
+        $cashTransfers = FundTransfer::where(function ($query) {
+            $query->where('from_account', 'cash')
+                  ->orWhere('to_account', 'cash');
+        })
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+        
+        // Get transfer transfers created today
+        $transferTransfers = FundTransfer::where(function ($query) {
+            $query->where('from_account', 'transfer')
+                  ->orWhere('to_account', 'transfer');
+        })
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+        
+        // Get pos transfers created today
+        $posTransfers = FundTransfer::where(function ($query) {
+            $query->where('from_account', 'pos')
+                  ->orWhere('to_account', 'pos');
+        })
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+        
 
         // Adjust the account balances based on funds transfers
         $data['cashFundTransfer'] += $cashTransfers->sum(function ($transfer) {
@@ -717,7 +761,6 @@ class HomeController extends Controller
             return $transfer->from_account === 'pos' ? -$transfer->amount : ($transfer->to_account === 'pos' ? $transfer->amount : 0);
         });
 
-// dd($data['posResult']);
 
         return view('admin', $data);
 

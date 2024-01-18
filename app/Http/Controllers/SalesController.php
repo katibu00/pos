@@ -144,7 +144,7 @@ class SalesController extends Controller
 
         foreach ($productIds as $key => $productId) {
             
-            if (!isset($quantities[$key]) || $quantities[$key] < 1) {
+            if (!isset($quantities[$key]) || $quantities[$key] < 0.01) {
                 return response()->json([
                     'status' => 400,
                     'message' => "Row " . ($key + 1) . ": Quantity field is required.",

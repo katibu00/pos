@@ -272,7 +272,7 @@ class EstimateController extends Controller
         'product.*' => 'required|exists:stocks,id',
         'price.*' => 'required|numeric|min:0',
         'quantity.*' => 'required|integer|min:1',
-        'discount.*' => 'nullable|numeric|min:0|max:100', // Added discount validation
+        'discount.*' => 'nullable|numeric', // Added discount validation
         'estimate_no' => 'required',
     ]);
 

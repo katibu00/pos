@@ -136,6 +136,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
+        // $('.stock').select2();
         var counter = 0;
         $(document).on("click", ".addeventmore", function() {
             var whole_extra_item_add = $("#whole_extra_item_add").html();

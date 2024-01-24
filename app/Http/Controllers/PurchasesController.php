@@ -97,7 +97,7 @@ class PurchasesController extends Controller
 
     function details($date){
 
-        $data['purchases'] = Purchase::where('branch_id', auth()->user()->branch_id)->whereDate('date', $date)->get();
+        $data['purchases'] = Purchase::with('product')->where('branch_id', auth()->user()->branch_id)->whereDate('date', $date)->get();
         return view('purchases.details',$data);
     }
 

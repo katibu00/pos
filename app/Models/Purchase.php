@@ -12,4 +12,17 @@ class Purchase extends Model
     public function product(){
         return $this->belongsTo(Stock::class, 'stock_id','id');
     }
+
+    protected $fillable = [
+        'branch_id',
+        'product_id',
+        'buying_price',
+        'quantity',
+        'old_quantity',
+        'old_buying_price',
+        'old_selling_price',
+        'date',
+    ];
 }
+
+

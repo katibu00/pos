@@ -1,5 +1,5 @@
 <div class="table-responsive text=nowrap">
-    <table class="table d-none table-hover" style="width:100%">
+    <table class="table qd-none table-hover" style="width:100%">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -29,31 +29,6 @@
                     </td>
                 </tr>
 
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModal{{ $key }}" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Delete ?</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{{ route('stock.delete') }}" method="post">
-                                    @csrf
-                                    <p>You cannot undo this operation once executed.</p>
-                                    <input type="hidden" name="id" value="{{ @$purchase->id }}">
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-danger ml-2">Delete</button>
-                            </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
             @endforeach
 
         </tbody>

@@ -29,7 +29,7 @@
                                 @foreach ($purchases as $key => $purchase)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <th>{{ $purchase['product']['name'] ?? '' }}</th>
+                                        <th>{{ $purchase->product->name ?? '' }}</th>
                                         <td>{{ number_format($purchase['product']['buying_price'] ?? 0, 0) }}</td>
                                         <td>{{ number_format($purchase->new_buying_price, 0) }}</td>
                                         <td>

@@ -15,7 +15,7 @@ class Purchase extends Model
 
     protected $fillable = [
         'branch_id',
-        'product_id',
+        'stock_id',
         'buying_price',
         'quantity',
         'old_quantity',

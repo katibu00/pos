@@ -33,8 +33,6 @@ class PurchasesController extends Controller
 
     public function store(Request $request)
     {
-        // dd(123);
-
         // Validate the incoming request
         $request->validate([
             'product.*' => 'required|exists:stocks,id',

@@ -199,7 +199,7 @@
                                         </div>
 
                                         <div id="paymentMethodSection" class="col-12 form-group">
-                                            <label>Payment Method:</label><br>
+                                            <label>Payment Channel:</label><br>
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input required" type="radio"
                                                     name="payment_method" id="cash" value="cash" required>
@@ -291,6 +291,15 @@
                                             <input type="number" name="paid_amount" id="paid_amount"
                                                 class="form-control mb-2">
                                         </div>
+                                        <div id="partialAmountField" style="display: none;padding: 0; margin: 0;">
+                                            <span>Partial Amount Payment Channel</span>
+                                            <select class="form-select" name="partial_payment_method">
+                                                <option value=""></option>
+                                                <option value="cash">Cash</option>
+                                                <option value="transfer">Transfer</option>
+                                                <option value="pos">POS</option>
+                                            </select>
+                                        </div>
 
                                         <div id="changeField" style="display: none;">
                                             Returning Change:
@@ -336,12 +345,14 @@
             var paymentMethodSection = $("#paymentMethodSection");
             var paymentMethodInputs = $("input[name='payment_method']");
             var paidAmountField = $("#paidAmountField");
+            var partialAmountField = $("#partialAmountField");
             var addLaborCostField = $("#addLaborCostField");
             var laborCostField = $("#laborCostField");
 
             if (selectedTransactionType === "estimate") {
                 paymentMethodSection.hide();
                 paidAmountField.hide();
+                partialAmountField.hide();
                 $("#changeField").hide();
                 $('#balanceContainer').hide();
                 $('#multiplePaymentsSection').hide();
@@ -351,6 +362,7 @@
                 paymentMethodSection.show();
                 $("#changeField").hide();
                 paidAmountField.hide();
+                partialAmountField.hide();
                 $('#balanceContainer').hide();
                 $('#multiplePaymentsSection').hide();
                 addLaborCostField.hide();
@@ -359,6 +371,7 @@
             } else {
                 paymentMethodSection.show();
                 paidAmountField.show();
+                partialAmountField.hide();
                 addLaborCostField.show();
 
                 paymentMethodInputs.attr("required", true);
@@ -417,7 +430,6 @@
 
                             $('#previousBalanceLabel').text('Previous Credit Balance:');
                             $('#previousBalance').text(response.balance_or_deposit);
-
                             var newCreditBalance = parseFloat(response.balance_or_deposit) +
                                 parseFloat($('#totalAmount').text().replace('₦', '')
                                     .replace(',', ''));
@@ -426,6 +438,8 @@
 
                             $("#paid_amount_span").text('Partial Cash Amount Paid (if any)');
                             $("#paidAmountField").show();
+                            $("#partialAmountField").show();
+                            $("#changeField").hide();
 
                         } else if (selectedPaymentMethod === 'deposit') {
 
@@ -451,8 +465,11 @@
             }
             if(selectedPaymentMethod === 'cash'){
                     $("#paidAmountField").show();
+                    $("#partialAmountField").hide();
+
                 }else{
                     $("#paidAmountField").hide();
+                    $("#partialAmountField").hide();
              }
 
              if (selectedPaymentMethod === 'multiple') {
@@ -823,6 +840,7 @@
                             $("input[name='transaction_type']").prop("checked", false);
                             $("#changeField").hide();
                             $("#laborCostField").hide();
+                            $("#partialAmountField").hide();
                             $("#paid_amount_span").text('Cash Amount Paid');
 
                         } else if (response.status === 400) {

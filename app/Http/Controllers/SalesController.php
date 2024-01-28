@@ -200,8 +200,15 @@ class SalesController extends Controller
 
                 if($request->paid_amount != null && $request->paid_amount > 0)
                 {
+                    if ($request->partial_payment_method == '') {
+                        return response()->json([
+                            'status' => 400,
+                            'message' => 'Please Partial Amount Payment Channel',
+                        ]);
+                    }
+
                     $payment = new Payment();
-                    $payment->payment_method = 'cash';
+                    $payment->payment_method = $request->partial_payment_method;
                     $payment->branch_id = auth()->user()->branch_id;
                     $payment->payment_amount = $request->paid_amount;
                     $payment->customer_id = $request->customer;

@@ -287,7 +287,7 @@
                                         </div>
 
                                         <div id="paidAmountField" style="padding: 0; margin: 0;">
-                                            <span id="paid_amount_span">Cash Amount Paid</span>
+                                            <span id="paid_amount_span"> Amount Paid</span>
                                             <input type="number" name="paid_amount" id="paid_amount"
                                                 class="form-control mb-2">
                                         </div>

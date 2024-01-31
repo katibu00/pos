@@ -292,6 +292,7 @@ class HomeController extends Controller
                   ->orWhere('to_account', 'cash');
         })
         ->whereDate('created_at', Carbon::today())
+        ->where('branch_id',$branch_id)
         ->get();
         
         // Get transfer transfers created today
@@ -300,6 +301,7 @@ class HomeController extends Controller
                   ->orWhere('to_account', 'transfer');
         })
         ->whereDate('created_at', Carbon::today())
+        ->where('branch_id',$branch_id)
         ->get();
         
         // Get pos transfers created today
@@ -308,6 +310,7 @@ class HomeController extends Controller
                   ->orWhere('to_account', 'pos');
         })
         ->whereDate('created_at', Carbon::today())
+        ->where('branch_id',$branch_id)
         ->get();
         
 

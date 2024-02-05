@@ -41,7 +41,7 @@
                     {{ @$estimated[0]->buyer->first_name }}
                 @endif
             </td>
-            <td>{{ $estimate->note }}</td>
+            <td>{{ $estimated[0]->note }}</td>
               <td class="text-center">{{ number_format($total_amount,0) }}</td>
               <td class="text-center">{{ number_format($total_discount,0) }}</td>
               <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>

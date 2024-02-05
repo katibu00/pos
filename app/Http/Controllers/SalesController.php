@@ -203,7 +203,7 @@ class SalesController extends Controller
                     if ($request->partial_payment_method == '') {
                         return response()->json([
                             'status' => 400,
-                            'message' => 'Please Partial Amount Payment Channel',
+                            'message' => 'Please choose Partial Amount Payment Channel',
                         ]);
                     }
 

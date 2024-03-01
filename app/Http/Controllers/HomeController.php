@@ -349,116 +349,330 @@ class HomeController extends Controller
         $data['branches'] = Branch::all();
         $branch_id = auth()->user()->branch_id;
 
-        if (isset($request->end_date)) {
+        // if (isset($request->end_date)) {
+        //     $startDate = \Carbon\Carbon::parse($request->start_date);
+        //     $endDate = \Carbon\Carbon::parse($request->end_date);
+
+        //     if ($endDate->isFuture()) {
+        //         Toastr::error('End date cannot be in the future');
+        //         return redirect()->route('admin.home');
+        //     }
+
+        //     $todaySales = Sale::where('branch_id', $branch_id)
+        //         ->whereNotIn('stock_id', [1093, 1012])
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->get();
+
+        //     $todayReturns = Returns::where('branch_id', $branch_id)
+        //         ->whereNull('channel')
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->get();
+
+        //     $todayExpenses = Expense::where('branch_id', $branch_id)
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->get();
+
+        //     $creditPayments = Payment::where('branch_id', $branch_id)
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->get();
+
+        //     $estimates = Estimate::where('branch_id', $branch_id)
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->get();
+
+        //     $purchases = Purchase::select('stock_id', 'quantity')
+        //         ->where('branch_id', $branch_id)
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->get();
+
+        //     $data['start_date'] = $startDate;
+        //     $data['end_date'] = $endDate;
+
+        //     $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->sum('amount');
+
+        //     $paymentSums = [
+        //         'cash' => 0,
+        //         'transfer' => 0,
+        //         'pos' => 0,
+        //     ];
+
+        //     $payments = DB::table('cash_credit_payments')
+        //         ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
+        //         ->whereDate('created_at', '>=', $startDate)
+        //         ->whereDate('created_at', '<=', $endDate)
+        //         ->groupBy('payment_method')
+        //         ->get();
+
+        //     foreach ($payments as $payment) {
+        //         if (array_key_exists($payment->payment_method, $paymentSums)) {
+        //             $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
+        //         }
+        //     }
+
+        //     $data['CreditPaymentSummary'] = [
+        //         'cash' => $paymentSums['cash'],
+        //         'transfer' => $paymentSums['transfer'],
+        //         'pos' => $paymentSums['pos'],
+        //     ];
+        // } else {
+        //     $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
+        //     $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
+        //     $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        //     $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        //     $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        //     $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+
+        //     $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', today())
+        //         ->sum(DB::raw('amount'));
+
+        //     $paymentSums = [
+        //         'cash' => 0,
+        //         'transfer' => 0,
+        //         'pos' => 0,
+        //     ];
+
+        //     $payments = DB::table('cash_credit_payments')
+        //         ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
+        //         ->whereDate('created_at', today())
+        //         ->groupBy('payment_method')
+        //         ->get();
+
+        //     foreach ($payments as $payment) {
+        //         if (array_key_exists($payment->payment_method, $paymentSums)) {
+        //             $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
+        //         }
+        //     }
+
+        //     $data['CreditPaymentSummary'] = [
+        //         'cash' => $paymentSums['cash'],
+        //         'transfer' => $paymentSums['transfer'],
+        //         'pos' => $paymentSums['pos'],
+        //     ];
+
+        // }
+
+
+
+
+
+
+// dd($request->start_date);
+        if ($request->start_date && $request->end_date) {
+            // Date range is provided
             $startDate = \Carbon\Carbon::parse($request->start_date);
             $endDate = \Carbon\Carbon::parse($request->end_date);
-
+        
             if ($endDate->isFuture()) {
                 Toastr::error('End date cannot be in the future');
                 return redirect()->route('admin.home');
             }
-
+        
             $todaySales = Sale::where('branch_id', $branch_id)
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-
+        
             $todayReturns = Returns::where('branch_id', $branch_id)
                 ->whereNull('channel')
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-
+        
             $todayExpenses = Expense::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-
+        
             $creditPayments = Payment::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-
+        
             $estimates = Estimate::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-
+        
             $purchases = Purchase::select('stock_id', 'quantity')
                 ->where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
-
-            $data['start_date'] = $startDate;
-            $data['end_date'] = $endDate;
-
+        
+            $data['start_date'] = $request->start_date;
+            $data['end_date'] = $request->end_date;
+            $data['date_type'] = 'range';
+        
             $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->sum('amount');
-
+        
             $paymentSums = [
                 'cash' => 0,
                 'transfer' => 0,
                 'pos' => 0,
             ];
-
+        
             $payments = DB::table('cash_credit_payments')
                 ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->groupBy('payment_method')
                 ->get();
-
+        
             foreach ($payments as $payment) {
                 if (array_key_exists($payment->payment_method, $paymentSums)) {
                     $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
                 }
             }
-
+        
             $data['CreditPaymentSummary'] = [
                 'cash' => $paymentSums['cash'],
                 'transfer' => $paymentSums['transfer'],
                 'pos' => $paymentSums['pos'],
             ];
-        } else {
-            $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
-            $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
-            $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-            $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-            $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-            $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-
-            $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', today())
+        
+        } elseif ($request->selected_date) {
+            // Single date is provided
+            $selectedDate = \Carbon\Carbon::parse($request->selected_date);
+        
+            $todaySales = Sale::where('branch_id', $branch_id)
+                ->whereNotIn('stock_id', [1093, 1012])
+                ->whereDate('created_at', $selectedDate)
+                ->get();
+        
+            $todayReturns = Returns::where('branch_id', $branch_id)
+                ->whereNull('channel')
+                ->whereDate('created_at', $selectedDate)
+                ->get();
+        
+            $todayExpenses = Expense::where('branch_id', $branch_id)
+                ->whereDate('created_at', $selectedDate)
+                ->get();
+        
+            $creditPayments = Payment::where('branch_id', $branch_id)
+                ->whereDate('created_at', $selectedDate)
+                ->get();
+        
+            $estimates = Estimate::where('branch_id', $branch_id)
+                ->whereDate('created_at', $selectedDate)
+                ->get();
+        
+            $purchases = Purchase::select('stock_id', 'quantity')
+                ->where('branch_id', $branch_id)
+                ->whereDate('created_at', $selectedDate)
+                ->get();
+        
+            $data['selected_date'] = $request->selected_date;
+            $data['date_type'] = 'single';
+        
+            $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)
+                ->whereDate('created_at', $selectedDate)
                 ->sum(DB::raw('amount'));
-
+        
             $paymentSums = [
                 'cash' => 0,
                 'transfer' => 0,
                 'pos' => 0,
             ];
 
+       
+        
+            $payments = DB::table('cash_credit_payments')
+                ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
+                ->whereDate('created_at', $selectedDate)
+                ->groupBy('payment_method')
+                ->get();
+        
+            foreach ($payments as $payment) {
+                if (array_key_exists($payment->payment_method, $paymentSums)) {
+                    $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
+                }
+            }
+        
+            $data['CreditPaymentSummary'] = [
+                'cash' => $paymentSums['cash'],
+                'transfer' => $paymentSums['transfer'],
+                'pos' => $paymentSums['pos'],
+            ];
+        
+        } else {
+            // No date provided, use today's date
+            $todaySales = Sale::where('branch_id', $branch_id)
+                ->whereNotIn('stock_id', [1093, 1012])
+                ->whereDate('created_at', today())
+                ->get();
+        
+            $todayReturns = Returns::where('branch_id', $branch_id)
+                ->whereNull('channel')
+                ->whereDate('created_at', today())
+                ->get();
+        
+            $todayExpenses = Expense::where('branch_id', $branch_id)
+                ->whereDate('created_at', today())
+                ->get();
+        
+            $creditPayments = Payment::where('branch_id', $branch_id)
+                ->whereDate('created_at', today())
+                ->get();
+        
+            $estimates = Estimate::where('branch_id', $branch_id)
+                ->whereDate('created_at', today())
+                ->get();
+        
+            $purchases = Purchase::select('stock_id', 'quantity')
+                ->where('branch_id', $branch_id)
+                ->whereDate('created_at', today())
+                ->get();
+        
+            $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)
+                ->whereDate('created_at', today())
+                ->sum(DB::raw('amount'));
+        
+            $paymentSums = [
+                'cash' => 0,
+                'transfer' => 0,
+                'pos' => 0,
+            ];
+        
             $payments = DB::table('cash_credit_payments')
                 ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
                 ->whereDate('created_at', today())
                 ->groupBy('payment_method')
                 ->get();
-
+        
             foreach ($payments as $payment) {
                 if (array_key_exists($payment->payment_method, $paymentSums)) {
                     $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
                 }
             }
-
+        
             $data['CreditPaymentSummary'] = [
                 'cash' => $paymentSums['cash'],
                 'transfer' => $paymentSums['transfer'],
                 'pos' => $paymentSums['pos'],
             ];
-
         }
+        
+
+
+
+
+
+
+
+
 
         $data['TotalcashCredit'] = CashCredit::where('branch_id', $branch_id)
             ->whereRaw('amount > amount_paid')

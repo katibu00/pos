@@ -137,12 +137,15 @@
                     <div class="stats-section">
                         <h3 class="stats-title">
                             @if (isset($start_date) && isset($end_date))
-                                Stats for {{ \Carbon\Carbon::parse($start_date)->toFormattedDateString() }}
-                                to {{ \Carbon\Carbon::parse($end_date)->toFormattedDateString() }}
-                                ({{ \Carbon\Carbon::parse($start_date)->diffInDays($end_date) }} days apart)
-                            @else
-                                Today's Stats &gt;&gt;&gt;
-                            @endif
+                            Stats for {{ \Carbon\Carbon::parse($start_date)->toFormattedDateString() }}
+                            - {{ \Carbon\Carbon::parse($end_date)->toFormattedDateString() }}
+                            ({{ \Carbon\Carbon::parse($start_date)->diffInDays($end_date) }} days apart)
+                        @elseif (isset($selected_date))
+                            Stats for {{ \Carbon\Carbon::parse($selected_date)->toFormattedDateString() }}
+                        @else
+                            Today's Stats &gt;&gt;&gt;
+                        @endif
+                        
                         </h3>
                         <div class="row">
 
@@ -349,27 +352,66 @@
 
                 <div class="container">
                     <div class="row">
+                      
                         <div class="col-md-8">
-                            <form class="row" action="{{ route('change_date') }}" method="POST">
+                            <form class="row" action="{{ route('change_date') }}" method="POST" id="date_form">
                                 @csrf
                                 <div class="col-5">
-                                    <label for="start_date" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="start_date"
-                                        name="start_date" required value="{{ isset($start_date) ? $start_date : '' }}">
+                                    <label for="date_type" class="form-label">Select Date Type</label>
+                                    <select class="form-control form-control-sm" id="date_type" name="date_type" required>
+                                        <option value="single" {{ isset($date_type) && $date_type === 'single' ? 'selected' : '' }}>Single Date</option>
+                                        <option value="range" {{ isset($date_type) && $date_type === 'range' ? 'selected' : '' }}>Date Range</option>
+                                    </select>
                                 </div>
-                                <div class="col-5">
+                                <div id="single_date_fields" class="col-5" style="{{ isset($date_type) && $date_type === 'single' ? 'display: block;' : 'display: none;' }}">
+                                    <label for="selected_date" class="form-label">Selected Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="selected_date" name="selected_date" {{ isset($date_type) && $date_type === 'single' ? 'required' : '' }} value="{{ isset($selected_date) ? $selected_date : '' }}">
+                                </div>
+                                <div id="range_date_fields" class="col-5" style="{{ isset($date_type) && $date_type === 'range' ? 'display: block;' : 'display: none;' }}">
+                                    <label for="start_date" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="start_date" name="start_date" {{ isset($date_type) && $date_type === 'range' ? 'required' : '' }} value="{{ isset($start_date) ? $start_date : '' }}">
                                     <label for="end_date" class="form-label">End Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="end_date"
-                                        name="end_date" required value="{{ isset($end_date) ? $end_date : '' }}">
+                                    <input type="date" class="form-control form-control-sm" id="end_date" name="end_date" {{ isset($date_type) && $date_type === 'range' ? 'required' : '' }} value="{{ isset($end_date) ? $end_date : '' }}">
                                 </div>
                                 <div class="col-2">
                                     <label class="invisible">Submit</label>
-                                    <button type="submit" class="btn btn-sm btn-primary text-white col-12">View
-                                        Stats</button>
+                                    <button type="submit" class="btn btn-sm btn-primary text-white col-12">View Stats</button>
                                 </div>
                             </form>
-
                         </div>
+                        
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                var dateTypeSelect = document.getElementById('date_type');
+                                var singleDateFields = document.getElementById('single_date_fields');
+                                var rangeDateFields = document.getElementById('range_date_fields');
+                        
+                                // Function to show/hide fields based on selected date type
+                                function toggleDateFields() {
+                                    if (dateTypeSelect.value === 'single') {
+                                        singleDateFields.style.display = 'block';
+                                        rangeDateFields.style.display = 'none';
+                                        document.getElementById('selected_date').setAttribute('required', '');
+                                        document.getElementById('start_date').removeAttribute('required');
+                                        document.getElementById('end_date').removeAttribute('required');
+                                    } else {
+                                        singleDateFields.style.display = 'none';
+                                        rangeDateFields.style.display = 'block';
+                                        document.getElementById('selected_date').removeAttribute('required');
+                                        document.getElementById('start_date').setAttribute('required', '');
+                                        document.getElementById('end_date').setAttribute('required', '');
+                                    }
+                                }
+                        
+                                // Initial invocation
+                                toggleDateFields();
+                        
+                                // Event listener for date type change
+                                dateTypeSelect.addEventListener('change', toggleDateFields);
+                            });
+                        </script>
+                        
+                        
 
                         <div class="col-md-4">
                             <form class="row" action="{{ route('change_branch') }}" method="POST">

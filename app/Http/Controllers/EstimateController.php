@@ -136,17 +136,20 @@ class EstimateController extends Controller
         return redirect()->route('estimate.all.index');
     }
 
+
     public function allSearch(Request $request)
     {
         $query = $request->input('query');
         $user = auth()->user();
 
-        // Perform the search query on the Sale model
         $data['estimates'] = Estimate::select('product_id', 'estimate_no')
-            ->where('branch_id', auth()->user()->branch_id)
+            ->where('branch_id', $user->branch_id)
             ->where(function ($queryBuilder) use ($query) {
-                $queryBuilder->where('estimate_no', 'LIKE', '%' . $query . '%')
-                    ->orWhere('note', 'LIKE', '%' . $query . '%');
+                $queryBuilder->whereHas('buyer', function ($queryBuilder) use ($query) {
+                    $queryBuilder->where('first_name', 'LIKE', '%' . $query . '%')
+                        ->orWhere('last_name', 'LIKE', '%' . $query . '%');
+                })
+                ->orWhere('note', 'LIKE', '%' . $query . '%');
             })
             ->groupBy('estimate_no')
             ->orderBy('created_at', 'desc')
@@ -154,11 +157,11 @@ class EstimateController extends Controller
             ->get();
 
         $data['customers'] = User::select('id', 'first_name')->where('branch_id', $user->branch_id)->where('usertype', 'customer')->orderBy('first_name')->get();
-        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', $user->branch_id)->get();
 
         return view('estimate.all_table', $data)->render();
-
     }
+
 
     public function filterSales(Request $request)
     {
@@ -181,7 +184,6 @@ class EstimateController extends Controller
 
         return view('estimate.all_table', $data)->render();
     }
-
 
 
     public function update(Request $request)

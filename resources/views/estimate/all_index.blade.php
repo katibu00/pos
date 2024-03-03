@@ -13,7 +13,7 @@
                         <div class="col-12 col-md-4 mb-2 mb-md-0">
                             <div class="form-group">
                                 <input type="text" class="form-control" id="searchInput"
-                                    placeholder="Search by Estimate ID or Note">
+                                    placeholder="Search by Customer Name or Note">
                             </div>
                         </div>
                         <div class="col-12 col-md-3 mb-2 mb-md-0">

@@ -12,7 +12,7 @@
                         </div>
                         <div class="col-12 col-md-3 mb-2 mb-md-0">
                             <div class="form-group">
-                                <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search By Customer name or Note">
                             </div>
                         </div>
                         <div class="col-12 col-md-3 mb-2 mb-md-0">

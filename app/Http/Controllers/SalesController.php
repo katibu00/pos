@@ -552,22 +552,27 @@ class SalesController extends Controller
         return view('sales.all_index', $data);
     }
 
+
     public function allSearch(Request $request)
     {
-        $query = $request->input('query');
+        $searchQuery = $request->input('query');
 
-        // Perform the search query on the Sale model
-        $data['sales'] = Sale::select('stock_id', 'receipt_no')
-            ->where('branch_id', auth()->user()->branch_id)
-            ->where('receipt_no', 'LIKE', '%' . $query . '%')
-            ->groupBy('receipt_no')
-            ->orderBy('created_at', 'desc')
+        $data['sales'] = Sale::select('sales.stock_id', 'sales.receipt_no')
+            ->join('users', 'sales.customer', '=', 'users.id')
+            ->where('sales.branch_id', auth()->user()->branch_id)
+            ->where(function($query) use ($searchQuery) {
+                $query->where('users.first_name', 'like', "%$searchQuery%")
+                    ->orWhere('users.last_name', 'like', "%$searchQuery%")
+                    ->orWhere('sales.note', 'like', "%$searchQuery%");
+            })
+            ->groupBy('sales.receipt_no')
+            ->orderBy('sales.created_at', 'desc')
             ->take(100)
             ->get();
 
         return view('sales.all_table', $data)->render();
-
     }
+
 
     public function filterSales(Request $request)
     {

@@ -3,7 +3,6 @@
         <thead>
             <tr>
                 <th scope="col" class="text-center">#</th>
-                <th scope="col">Sales ID</th>
                 <th scope="col">Date</th>
                 <th scope="col">Name</th>
                 <th scope="col" class="text-center">Amount (&#8358;)</th>
@@ -35,7 +34,6 @@
                     @else
                         <td class="text-center">{{ $key + 1 }}</td>
                     @endif
-                    <th scope="row">{{ $sale->receipt_no }}</th>
                     <td>{{ $saled[0]->created_at->format('l, d F') }}</td>
                     <td>
                         @if (is_null($saled[0]->customer))

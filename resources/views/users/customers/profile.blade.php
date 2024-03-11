@@ -365,14 +365,14 @@
                 <h4 class="modal-title" id="myModalLabel">Add New Payment</h4>
                 <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
             </div>
-            <form action="{{ route('customers.save.payment') }}" method="POST">
+            <form id="addPaymentForm">
                 @csrf
                 <div class="modal-body">
 
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="" class="col-form-label">Payment Method:</label>
-                            <select class="form-select" name="payment_method" required>
+                            <select id="paymentMethod" class="form-select" name="payment_method" required>
                                 <option value=""></option>
                                 <option value="cash">Cash</option>
                                 <option value="transfer">Transfer</option>
@@ -387,7 +387,7 @@
                             <thead>
                                 <tr>
                                     <th>S/N</th>
-                                    <th>Sales ID</th>
+                                    <th>Sales Date</th>
                                     <th>Amount</th>
                                     <th>Payment Option</th>
                                     <th>Partial Amount</th>
@@ -433,7 +433,7 @@
                                     <input type="hidden" value="{{ $amount_payable }}" name="full_payment_payable[]" />
                                     <tr class="{{ $date->status == 'partial' ? 'bg-info text-white' : '' }}">
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $date->receipt_no }}</td>
+                                        <td>{{ $date->created_at }}</td>
                                         <td>&#8358;{{ number_format($amount_payable, 0) }}</td>
                                         <td>
                                             <div class="form-check form-check-inline">
@@ -482,7 +482,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary ml-2">Add Payment</button>
+                    <button type="button" id="submitFormBtn" class="btn btn-primary ml-2">Add Payment</button>
                 </div>
             </form>
         </div>
@@ -566,8 +566,95 @@
 
 @section('js')
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
+
+$(document).ready(function() {
+   
+    $('#submitFormBtn').click(function(event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        if (!$('#paymentMethod').val()) {
+            swal({
+                title: "Error!",
+                text: "Please select a payment method.",
+                icon: "error",
+            });
+            return; // Exit the function to prevent further execution
+        }
+
+        // Serialize form data
+        var formData = $('#addPaymentForm').serialize();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.LoadingOverlay("show");
+
+        $.ajax({
+            url: '{{ route('customers.save.payment') }}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                $.LoadingOverlay("hide");
+                $('.addModal').modal('hide');
+             
+                if (response.success) {
+                    swal({
+                        title: "Success!",
+                        text: response.success,
+                        icon: "success",
+                    }).then((value) => {
+                        location.reload();
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                // If there was an error, handle it accordingly
+                console.error('Error:', error);
+                $.LoadingOverlay("hide");
+
+                // Check if there's an error message
+                if (xhr.status === 400) {
+                    swal({
+                        title: "Error!",
+                        text: xhr.responseJSON.error,
+                        icon: "error",
+                    });
+                } else if (xhr.status === 500) {
+                    swal({
+                        title: "Error!",
+                        text: "Internal Server Error. Please try again later.",
+                        icon: "error",
+                    });
+                }
+            },
+            complete: function(xhr, status) {
+                $.LoadingOverlay("hide");
+
+                // Check if there's a warning message
+                if (xhr.responseJSON && xhr.responseJSON.warning) {
+                    swal({
+                        title: "Warning!",
+                        text: xhr.responseJSON.warning,
+                        icon: "warning",
+                    });
+                }
+            }
+        });
+    });
+});
+
+
+
+
+
+
+
     function editDeposit(depositId, paymentAmount) {
         $('#editModal').find('#depositId').val(depositId);
         $('#editModal').find('#paymentAmount').val(paymentAmount);
@@ -678,15 +765,8 @@
 
                 html += `The payment of &#8358;${res.payment.payment_amount.toLocaleString()} was paid to El-Habib plumbing on ${res.date} in settlement of Sales Receipt ${res.payment.receipt_nos}. <br/> Your Updated Current Balance is &#8358;${res.balance.toLocaleString()}`
                 
-                // html +=
-                //     '<tr style="text-align: center">' +
-                //     '<td></td>' +
-                //     '<td colspan="2"><b>Total Amount</b></td>' +
-                //     '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                //     '</tr>';
-
+               
                 html = $('#content-body').html(html);
-                // $('.tran_id').html('S' + res.items[0].receipt_no);
 
                 var data = document.getElementById('print').innerHTML;
 
@@ -729,4 +809,5 @@
         });
     }
 </script>
+
 @endsection

@@ -158,10 +158,8 @@ class UsersController extends Controller
         $receipt_nos = [];
         $total_amount_paid = 0;
 
-        if($request->receipt_no == null)
-        {
-            Toastr::error("No Transaction selected");
-            return redirect()->back();
+        if ($request->receipt_no == null) {
+            return response()->json(['error' => 'No transaction selected'], 400);
         }
 
         $rowCount = count($request->receipt_no);
@@ -172,10 +170,8 @@ class UsersController extends Controller
                   
                     if ($request->payment_method == 'deposit') 
                     {
-                        if($customer->deposit < $request->full_payment_payable[$i]) 
-                        {
-                            Toastr::error("Customer has no enough deposit balance");
-                            return redirect()->back();
+                        if ($customer->deposit < $request->full_payment_payable[$i]) {
+                            return response()->json(['error' => 'Customer has insufficient deposit balance'], 400);
                         }
                     }
                   
@@ -192,8 +188,7 @@ class UsersController extends Controller
                         DB::table('sales')
                             ->where('receipt_no', '=', $request->receipt_no[$i])
                             ->update(['status' => 'paid']);
-                        // $amount_paid = $total_amount - $sales[0]->payment_amount;
-                        // dd($amount_paid);
+
                         if ($request->payment_method == 'deposit') {
                             $customer->deposit -= $request->full_payment_payable[$i];
                             $customer->balance -= $request->full_payment_payable[$i];
@@ -228,10 +223,8 @@ class UsersController extends Controller
 
                     if ($request->payment_method == 'deposit') 
                     {
-                        if($customer->deposit < $request->partial_amount[$i]) 
-                        {
-                            Toastr::error("Customer has no enough deposit balance");
-                            return redirect()->back();
+                        if ($customer->deposit < $request->partial_amount[$i]) {
+                            return response()->json(['error' => 'Customer has insufficient deposit balance'], 400);
                         }
                     }
 
@@ -246,8 +239,7 @@ class UsersController extends Controller
                             ->get();
 
                         if ($sales->count() < 1) {
-                            Toastr::error("Sale not found for receipt no: $receiptNo");
-                            return redirect()->back();
+                            return response()->json(['error' => "Sale not found for receipt no: $receiptNo"], 400);
                         }
 
                         $total_amount = 0;
@@ -257,10 +249,11 @@ class UsersController extends Controller
 
                         $newPaymentAmount = $sales[0]->payment_amount + $partialAmount;
 
+                       
                         if ($newPaymentAmount > $total_amount) {
-                            Toastr::error('Amount is greater than the total for the Receipt No: ' . $receiptNo, 'Amount Exceeded');
-                            return redirect()->back();
+                            return response()->json(['error' => 'Amount exceeds total for the receipt'], 400);
                         }
+                        
 
                         DB::table('sales')
                             ->where('receipt_no', $receiptNo)
@@ -286,6 +279,7 @@ class UsersController extends Controller
 
                     } catch (Exception $e) {
                         DB::rollback();
+                        return response()->json(['error' => 'An error occurred while processing the payment'], 500);
 
                     }
 
@@ -305,15 +299,17 @@ class UsersController extends Controller
             $record->user_id = auth()->user()->id;
             $record->save();
 
-            Toastr::success('Payment has been Recorded sucessfully', 'Done');
-            return redirect()->back();
+            return response()->json(['success' => 'Payment recorded successfully'], 200);
+
 
         }
 
-        Toastr::warning('Sales amount is zero. Nothing Recorded', 'Not Recorded');
-        return redirect()->back();
+        return response()->json(['warning' => 'Sales amount is zero. Nothing recorded'], 200);
+
 
     }
+
+
     public function saveDeposit(Request $request)
     {
         $record = new Payment();

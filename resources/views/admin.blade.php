@@ -310,6 +310,14 @@
                                             style="margin-left: auto;">({{ 'Sales Profit: ' . number_format($grossProfit, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Return Profit: ' . number_format($returnProfit, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})
                                         </span>
                                     </li>
+                                    <li class="border border-danger py-2 px-3 rounded mb-2"
+                                        style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Net Profit(approx.): <span class="fw-bold"
+                                                style="margin-left: 5px;">&#8358;{{ number_format($grossProfit - $totalDiscounts - ($returnProfit - $returnDiscounts) - $totalExpenses, 0) }}</span></span>
+                                        <span
+                                            style="margin-left: auto;">({{ 'Sales Profit: ' . number_format($grossProfit, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Return Profit: ' . number_format($returnProfit, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) . ' Expenses: ' . number_format($totalExpenses, 0)}})
+                                        </span>
+                                    </li>
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Low Stock Counts: <span class="fw-bold"

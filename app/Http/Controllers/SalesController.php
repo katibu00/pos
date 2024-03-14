@@ -13,8 +13,8 @@ use App\Models\Stock;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Notifications\SalesNotification;
 
 
 class SalesController extends Controller
@@ -135,7 +135,6 @@ class SalesController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
 
         $productIds = $request->input('product_id');
         $quantities = $request->input('quantity');
@@ -254,6 +253,8 @@ class SalesController extends Controller
                 $data->status = $status;
                 $data->save();
 
+
+
                 // Update stock quantity
                 $stock = Stock::find($productId);
                 $stock->quantity -= $request->quantity[$index];
@@ -297,6 +298,22 @@ class SalesController extends Controller
                 }
             }
 
+            $totalSalesAmount = 0;
+            foreach ($request->product_id as $index => $productId) {
+                $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
+                $totalSalesAmount += $productTotal;
+            }
+
+            // Determine customer name
+            $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer)->first_name;
+
+            $branchName = auth()->user()->branch->name;
+
+            $notificationMessage = "New Sale: $customerName brought goods worth ₦" . number_format($totalSalesAmount, 0) . " in $branchName Branch and paid via $paymentMethod.";
+
+            // Send notification to admin
+            $admin = User::where('usertype', 'admin')->first();
+            $admin->notify(new SalesNotification($notificationMessage));
            
             return response()->json([
                 'status' => 201,
@@ -326,6 +343,23 @@ class SalesController extends Controller
                     $data->save();
                 }
             }
+
+            $totalSalesAmount = 0;
+            foreach ($request->product_id as $index => $productId) {
+                $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
+                $totalSalesAmount += $productTotal;
+            }
+
+            // Determine customer name
+            $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer)->first_name;
+
+            $branchName = auth()->user()->branch->name;
+
+            $notificationMessage = "New Estimate: $customerName was issued quotation totalled ₦" . number_format($totalSalesAmount, 0) . " in $branchName Branch. Note: $request->note";
+
+            // Send notification to admin
+            $admin = User::where('usertype', 'admin')->first();
+            $admin->notify(new SalesNotification($notificationMessage));
 
             return response()->json([
                 'status' => 201,
@@ -383,6 +417,23 @@ class SalesController extends Controller
 
                 }
             }
+
+            $totalSalesAmount = 0;
+            foreach ($request->product_id as $index => $productId) {
+                $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
+                $totalSalesAmount += $productTotal;
+            }
+
+            // Determine customer name
+            $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer)->first_name;
+
+            $branchName = auth()->user()->branch->name;
+
+            $notificationMessage = "New Return: $customerName returned goods worth ₦" . number_format($totalSalesAmount, 0) . " in $branchName Branch.";
+
+            // Send notification to admin
+            $admin = User::where('usertype', 'admin')->first();
+            $admin->notify(new SalesNotification($notificationMessage));
 
             return response()->json([
                 'status' => 201,

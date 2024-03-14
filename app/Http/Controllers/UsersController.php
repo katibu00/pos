@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
-use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\Returns;
 use App\Models\Sale;
@@ -15,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\SalesNotification;
 
 class UsersController extends Controller
 {
@@ -298,6 +298,20 @@ class UsersController extends Controller
             $record->receipt_nos = implode(',', $receipt_nos);
             $record->user_id = auth()->user()->id;
             $record->save();
+
+
+
+           
+            // Determine customer name
+            $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer_id)->first_name;
+
+            $branchName = auth()->user()->branch->name;
+
+            $notificationMessage = "New Credit Repayment: $customerName paid credit balance of ₦" . number_format($total_amount_paid, 0) . " via $request->payment_method in $branchName Branch.";
+
+            // Send notification to admin
+            $admin = User::where('usertype', 'admin')->first();
+            $admin->notify(new SalesNotification($notificationMessage));
 
             return response()->json(['success' => 'Payment recorded successfully'], 200);
 

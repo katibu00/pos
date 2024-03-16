@@ -661,7 +661,7 @@ class HomeController extends Controller
         }, 0);
 // =======
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
-            if ($sale->buying_price != 0) {
+            if ($sale->buying_price !== 0) {
                 return ($sale->price - $sale->buying_price) * $sale->quantity;
             } else {
                 // return ($sale->price-@$sale->product->buying_price) * $sale->quantity;

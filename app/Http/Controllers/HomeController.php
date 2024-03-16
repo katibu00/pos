@@ -434,7 +434,7 @@ class HomeController extends Controller
             $todaySales = Sale::where('branch_id', $branch_id)
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->whereDate('created_at', $selectedDate)
-                ->get();
+                ->get(); dd($todaySales);
         
             $todayReturns = Returns::where('branch_id', $branch_id)
                 ->whereNull('channel')
@@ -651,9 +651,6 @@ class HomeController extends Controller
 
 
 
-
-
-
         $data['creditSales'] = $todaySales->where('payment_method', 'credit')->reduce(function ($total, $sale) {
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
@@ -662,7 +659,7 @@ class HomeController extends Controller
             $total += ($sale->price * $sale->quantity) - $sale->discount;
             return $total;
         }, 0);
-
+// =======
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
             if ($sale->buying_price != 0) {
                 return ($sale->price - $sale->buying_price) * $sale->quantity;

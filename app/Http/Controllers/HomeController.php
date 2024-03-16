@@ -434,6 +434,7 @@ class HomeController extends Controller
             $todaySales = Sale::where('branch_id', $branch_id)
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->whereDate('created_at', $selectedDate)
+                ->take(5)
                 ->get(); dd($todaySales);
         
             $todayReturns = Returns::where('branch_id', $branch_id)

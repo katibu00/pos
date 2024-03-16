@@ -349,123 +349,7 @@ class HomeController extends Controller
         $data['branches'] = Branch::all();
         $branch_id = auth()->user()->branch_id;
 
-        // if (isset($request->end_date)) {
-        //     $startDate = \Carbon\Carbon::parse($request->start_date);
-        //     $endDate = \Carbon\Carbon::parse($request->end_date);
 
-        //     if ($endDate->isFuture()) {
-        //         Toastr::error('End date cannot be in the future');
-        //         return redirect()->route('admin.home');
-        //     }
-
-        //     $todaySales = Sale::where('branch_id', $branch_id)
-        //         ->whereNotIn('stock_id', [1093, 1012])
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->get();
-
-        //     $todayReturns = Returns::where('branch_id', $branch_id)
-        //         ->whereNull('channel')
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->get();
-
-        //     $todayExpenses = Expense::where('branch_id', $branch_id)
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->get();
-
-        //     $creditPayments = Payment::where('branch_id', $branch_id)
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->get();
-
-        //     $estimates = Estimate::where('branch_id', $branch_id)
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->get();
-
-        //     $purchases = Purchase::select('stock_id', 'quantity')
-        //         ->where('branch_id', $branch_id)
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->get();
-
-        //     $data['start_date'] = $startDate;
-        //     $data['end_date'] = $endDate;
-
-        //     $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->sum('amount');
-
-        //     $paymentSums = [
-        //         'cash' => 0,
-        //         'transfer' => 0,
-        //         'pos' => 0,
-        //     ];
-
-        //     $payments = DB::table('cash_credit_payments')
-        //         ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
-        //         ->whereDate('created_at', '>=', $startDate)
-        //         ->whereDate('created_at', '<=', $endDate)
-        //         ->groupBy('payment_method')
-        //         ->get();
-
-        //     foreach ($payments as $payment) {
-        //         if (array_key_exists($payment->payment_method, $paymentSums)) {
-        //             $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
-        //         }
-        //     }
-
-        //     $data['CreditPaymentSummary'] = [
-        //         'cash' => $paymentSums['cash'],
-        //         'transfer' => $paymentSums['transfer'],
-        //         'pos' => $paymentSums['pos'],
-        //     ];
-        // } else {
-        //     $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
-        //     $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
-        //     $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        //     $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        //     $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        //     $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-
-        //     $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', today())
-        //         ->sum(DB::raw('amount'));
-
-        //     $paymentSums = [
-        //         'cash' => 0,
-        //         'transfer' => 0,
-        //         'pos' => 0,
-        //     ];
-
-        //     $payments = DB::table('cash_credit_payments')
-        //         ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
-        //         ->whereDate('created_at', today())
-        //         ->groupBy('payment_method')
-        //         ->get();
-
-        //     foreach ($payments as $payment) {
-        //         if (array_key_exists($payment->payment_method, $paymentSums)) {
-        //             $paymentSums[$payment->payment_method] += $payment->total_amount_paid;
-        //         }
-        //     }
-
-        //     $data['CreditPaymentSummary'] = [
-        //         'cash' => $paymentSums['cash'],
-        //         'transfer' => $paymentSums['transfer'],
-        //         'pos' => $paymentSums['pos'],
-        //     ];
-
-        // }
-
-
-
-
-
-
-// dd($request->start_date);
         if ($request->start_date && $request->end_date) {
             // Date range is provided
             $startDate = \Carbon\Carbon::parse($request->start_date);
@@ -668,12 +552,6 @@ class HomeController extends Controller
 
 
 
-
-
-
-
-
-
         $data['TotalcashCredit'] = CashCredit::where('branch_id', $branch_id)
             ->whereRaw('amount > amount_paid')
             ->sum(DB::raw('amount - amount_paid'));
@@ -789,7 +667,7 @@ class HomeController extends Controller
             if ($sale->buying_price != 0) {
                 return ($sale->price - $sale->buying_price) * $sale->quantity;
             } else {
-                return ($sale->price-@$sale->product->buying_price) * $sale->quantity;
+                // return ($sale->price-@$sale->product->buying_price) * $sale->quantity;
             }
         });
 
@@ -932,7 +810,6 @@ class HomeController extends Controller
         $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
 
 
-        // ...
         
         // Get cash transfers created today
         $cashTransfers = FundTransfer::where(function ($query) {

@@ -435,7 +435,7 @@ class HomeController extends Controller
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->whereDate('created_at', $selectedDate)
                 ->take(5)
-                ->get(); dd($todaySales);
+                ->get(); 
         
             $todayReturns = Returns::where('branch_id', $branch_id)
                 ->whereNull('channel')
@@ -662,11 +662,12 @@ class HomeController extends Controller
         }, 0);
 // =======
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
-            if ($sale->buying_price != 0) {
-                return ($sale->price - $sale->buying_price) * $sale->quantity;
-            } else {
-                return ($sale->price-@$sale->product->buying_price) * $sale->quantity;
-            }
+            // if ($sale->buying_price != 0) {
+            //     return ($sale->price - $sale->buying_price) * $sale->quantity;
+            // } else {
+            //     return ($sale->price-@$sale->product->buying_price) * $sale->quantity;
+            // }
+            return ($sale->price - $sale->buying_price) * $sale->quantity;
         });
 
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();

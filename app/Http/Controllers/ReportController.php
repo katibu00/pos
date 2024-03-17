@@ -34,7 +34,7 @@ class ReportController extends Controller
 
     public function generate(Request $request)
     {
-        $branch_id = auth()->user()->branch_id;
+        $branch_id = $request->branch_id;
 
         if ($request->report == 'general') {
             // Fetch sales data

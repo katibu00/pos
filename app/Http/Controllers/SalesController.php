@@ -89,7 +89,7 @@ class SalesController extends Controller
         $query = $request->input('query');
         $suggestions = Stock::where('name', 'like', '%' . $query . '%')
             ->where('branch_id', auth()->user()->branch_id)
-            ->limit(20) // Limit the number of suggestions
+            ->limit(20)
             ->get();
 
         return response()->json($suggestions);

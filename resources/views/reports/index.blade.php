@@ -269,13 +269,6 @@
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <th>Net Income <span style="font-size: 12px; font-weight: normal;">({{ 'Gross Sale: ' . number_format($grossSales, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Total Return: ' . number_format($totalReturn, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})</span></th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($grossSales - $totalDiscount - ($totalReturn - $returnDiscounts), 0) }}
-                                                                    </td>
-                                                                </tr>
-                                                                
-                                                                <tr>
                                                                     <th>Returns</th>
                                                                     <td class="text-center">
                                                                         &#8358;{{ number_format($totalReturn, 0) }}

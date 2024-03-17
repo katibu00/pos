@@ -64,13 +64,16 @@
                         </div><!-- #logo end -->
 
                         <div class="header-misc ms-0">
-
+                            @php
+                            use Carbon\Carbon;
+                            @endphp
+                            
                             <!-- Top Account -->
                             <div class="header-misc-icon">
                                 <a href="#" id="notifylink" data-bs-toggle="dropdown" data-bs-offset="0,15"
                                     aria-haspopup="true" aria-expanded="false" data-offset="12,12">
                                     <!-- Display notification count -->
-                                    <span class="badge bg-danger" style="font-size: 0.7em; padding: 0.3em 0.5em; position: absolute; top: -15px; right: -15px;">{{ auth()->user()->unreadNotifications()->count() }}</span>
+                                    <span class="badge bg-danger" style="font-size: 0.7em; padding: 0.3em 0.5em; position: absolute; top: -15px; right: -15px;">{{ auth()->user()->unreadNotifications()->where('created_at', '>=', Carbon::today())->count() }}</span>
                                     <i class="icon-line-bell notification-badge"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end py-0 m-0 overflow-auto"
@@ -78,22 +81,25 @@
                                     <span class="dropdown-header border-bottom border-f5 fw-medium text-uppercase ls1">Notifications</span>
                                     <div class="list-group list-group-flush">
                                         <!-- Display notifications -->
-                                        @forelse(auth()->user()->unreadNotifications as $notification)
-                                        <a href="#" class="d-flex list-group-item">
-											<div class="media-body">
-												<h5 class="my-0 fw-normal texat-muted"><span class="text-dark fw-bold"></span>{{ $notification->data['data'] }}</h5>
-												<small class="text-smaller text-muted">{{ $notification->created_at->diffForHumans() }}</small>
-											</div>
-										</a>
+                                       
+                                        @forelse(auth()->user()->unreadNotifications->where('created_at', '>=', Carbon::today()) as $notification)
+                                            <a href="#" class="d-flex list-group-item">
+                                                <div class="media-body">
+                                                    <h5 class="my-0 fw-normal text-muted"><span class="text-dark fw-bold"></span>{{ $notification->data['data'] }}</h5>
+                                                    <small class="text-smaller text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                                </div>
+                                            </a>
                                         @empty
-                                        <!-- If no notifications -->
-                                        <a href="#" class="d-flex list-group-item">
-                                            <div class="media-body">
-                                                <h5 class="my-0 fw-normal text-muted">
-                                                    <span class="text-dark fw-bold">No New Notification</span></h5>
-                                            </div>
-                                        </a>
+                                            <!-- If no notifications -->
+                                            <a href="#" class="d-flex list-group-item">
+                                                <div class="media-body">
+                                                    <h5 class="my-0 fw-normal text-muted">
+                                                        <span class="text-dark fw-bold">No New Notification</span>
+                                                    </h5>
+                                                </div>
+                                            </a>
                                         @endforelse
+                                        
                                     </div>
                                 </div>
                             </div>

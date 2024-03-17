@@ -37,9 +37,9 @@
                                             <label>Report Type</label>
                                             <select class="form-select mb-2" id="report" name="report" required>
                                                 <option></option>
-                                                <option value="today" @if (@$report == 'today') selected @endif>
+                                                {{-- <option value="today" @if (@$report == 'today') selected @endif>
                                                     Today's Report
-                                                </option>
+                                                </option> --}}
                                                 <option value="general" @if (@$report == 'general') selected @endif>
                                                     General Report</option>
                                                 <option value="best_selling"
@@ -256,80 +256,81 @@
                                 @if (@$report == 'general')
                                     <h3>General Report</h3>
                                     <div class="row">
-                                        <div class="col-md-5">
+                                        <div class="col-md-6">
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="table-responsive">
                                                         <table class="table table-bordered">
                                                             <tbody class="thead-dark">
                                                                 <tr>
-                                                                    <th>Gross Revenue</th>
+                                                                    <th>Sales <span style="font-size: 12px; font-weight: normal;">({{ 'Cash Sales: ' . number_format($cashSales, 0) . ' POS Sales: ' . number_format($posSales, 0) . ' Transfer Sales: ' . number_format($transferSales, 0) . ' Credit Sales: ' . number_format($creditSales, 0). ' Deposit Sales: ' . number_format($depositSales, 0) }})</span></th>
                                                                     <td class="text-center">
-                                                                        &#8358;{{ number_format($total_sales_value, 0) }}
+                                                                        &#8358;{{ number_format($cashSales + $depositSales + $posSales + $transferSales + $creditSales, 0) }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <th>Sales Discount</th>
+                                                                    <th>Net Income <span style="font-size: 12px; font-weight: normal;">({{ 'Gross Sale: ' . number_format($grossSales, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Total Return: ' . number_format($totalReturn, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})</span></th>
                                                                     <td class="text-center">
-                                                                        &#8358;{{ number_format($total_discount, 0) }}</td>
+                                                                        &#8358;{{ number_format($grossSales - $totalDiscount - ($totalReturn - $returnDiscounts), 0) }}
+                                                                    </td>
                                                                 </tr>
+                                                                
                                                                 <tr>
-                                                                    <th>Total Expenses</th>
+                                                                    <th>Returns</th>
                                                                     <td class="text-center">
-                                                                        &#8358;{{ number_format($total_expenses_value, 0) }}
+                                                                        &#8358;{{ number_format($totalReturn, 0) }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <th>Total Expense Count</th>
-                                                                    <td class="text-center">
-                                                                        {{ number_format($total_expenses_count, 0) }}</td>
+                                                                    <th>Discounts <span  style="font-size: 12px; font-weight: normal;">({{ 'Sales Discount: ' . number_format($totalDiscounts, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})</span></th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalDiscounts - $returnDiscounts, 0) }}</td>
+                                                                </tr>
+                                                               
+                                                                <tr>
+                                                                    <th>Expenses <span style="font-size: 12px; font-weight: normal;">({{ 'Cash: ' . number_format($cashExpenses, 0) . ' POS: ' . number_format($posExpenses, 0) . ' Trans: ' . number_format($transferExpenses, 0) }})</span></th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalExpenses, 0) }}</td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <th>Total Returns</th>
+                                                                    <th>Purchases</th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalPurchases, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Estimates</th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalEstimate, 0) }}</td>
+                                                                </tr>
+                                                                {{-- <tr>
+                                                                    <th>Deposits</th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalDepositPayments, 0) }}</td>
+                                                                </tr> --}}
+                                                                <tr>
+                                                                    <th>Walk-Ins</th>
+                                                                    <td class="text-center">{{ number_format($uniqueSalesCount, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Items Sold</th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalItemsSold, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Credit Repayment <span style="font-size: 12px; font-weight: normal;">({{ 'Cash: ' . number_format($cashCreditPayments, 0) . ' POS: ' . number_format($posCreditPayments, 0) . ' Transfer: ' . number_format($transferCreditPayments, 0) }})</span>
+                                                                    </span></th>
+                                                                    <td class="text-center">&#8358;{{ number_format($totalCreditPayments, 0) }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Net Income <span style="font-size: 12px; font-weight: normal;">({{ 'Gross Sale: ' . number_format($grossSales, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Total Return: ' . number_format($totalReturn, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})</span></th>
                                                                     <td class="text-center">
-                                                                        &#8358;{{ number_format($total_returns_value, 0) }}
+                                                                        &#8358;{{ number_format($grossSales - $totalDiscount - ($totalReturn - $returnDiscounts), 0) }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <th>Total Returns Discount</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($total_returns_discount, 0) }}
-                                                                    </td>
+                                                                    <th>Gross Profit <span style="font-size: 12px; font-weight: normal;">({{ 'Sales Profit: ' . number_format($grossProfit, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Return Profit: ' . number_format($returnProfit, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})</span></th>
+                                                                    <td class="text-center">&#8358;{{ number_format($grossProfit - $totalDiscounts - ($returnProfit - $returnDiscounts), 0) }}</td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <th>Total Returns Profit</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($returns_profit, 0) }}</td>
+                                                                    <th>Net Profit (approx.) <span style="font-size: 12px; font-weight: normal;">({{ 'Sales Profit: ' . number_format($grossProfit, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Return Profit: ' . number_format($returnProfit, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) . ' Expenses: ' . number_format($totalExpenses, 0)}})</span></th>
+                                                                    <td class="text-center">&#8358;{{ number_format($grossProfit - $totalDiscounts - ($returnProfit - $returnDiscounts) - $totalExpenses, 0) }}</td>
                                                                 </tr>
-                                                                <tr>
-                                                                    <th>Total Payments</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($total_payments_value, 0) }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Stock Value</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($stock_value, 0) }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Gross Sales Profit</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($gross_sales_profit, 0) }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Net Sales Profit</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($gross_sales_profit - $returns_profit - $total_discount + $total_returns_discount - $total_expenses_count, 0) }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Total Credit Owed</th>
-                                                                    <td class="text-center">
-                                                                        &#8358;{{ number_format($totalCreditsOwed, 0) }}
-                                                                    </td>
-                                                                </tr>
+                                                               
+
                                                             </tbody>
                                                         </table>
 
@@ -337,12 +338,43 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-7">
+                                        <div class="col-md-6">
+                                           
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <canvas id="salesChart"></canvas>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <tbody class="thead-dark">
+                                                                <?php
+                                                                $result = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'] + ($cashFundTransfer);
+                                                                $formattedResult = number_format($result);
+                                                                ?>
+                                                                <tr>
+                                                                    <th>Cash Income <span style="font-size: 12px; font-weight: normal;">({{ 'Sales: ' . $cashSales . ', Returns: ' . $cashReturns . ', Expenses: ' . $cashExpenses . ', Repayments: ' . $cashCreditPayments . ', Deposit ' . $cashDepositPayments . ', Cash Credit: ' . $cashCreditToday . ', CC Repayment: ' . $CreditPaymentSummary['cash'].', Funds Transfer '.$cashFundTransfer }})</span></th>
+                                                                    <td class="text-center">
+                                                                        &#8358;{{ $formattedResult }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <?php
+                                                                        $transferResult = $transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments + $CreditPaymentSummary['transfer'] + ($transferFundTransfer);
+                                                                        $formattedTransferResult = number_format($transferResult);
+                                                                    ?>
+                                                                    <th>Transfer Income <span style="font-size: 12px; font-weight: normal;">({{ 'Sales: ' . $transferSales . ', Returns: ' . $transferReturns . ', Expenses: ' . $transferExpenses . ', Repayments: ' . $transferCreditPayments . ', Deposit ' . $transferDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['transfer'].', Funds Transfer '.$transferFundTransfer }})</span></th>
+                                                                    <td>{{ $formattedTransferResult }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <?php
+                                                                    $posResult = $posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments + $CreditPaymentSummary['pos'] + ($posFundTransfer);
+                                                                    $formattedPosResult = number_format($posResult);
+                                                                    ?>
+                                                                    <th>POS Income <span style="font-size: 12px; font-weight: normal;">({{ 'Sales: ' . $posSales . ', Returns: ' . $posReturns . ', Expenses: ' . $posExpenses . ', Repayments: ' . $posCreditPayments . ', Deposit ' . $posDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['pos'].', Funds Transfer '.$posFundTransfer }})</span></th>
+                                                                    <td>{{ $formattedPosResult }}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
-                                            </div>
                                         </div>
                                     </div>
                                 @endif
@@ -788,7 +820,7 @@
     @endif
 
 
-    @if (@$report == 'general')
+    {{-- @if (@$report == 'general')
         <script>
             var salesChart = new Chart(document.getElementById('salesChart'), {
                 type: 'bar',
@@ -835,7 +867,7 @@
                 }
             });
         </script>
-    @endif
+    @endif --}}
 
 
     @if (@$report == 'inventory')

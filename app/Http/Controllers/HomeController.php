@@ -662,7 +662,14 @@ class HomeController extends Controller
 
         $data['grossProfit'] = $todaySales->sum(function ($sale) {
             
-            return ($sale->price - $sale->buying_price) * $sale->quantity;
+            if($sale->buying_price === 0)
+            {
+                return ($sale->price - $sale->product->buying_price) * $sale->quantity;
+
+            }else
+            {
+                return ($sale->price - $sale->buying_price) * $sale->quantity;
+            }
         });
 
         $data['uniqueSalesCount'] = @$todaySales->unique('receipt_no')->count();

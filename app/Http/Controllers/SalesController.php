@@ -232,12 +232,16 @@ class SalesController extends Controller
             } 
 
             foreach ($productIds as $index => $productId) {
+               
+                $stock = Stock::find($productId);
+                $stock->quantity -= $request->quantity[$index];
+
                 $data = new Sale();
                 $data->branch_id = auth()->user()->branch_id;
                 $data->receipt_no = $transaction_id;
                 $data->stock_id = $productId;
                 $data->price = $request->price[$index];
-                $data->buying_price = $request->buying_price[$index];
+                $data->buying_price = $stock->buying_price;
                 $data->quantity = $request->quantity[$index];
                 $data->discount = $request->discount[$index] ?? 0;
                 $data->payment_method = $paymentMethod;
@@ -245,19 +249,13 @@ class SalesController extends Controller
                 $data->customer = $request->customer === '0' ? null : $request->customer;
                 $data->note = $request->note;
 
-                // Handle labor cost if necessary
                 if ($request->input('toggleLabor')) {
                     $data->labor_cost = $request->input('labor_cost');
                 }
                 $data->payment_amount = $payment_amount;
                 $data->status = $status;
                 $data->save();
-
-
-
-                // Update stock quantity
-                $stock = Stock::find($productId);
-                $stock->quantity -= $request->quantity[$index];
+               
                 $stock->save();
             }
 

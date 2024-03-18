@@ -6,6 +6,8 @@ use App\Models\Branch;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
+use App\Models\Sale;
+use Carbon\Carbon;
 
 class StockController extends Controller
 {
@@ -14,6 +16,7 @@ class StockController extends Controller
         $data['branches'] = Branch::all();
         return view('stock.index',$data);
     }
+   
 
     function store(Request $request){
 
@@ -119,4 +122,45 @@ class StockController extends Controller
             ]);
         }
     }
+
+
+
+    function correctIndex(){
+        $data['branches'] = Branch::all();
+        return view('correct_sales.index',$data);
+    }
+
+
+    public function fetchAllStocks(Request $request)
+    {
+        $stocks = Stock::where('branch_id', $request->branch_id)->get();
+        return response()->json(['stocks' => $stocks]);
+    }
+
+
+    public function fetchSales(Request $request)
+    {
+        $sales = Sale::with('product')
+        ->where('stock_id', $request->stock_id)
+        ->whereDate('created_at', '>', Carbon::parse('2024-01-05'))
+        ->get();       
+         return response()->json(['sales' => $sales]);
+    }
+
+
+    public function updateBuyingPrice(Request $request)
+    {
+        $sale = Sale::find($request->id);
+        if ($sale) {
+            $sale->buying_price = $request->buying_price;
+            $sale->save();
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Sale not found']);
+        }
+    }
+
+
+
+    
 }

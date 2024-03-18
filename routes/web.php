@@ -282,3 +282,14 @@ Route::post('/store', [FundTransferController::class, 'store'])->name('fund_tran
 // Route::delete('/funds-transfer/{id}/delete', [FundTransferController::class, 'destroy'])->name('fund_transfer.destroy');
 
 });
+
+
+
+Route::group(['prefix' => 'correct-sales', 'middleware' => ['auth', 'admin']], function () {
+    Route::get('/', [StockController::class, 'correctIndex'])->name('correct-sales');
+    Route::get('fetch-stocks', [StockController::class, 'fetchAllStocks'])->name('fetch.stocks');
+    Route::get('fetch-sales', [StockController::class, 'fetchSales'])->name('fetch.sales');
+
+    Route::post('update-buying-price', [StockController::class, 'updateBuyingPrice'])->name('update.buying_price');
+
+});

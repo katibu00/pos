@@ -19,7 +19,6 @@ class Sale extends Model
         return $this->belongsTo(User::class, 'customer','id');
     }
 
-
     protected $fillable = [
         'branch_id',
         'receipt_no',
@@ -34,5 +33,6 @@ class Sale extends Model
         'note',
         'returned_qty',
         'collected',
+        'buying_price',
     ];
 }

@@ -428,15 +428,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
         function updatePriceField(productSelect) {
             var selectedProduct = products.find(product => product.id == productSelect.val());
             if (selectedProduct) {
@@ -457,12 +448,6 @@
             });
             $('#totalPrice').text(total.toFixed(2));
         }
-
-
-
-
-
-
 
         // Add logic to update estimate data when the "Update Estimate" button is clicked
         $(document).on('click', '#updateEstimateBtn', function() {

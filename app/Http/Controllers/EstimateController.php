@@ -97,7 +97,7 @@ class EstimateController extends Controller
 
         foreach ($estimates as $estimate) {
 
-            $product = Stock::select('id', 'quantity', 'selling_price')->where('id', $estimate->product_id)->first();
+            $product = Stock::select('id', 'quantity', 'selling_price','buying_price')->where('id', $estimate->product_id)->first();
 
             if ($product->quantity >= $estimate->quantity) {
                 $data = new Sale();
@@ -105,6 +105,7 @@ class EstimateController extends Controller
                 $data->receipt_no = $transaction_id;
                 $data->stock_id = $estimate->product_id;
                 $data->price = $product->selling_price;
+                $data->buying_price = $product->buying_price;
                 $data->quantity = $estimate->quantity;
                 $data->discount = $estimate->discount ?? 0;
                 $data->payment_method = $request->payment_method;

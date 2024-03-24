@@ -53,6 +53,8 @@
                             stock_id: stockId
                         },
                         success: function(response) {
+                            toastr.success('Table refreshed Successfully');
+
                             var salesTable = '<table class="table">';
                             salesTable +=
                                 '<thead><tr><th>Serial Number</th><th>Stock Name</th><th>Price</th><th>Buying Price</th></tr></thead><tbody>';

@@ -791,7 +791,8 @@ class HomeController extends Controller
         });
 
         $totalStockValue = Stock::where('branch_id', $branch_id)
-            ->sum(DB::raw('quantity * buying_price'));
+        ->selectRaw('SUM(quantity * buying_price) as total_stock_value')
+        ->value('total_stock_value');
 
         // Calculate number of low stocks
         $lowStocksCount = Stock::where('branch_id', $branch_id)

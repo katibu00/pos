@@ -128,9 +128,12 @@
                     .product-suggestion:hover {
                         background-color: #e0e0e0;
                     }
+
                     .price-change {
-                        background-color: #ffe6e6; /* Light red background color */
-                        color: #ff0000; /* Red text color */
+                        background-color: #ffe6e6;
+                        /* Light red background color */
+                        color: #ff0000;
+                        /* Red text color */
                     }
                 </style>
 
@@ -203,7 +206,6 @@
 
 
     <script>
-
         $(document).on('click', '.editEstimate', function() {
             var estimateNo = $(this).data('estimate_no');
             var modal = $('#editEstimateModal');
@@ -228,61 +230,68 @@
                 },
                 success: function(response) {
                     if (response.error) {
-        console.error(response.error);
-    } else {
-        estimates = response.estimates;
-        products = response.products;
-        priceChanges = response.price_changes;
+                        console.error(response.error);
+                    } else {
+                        estimates = response.estimates;
+                        products = response.products;
+                        priceChanges = response.price_changes;
 
-        var formHtml = '<form id="editEstimateForm">';
-        formHtml += '<div class="mb-3">';
-        formHtml += '<label for="productSearch">Search Products:</label>';
-        formHtml +=
-            '<input type="text" class="form-control" id="productSearch" placeholder="Enter product name">';
-        formHtml += '<div id="productSuggestions"></div>';
-        formHtml += '</div>';
-        formHtml += '<input type="hidden" name="estimate_no" value="' + estimates[0].estimate_no + '">';
-        formHtml += '<table class="table">';
-        formHtml +=
-            '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
-        formHtml += '<tbody class="modaltbody">';
+                        var formHtml = '<form id="editEstimateForm">';
+                        formHtml += '<div class="mb-3">';
+                        formHtml += '<label for="productSearch">Search Products:</label>';
+                        formHtml +=
+                            '<input type="text" class="form-control" id="productSearch" placeholder="Enter product name">';
+                        formHtml += '<div id="productSuggestions"></div>';
+                        formHtml += '</div>';
+                        formHtml += '<input type="hidden" name="estimate_no" value="' + estimates[0]
+                            .estimate_no + '">';
+                        formHtml += '<table class="table">';
+                        formHtml +=
+                            '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
+                        formHtml += '<tbody class="modaltbody">';
 
-        for (var i = 0; i < estimates.length; i++) {
-            var estimate = estimates[i];
-            var priceChangeClass = '';
+                        for (var i = 0; i < estimates.length; i++) {
+                            var estimate = estimates[i];
+                            var priceChangeClass = '';
 
-            // Check if the product's price has changed
-            if (priceChanges[estimate.id]) {
-                priceChangeClass = 'price-change';
-                estimate.price = priceChanges[estimate.id];  // Update the price with the new selling price
-            }
+                            // Check if the product's price has changed
+                            if (priceChanges[estimate.id]) {
+                                priceChangeClass = 'price-change';
+                                estimate.price = priceChanges[estimate
+                                .id]; // Update the price with the new selling price
+                            }
 
-            formHtml += '<tr class="' + priceChangeClass + '">';
-            formHtml += '<td>' + estimate.product.name +
-                '<input type="hidden" name="product[]" value="' + estimate.product.id +
-                '"></td>';
-            formHtml +=
-                '<td><input type="number" class="form-control price-field" name="price[]" value="' +
-                estimate.price + '" readonly></td>';
-            formHtml +=
-                '<td><input type="text" class="form-control" name="quantity[]" value="' +
-                estimate.quantity + '"></td>';
-            formHtml +=
-                '<td><input type="text" class="form-control" name="discount[]" value="' +
-                estimate.discount + '"></td>';
-            formHtml +=
-                '<td><input type="text" class="form-control total-price-field" name="total_price[]" value="' +
-                (estimate.price * estimate.quantity) + '" readonly></td>';
-            formHtml +=
-                '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' +
-                estimate.id + '">X</button></td>';
-            formHtml += '</tr>';
-        }
+                            formHtml += '<tr class="' + priceChangeClass + '">';
+                            formHtml += '<td>' + estimate.product.name +
+                                '<input type="hidden" name="product[]" value="' + estimate.product.id +
+                                '"></td>';
+                            formHtml +=
+                                '<td><input type="number" class="form-control price-field" name="price[]" value="' +
+                                estimate.price + '" readonly></td>';
+                            formHtml +=
+                                '<td><input type="text" class="form-control" name="quantity[]" value="' +
+                                estimate.quantity + '"></td>';
+                            formHtml +=
+                                '<td><input type="text" class="form-control" name="discount[]" value="' +
+                                estimate.discount + '"></td>';
+                            formHtml +=
+                                '<td><input type="text" class="form-control total-price-field" name="total_price[]" value="' +
+                                (estimate.price * estimate.quantity) + '" readonly></td>';
+                            formHtml +=
+                                '<td><button class="btn btn-danger removeEstimate" data-estimate_id="' +
+                                estimate.id + '">X</button></td>';
+                            formHtml += '</tr>';
+                        }
 
-        formHtml += '</tbody></table>';
-        formHtml += '</form>';
+                        formHtml += '<tr>';
+                        formHtml += '<td colspan="3">Labor Cost: <input type="text" class="form-control" name="labor_cost" value="' + estimates[0].labor_cost + '"></td>';
+                        formHtml += '<td colspan="3">Note: <textarea class="form-control" name="note">' + estimates[0].note + '</textarea></td>';
+                        formHtml += '</tr>';
 
-        modal.find('.modal-body').html(formHtml)
+                        formHtml += '</tbody></table>';
+                        formHtml += '</form>';
+
+                        modal.find('.modal-body').html(formHtml)
 
                         var productSearchInput = $('#productSearch');
                         var productSuggestionsDiv = $('#productSuggestions');
@@ -336,7 +345,7 @@
                         });
 
                         $('.addRow').on('click', function() {
-                            // ... (existing code)
+                         
 
                             $('.removeRow').on('click', function() {
                                 $(this).closest('tr').remove();
@@ -395,7 +404,7 @@
                 '<td><button class="btn btn-danger removeRow">X</button></td>';
             newRow += '</tr>';
 
-            $('.modaltbody').append(newRow);
+            $('.modaltbody').prepend(newRow);
 
             $('.removeRow').on('click', function() {
                 $(this).closest('tr').remove();

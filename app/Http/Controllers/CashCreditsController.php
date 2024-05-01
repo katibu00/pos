@@ -55,6 +55,7 @@ class CashCreditsController extends Controller
 
         $credit = new CashCredit();
         $credit->customer_id = $request->customer_id;
+        $credit->cashier_id = auth()->user()->id;
         $credit->branch_id = auth()->user()->branch_id;
         $credit->amount = $request->amount;
         $credit->save();
@@ -118,7 +119,7 @@ class CashCreditsController extends Controller
             'status' => 'paid',
         ]);
     
-        $this->createCashCreditPayment($credit->id, $credit->customer_id, $credit->branch_id, $amount, $paymentMethod);
+        $this->createCashCreditPayment($credit->id, $credit->customer_id, $credit->cashier_id, $credit->branch_id, $amount, $paymentMethod);
     }
     
     protected function handlePartialPayment($credit, $partialAmount, $paymentMethod)
@@ -131,14 +132,15 @@ class CashCreditsController extends Controller
             'amount_paid' => $credit->amount_paid + $partialAmount,
         ]);
     
-        $this->createCashCreditPayment($credit->id, $credit->customer_id, $credit->branch_id, $partialAmount, $paymentMethod);
+        $this->createCashCreditPayment($credit->id, $credit->customer_id,$credit->cashier_id, $credit->branch_id, $partialAmount, $paymentMethod);
     }
     
-    protected function createCashCreditPayment($cashCreditsId, $customerId, $branchId, $amountPaid, $paymentMethod)
+    protected function createCashCreditPayment($cashCreditsId, $customerId, $cashierId, $branchId, $amountPaid, $paymentMethod)
     {
         CashCreditPayment::create([
             'cash_credits_id' => $cashCreditsId,
             'customer_id' => $customerId,
+            'cashier_id' => $cashierId,
             'branch_id' => $branchId,
             'amount_paid' => $amountPaid,
             'payment_method' => $paymentMethod,

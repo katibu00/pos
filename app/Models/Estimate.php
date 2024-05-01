@@ -21,6 +21,7 @@ class Estimate extends Model
         'discount',
         'cashier_id',
         'customer',
+        'labor_cost',
         'note',
     ];
 

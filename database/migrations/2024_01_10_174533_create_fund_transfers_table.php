@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('to_account', ['cash', 'transfer', 'pos']);
             $table->decimal('amount', 10, 2);
             $table->unsignedBigInteger('branch_id'); 
+            $table->unsignedBigInteger('cashier_id');
             $table->timestamps();
 
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');

@@ -187,68 +187,68 @@ class EstimateController extends Controller
     }
 
 
-    public function update(Request $request)
-    {
-        // Validate the request data as needed
-        $request->validate([
-            'product.*' => 'required|exists:stocks,id',
-            'price.*' => 'required|numeric|min:0',
-            'quantity.*' => 'required|integer|min:1',
-            'discount.*' => 'nullable|numeric', // Added discount validation
-            'estimate_no' => 'required',
-        ]);
+    // public function update(Request $request)
+    // {
+    //     // Validate the request data as needed
+    //     $request->validate([
+    //         'product.*' => 'required|exists:stocks,id',
+    //         'price.*' => 'required|numeric|min:0',
+    //         'quantity.*' => 'required|integer|min:1',
+    //         'discount.*' => 'nullable|numeric', // Added discount validation
+    //         'estimate_no' => 'required',
+    //     ]);
 
-        $branch_id = auth()->user()->branch_id;
+    //     $branch_id = auth()->user()->branch_id;
 
-        $estimateNo = $request->input('estimate_no');
+    //     $estimateNo = $request->input('estimate_no');
 
-        $estimates = Estimate::where('estimate_no', $estimateNo)->where('branch_id', $branch_id)->get();
+    //     $estimates = Estimate::where('estimate_no', $estimateNo)->where('branch_id', $branch_id)->get();
 
-        if ($estimates->isEmpty()) {
-            return response()->json(['error' => 'Estimates not found'], 404);
-        }
+    //     if ($estimates->isEmpty()) {
+    //         return response()->json(['error' => 'Estimates not found'], 404);
+    //     }
 
-        $updatedEstimateIds = [];
+    //     $updatedEstimateIds = [];
 
-        foreach ($request->input('product') as $key => $productId) {
-            // Check if the estimate already exists
-            $estimate = $estimates->where('product_id', $productId)->first();
+    //     foreach ($request->input('product') as $key => $productId) {
+    //         // Check if the estimate already exists
+    //         $estimate = $estimates->where('product_id', $productId)->first();
 
-            // If the estimate exists, update it; otherwise, create a new one
-            if ($estimate) {
-                $estimate->update([
-                    'price' => $request->input('price.' . $key),
-                    'quantity' => $request->input('quantity.' . $key),
-                    'discount' => $request->input('discount.' . $key) ?? 0,
-                ]);
+    //         // If the estimate exists, update it; otherwise, create a new one
+    //         if ($estimate) {
+    //             $estimate->update([
+    //                 'price' => $request->input('price.' . $key),
+    //                 'quantity' => $request->input('quantity.' . $key),
+    //                 'discount' => $request->input('discount.' . $key) ?? 0,
+    //             ]);
 
-                $updatedEstimateIds[] = $estimate->id;
-            } else {
-                // Create a new estimate
-                $newEstimate = Estimate::create([
-                    'branch_id' => $branch_id,
-                    'cashier_id' => auth()->user()->id,
-                    'estimate_no' => $estimateNo,
-                    'product_id' => $productId,
-                    'price' => $request->input('price.' . $key),
-                    'quantity' => $request->input('quantity.' . $key),
-                    'discount' => $request->input('discount.' . $key) ?? 0,
-                ]);
+    //             $updatedEstimateIds[] = $estimate->id;
+    //         } else {
+    //             // Create a new estimate
+    //             $newEstimate = Estimate::create([
+    //                 'branch_id' => $branch_id,
+    //                 'cashier_id' => auth()->user()->id,
+    //                 'estimate_no' => $estimateNo,
+    //                 'product_id' => $productId,
+    //                 'price' => $request->input('price.' . $key),
+    //                 'quantity' => $request->input('quantity.' . $key),
+    //                 'discount' => $request->input('discount.' . $key) ?? 0,
+    //             ]);
 
-                $updatedEstimateIds[] = $newEstimate->id;
-            }
-        }
+    //             $updatedEstimateIds[] = $newEstimate->id;
+    //         }
+    //     }
 
-        // Delete estimates that were not updated or created
-        $estimatesToDelete = $estimates->whereNotIn('id', $updatedEstimateIds);
+    //     // Delete estimates that were not updated or created
+    //     $estimatesToDelete = $estimates->whereNotIn('id', $updatedEstimateIds);
 
-        foreach ($estimatesToDelete as $estimateToDelete) {
-            $estimateToDelete->delete();
-        }
+    //     foreach ($estimatesToDelete as $estimateToDelete) {
+    //         $estimateToDelete->delete();
+    //     }
 
-        // Return a success response or any additional data if needed
-        return response()->json(['message' => 'Estimates updated successfully']);
-    }
+    //     // Return a success response or any additional data if needed
+    //     return response()->json(['message' => 'Estimates updated successfully']);
+    // }
 
 
     public function edit(Request $request)
@@ -281,5 +281,77 @@ class EstimateController extends Controller
 
         return response()->json(['estimates' => $estimates, 'price_changes' => $priceChanges,'products' => $products]);
     }
+
+    public function update(Request $request)
+    {
+        // Validate the request data as needed
+        $request->validate([
+            'product.*' => 'required|exists:stocks,id',
+            'price.*' => 'required|numeric|min:0',
+            'quantity.*' => 'required|integer|min:1',
+            'discount.*' => 'nullable|numeric', // Added discount validation
+            'estimate_no' => 'required',
+            'labor_cost' => 'nullable|numeric|min:0',
+            'note' => 'nullable|string',
+        ]);
+
+        $branch_id = auth()->user()->branch_id;
+
+        $estimateNo = $request->input('estimate_no');
+
+        $estimates = Estimate::where('estimate_no', $estimateNo)
+            ->where('branch_id', $branch_id)
+            ->get();
+
+        if ($estimates->isEmpty()) {
+            return response()->json(['error' => 'Estimates not found'], 404);
+        }
+
+        $updatedEstimateIds = [];
+
+        foreach ($request->input('product') as $key => $productId) {
+            // Check if the estimate already exists
+            $estimate = $estimates->where('product_id', $productId)->first();
+
+            // If the estimate exists, update it; otherwise, create a new one
+            if ($estimate) {
+                $estimate->update([
+                    'price' => $request->input('price.' . $key),
+                    'quantity' => $request->input('quantity.' . $key),
+                    'discount' => $request->input('discount.' . $key) ?? 0,
+                    'labor_cost' => $request->input('labor_cost'),
+                    'note' => $request->input('note'),
+                ]);
+
+                $updatedEstimateIds[] = $estimate->id;
+            } else {
+                // Create a new estimate
+                $newEstimate = Estimate::create([
+                    'branch_id' => $branch_id,
+                    'cashier_id' => auth()->user()->id,
+                    'estimate_no' => $estimateNo,
+                    'product_id' => $productId,
+                    'price' => $request->input('price.' . $key),
+                    'quantity' => $request->input('quantity.' . $key),
+                    'discount' => $request->input('discount.' . $key) ?? 0,
+                    'labor_cost' => $request->input('labor_cost'),
+                    'note' => $request->input('note'),
+                ]);
+
+                $updatedEstimateIds[] = $newEstimate->id;
+            }
+        }
+
+        // Delete estimates that were not updated or created
+        $estimatesToDelete = $estimates->whereNotIn('id', $updatedEstimateIds);
+
+        foreach ($estimatesToDelete as $estimateToDelete) {
+            $estimateToDelete->delete();
+        }
+
+        // Return a success response or any additional data if needed
+        return response()->json(['message' => 'Estimates updated successfully']);
+    }
+
 
 }

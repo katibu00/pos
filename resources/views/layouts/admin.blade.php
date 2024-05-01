@@ -1,12 +1,33 @@
 
-    <li class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}"><a class="menu-link"
-            href="{{ route('admin.home') }}">
-            <div>Home</div>
-        </a></li>
     {{-- <li class="menu-item {{ $route == 'data-sync.index' ? 'current' : '' }}"><a class="menu-link"
             href="{{ route('data-sync.index') }}">
             <div>Data Synch</div>
         </a></li> --}}
+
+
+     <li
+        class="menu-item {{ $prefix == '/dashboard' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Home</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li
+                class="menu-item {{ $route == 'admin.home' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('admin.home') }}">
+                    <div>Home (All)</div>
+                </a>
+            </li>
+
+            <li class="menu-item {{ $route == 'admin.select_cashier' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('admin.select_cashier') }}">
+                    <div>Home (Cashier)</div>
+                </a>
+            </li>
+            
+        </ul>
+    </li>
+
+
     <li
         class="menu-item {{ $route == 'report.index' ? 'current' : '' }} {{ $route == 'report.generate' ? 'current' : '' }}">
         <a class="menu-link" href="{{ route('report.index') }}">
@@ -17,6 +38,28 @@
             href="{{ route('expense.index') }}">
             <div>Expense</div>
         </a></li>
+
+    <li
+        class="menu-item {{ $prefix == '/online-store' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Online Store</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li
+                class="menu-item {{ $route == 'online-store.products' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('online-store.products') }}">
+                    <div>Products</div>
+                </a>
+            </li>
+
+            <li class="menu-item {{ $route == 'categories.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('categories.index') }}">
+                    <div>Categories</div>
+                </a>
+            </li>
+            
+        </ul>
+    </li>
 
     <li
         class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'reorder.all.index' ? 'current' : '' }} {{ $route == 'reorder.index' ? 'current' : '' }}">

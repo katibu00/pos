@@ -21,20 +21,21 @@ use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
-    public function cashier(Request $request)
+    public function cashier()
     {
         $branch_id = auth()->user()->branch_id;
+        $cashier_id = auth()->user()->id;
 
-        $todaySales = Sale::where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
-        $todayReturns = Returns::where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
-        $todayExpenses = Expense::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        $creditPayments = Payment::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
-        $estimates = Estimate::where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        $todaySales = Sale::where('user_id',$cashier_id)->where('branch_id', $branch_id)->whereNotIn('stock_id', [1093, 1012])->whereDate('created_at', today())->get();
+        $todayReturns = Returns::where('cashier_id',$cashier_id)->where('branch_id', $branch_id)->whereNull('channel')->whereDate('created_at', today())->get();
+        $todayExpenses = Expense::where('payer_id',$cashier_id)->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        $creditPayments = Payment::where('user_id',$cashier_id)->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
+        $estimates = Estimate::where('cashier_id',$cashier_id)->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
         $purchases = Purchase::select('stock_id', 'quantity')->where('branch_id', $branch_id)->whereDate('created_at', today())->get();
 
-        $data['cashCreditToday'] = CashCredit::where('branch_id', $branch_id)->whereDate('created_at', today())
+        $data['cashCreditToday'] = CashCredit::where('cashier_id',$cashier_id)->where('branch_id', $branch_id)->whereDate('created_at', today())
             ->sum(DB::raw('amount'));
-        $data['TotalcashCredit'] = CashCredit::where('branch_id', $branch_id)
+        $data['TotalcashCredit'] = CashCredit::where('cashier_id',$cashier_id)->where('branch_id', $branch_id)
             ->whereRaw('amount > amount_paid')
             ->sum(DB::raw('amount - amount_paid'));
 
@@ -46,6 +47,7 @@ class HomeController extends Controller
 
         $payments = DB::table('cash_credit_payments')
             ->select('payment_method', DB::raw('SUM(amount_paid) as total_amount_paid'))
+            ->where('cashier_id',$cashier_id)
             ->whereDate('created_at', today())
             ->groupBy('payment_method')
             ->get();
@@ -68,11 +70,7 @@ class HomeController extends Controller
             return $sale->price * $sale->quantity;
         });
         $data['totalDiscount'] = $todaySales->sum('discount');
-        // $data['posSales'] = $todaySales->where('payment_method', 'pos')->reduce(function ($total, $sale) {
-        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
-        //     return $total;
-        // }, 0);
-
+       
         $uniquePosReceipts = [];
 
         $data['posSales'] = $todaySales
@@ -100,11 +98,7 @@ class HomeController extends Controller
                 return $total;
             }, 0);
 
-        // $data['cashSales'] = $todaySales->where('payment_method', 'cash')->reduce(function ($total, $sale) {
-        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
-        //     return $total;
-        // }, 0);
-
+      
         $uniqueCashReceipts = [];
 
         $data['cashSales'] = $todaySales
@@ -132,10 +126,6 @@ class HomeController extends Controller
                 return $total;
             }, 0);
 
-        // $data['transferSales'] = $todaySales->where('payment_method', 'transfer')->reduce(function ($total, $sale) {
-        //     $total += ($sale->price * $sale->quantity) - $sale->discount;
-        //     return $total;
-        // }, 0);
 
         $uniqueTransferReceipts = [];
 
@@ -287,7 +277,7 @@ class HomeController extends Controller
         $data['cashFundTransfer'] = $data['transferFundTransfer'] = $data['posFundTransfer'] = 0;
         
         // Get cash transfers created today
-        $cashTransfers = FundTransfer::where(function ($query) {
+        $cashTransfers = FundTransfer::where('cashier_id',$cashier_id)->where(function ($query) {
             $query->where('from_account', 'cash')
                   ->orWhere('to_account', 'cash');
         })
@@ -296,7 +286,7 @@ class HomeController extends Controller
         ->get();
         
         // Get transfer transfers created today
-        $transferTransfers = FundTransfer::where(function ($query) {
+        $transferTransfers = FundTransfer::where('cashier_id',$cashier_id)->where(function ($query) {
             $query->where('from_account', 'transfer')
                   ->orWhere('to_account', 'transfer');
         })
@@ -305,7 +295,7 @@ class HomeController extends Controller
         ->get();
         
         // Get pos transfers created today
-        $posTransfers = FundTransfer::where(function ($query) {
+        $posTransfers = FundTransfer::where('cashier_id',$cashier_id)->where(function ($query) {
             $query->where('from_account', 'pos')
                   ->orWhere('to_account', 'pos');
         })
@@ -426,6 +416,35 @@ class HomeController extends Controller
                 'transfer' => $paymentSums['transfer'],
                 'pos' => $paymentSums['pos'],
             ];
+
+            $cashTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'cash')
+                      ->orWhere('to_account', 'cash');
+            })
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate)
+            ->where('branch_id',$branch_id)
+            ->get();
+            
+            // Get transfer transfers created today
+            $transferTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'transfer')
+                      ->orWhere('to_account', 'transfer');
+            })
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate)
+            ->where('branch_id',$branch_id)
+            ->get();
+            
+            // Get pos transfers created today
+            $posTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'pos')
+                      ->orWhere('to_account', 'pos');
+            })
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate)
+            ->where('branch_id',$branch_id)
+            ->get();
         
         } elseif ($request->selected_date) {
             // Single date is provided
@@ -490,6 +509,33 @@ class HomeController extends Controller
                 'transfer' => $paymentSums['transfer'],
                 'pos' => $paymentSums['pos'],
             ];
+
+
+            $cashTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'cash')
+                      ->orWhere('to_account', 'cash');
+            })
+            ->whereDate('created_at', $selectedDate)
+            ->where('branch_id',$branch_id)
+            ->get();
+            
+            // Get transfer transfers created today
+            $transferTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'transfer')
+                      ->orWhere('to_account', 'transfer');
+            })
+            ->whereDate('created_at', $selectedDate)
+            ->where('branch_id',$branch_id)
+            ->get();
+            
+            // Get pos transfers created today
+            $posTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'pos')
+                      ->orWhere('to_account', 'pos');
+            })
+            ->whereDate('created_at', $selectedDate)
+            ->where('branch_id',$branch_id)
+            ->get();
         
         } else {
             // No date provided, use today's date
@@ -547,10 +593,34 @@ class HomeController extends Controller
                 'transfer' => $paymentSums['transfer'],
                 'pos' => $paymentSums['pos'],
             ];
+
+
+            $cashTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'cash')
+                      ->orWhere('to_account', 'cash');
+            })
+            ->whereDate('created_at', Carbon::today())
+            ->where('branch_id',$branch_id)
+            ->get();
+            
+            // Get transfer transfers created today
+            $transferTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'transfer')
+                      ->orWhere('to_account', 'transfer');
+            })
+            ->whereDate('created_at', Carbon::today())
+            ->where('branch_id',$branch_id)
+            ->get();
+            
+            // Get pos transfers created today
+            $posTransfers = FundTransfer::where(function ($query) {
+                $query->where('from_account', 'pos')
+                      ->orWhere('to_account', 'pos');
+            })
+            ->whereDate('created_at', Carbon::today())
+            ->where('branch_id',$branch_id)
+            ->get();
         }
-        
-
-
 
         $data['TotalcashCredit'] = CashCredit::where('branch_id', $branch_id)
             ->whereRaw('amount > amount_paid')
@@ -719,11 +789,17 @@ class HomeController extends Controller
         $data['totalPurchases'] = $purchases->sum(function ($purchase) {
             return $purchase['product']['buying_price'] * $purchase->quantity;
         });
-        $stocks = Stock::where('branch_id', $branch_id)
-            ->where('quantity', '<=', 'critical_level')
-            ->get();
-        $data['lows'] = count($stocks);
-        $data['total_stock'] = Stock::select('id')->where('branch_id', $branch_id)->count();
+
+        $totalStockValue = Stock::where('branch_id', $branch_id)
+            ->sum(DB::raw('quantity * buying_price'));
+
+        // Calculate number of low stocks
+        $lowStocksCount = Stock::where('branch_id', $branch_id)
+            ->whereColumn('quantity', '<=', 'critical_level')
+            ->count();
+
+        $data['total_stock_value'] = $totalStockValue;
+        $data['low_stocks_count'] = $lowStocksCount;
 
         $data['uncollectedSales'] = Sale::where('branch_id', $branch_id)
             ->where('collected', 0)
@@ -813,31 +889,7 @@ class HomeController extends Controller
 
         
         // Get cash transfers created today
-        $cashTransfers = FundTransfer::where(function ($query) {
-            $query->where('from_account', 'cash')
-                  ->orWhere('to_account', 'cash');
-        })
-        ->whereDate('created_at', Carbon::today())
-        ->where('branch_id',$branch_id)
-        ->get();
         
-        // Get transfer transfers created today
-        $transferTransfers = FundTransfer::where(function ($query) {
-            $query->where('from_account', 'transfer')
-                  ->orWhere('to_account', 'transfer');
-        })
-        ->whereDate('created_at', Carbon::today())
-        ->where('branch_id',$branch_id)
-        ->get();
-        
-        // Get pos transfers created today
-        $posTransfers = FundTransfer::where(function ($query) {
-            $query->where('from_account', 'pos')
-                  ->orWhere('to_account', 'pos');
-        })
-        ->whereDate('created_at', Carbon::today())
-        ->where('branch_id',$branch_id)
-        ->get();
         
 
         // Adjust the account balances based on funds transfers
@@ -856,6 +908,12 @@ class HomeController extends Controller
 
         return view('admin', $data);
 
+    }
+
+
+    public function guest()
+    {
+        return view('frontend.pages.home');
     }
 
 }

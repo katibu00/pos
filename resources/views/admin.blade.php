@@ -234,6 +234,12 @@
                                                 style="margin-left: 5px;">&#8358;{{ number_format(@$TotalcashCredit, 0) }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
+                                    <li class="border border-success py-2 px-3 rounded mb-2"
+                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Total Stock Value: <span class="fw-bold"
+                                            style="margin-left: 5px;">&#8358;{{ number_format($total_stock_value,0) }}</span></span>
+                                    <span style="margin-left: auto;"></span>
+                                </li>
 
                                 </ul>
                             </div>
@@ -321,7 +327,7 @@
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Low Stock Counts: <span class="fw-bold"
-                                                style="margin-left: 5px;">{{ $lows . ' of ' . $total_stock }}</span></span>
+                                                style="margin-left: 5px;">{{ $low_stocks_count }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
                                 </ul>

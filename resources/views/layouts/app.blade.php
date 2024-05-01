@@ -137,6 +137,7 @@
 
                         @php
                             $route = Route::current()->getName();
+                            $prefix = Request::route()->getPrefix();
                         @endphp
 
                         <nav class="primary-menu">
@@ -186,8 +187,7 @@
     <script src="/js/plugins.min.js"></script>
 
     <!-- TinyMCE Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
 
     <!-- Bootstrap Select Plugin -->
     <script src="/js/components/bs-select.js"></script>

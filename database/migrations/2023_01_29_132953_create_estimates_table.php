@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('cashier_id')->nullable();
             $table->string('customer')->nullable();
             $table->string('note')->nullable();
+            $table->integer('labor_cost')->nullable();
             $table->timestamps();
         });
     }

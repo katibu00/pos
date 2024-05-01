@@ -4,11 +4,14 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\CashCreditsController;
+use App\Http\Controllers\CashierDashboardController;
 use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OnlineStoreCategoryController;
+use App\Http\Controllers\OnlineStoreProductController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PurchasesController;
 use App\Http\Controllers\ReportController;
@@ -19,8 +22,12 @@ use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\SMSController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\UserOnlineStoreController;
 use App\Http\Controllers\UsersController;
+use App\Models\OnlineStoreProduct;
 use Illuminate\Support\Facades\Route;
+use App\Models\OnlineStoreCategory;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -34,17 +41,38 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::get('/', function () {
-    if (auth()->check()) {
-        if (auth()->user()->usertype == 'admin') {
-            return redirect()->route('admin.home');
+
+    $products = OnlineStoreProduct::with('onlineProductImages')->get();
+    $categories = OnlineStoreCategory::all();
+
+    // Optional: Calculate discount price if not already done
+    foreach ($products as $product) {
+        if ($product->discount_applied) {
+            $product->discount_price = $product->original_price - $product->discount_price;
+            $product->selling_price = $product->discount_price;
         }
-        if (auth()->user()->usertype == 'cashier') {
-            return redirect()->route('cashier.home');
-        }
-    };
-    // return view('ecom.index');
-    return view('auth.login');
+    }
+
+    return view('frontend.pages.home', compact('products','categories'));
+
+
 });
+// Route::get('/', function () {
+
+//     return view('frontend.pages.home');
+
+
+//     if (auth()->check()) {
+//         if (auth()->user()->usertype == 'admin') {
+//             return redirect()->route('admin.home');
+//         }
+//         if (auth()->user()->usertype == 'cashier') {
+//             return redirect()->route('cashier.home');
+//         }
+//     };
+//     // return view('ecom.index');
+//     return view('auth.login');
+// });
 
 Route::get('/home', function () {
     if (auth()->check()) {
@@ -65,10 +93,15 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/change/password', [AuthController::class, 'changePasswordIndex'])->name('change.password');
 Route::post('/change/password', [AuthController::class, 'changePasswordStore']);
 
-Route::group(['middleware' => ['auth', 'admin']], function () {
-    Route::get('/admin/home', [HomeController::class, 'admin'])->name('admin.home');
+Route::group(['prefix' => 'dashboard', 'middleware' => ['auth', 'admin']], function () {
+    Route::get('/admin/all', [HomeController::class, 'admin'])->name('admin.home');
     Route::post('/change_branch', [HomeController::class, 'change_branch'])->name('change_branch');
     Route::post('/change-date', [HomeController::class, 'admin'])->name('change_date');
+
+
+    Route::get('/select-cashier', [CashierDashboardController::class, 'selectCashier'])->name('admin.select_cashier');
+    Route::post('/view-cashier-dashboard', [CashierDashboardController::class, 'viewCashierDashboard'])->name('admin.view_cashier_dashboard');
+
 });
 Route::group(['middleware' => ['auth', 'cashier']], function () {
     Route::get('/cashier/home', [HomeController::class, 'cashier'])->name('cashier.home');
@@ -293,3 +326,37 @@ Route::group(['prefix' => 'correct-sales', 'middleware' => ['auth', 'admin']], f
     Route::post('update-buying-price', [StockController::class, 'updateBuyingPrice'])->name('update.buying_price');
 
 });
+
+
+Route::get('/online-store/copy/{stock}', [OnlineStoreProductController::class, 'copy'])->name('online-store.copy');
+Route::post('/online-store/copy/store', [OnlineStoreProductController::class, 'store'])->name('online-store.copy.store');
+// Route::post('/online-store/copy/upload', 'OnlineStoreProductController@upload')->name('online-store.copy.upload');
+
+
+
+Route::group(['prefix' => 'online-store', 'middleware' => ['auth', 'admin']], function () {
+
+    Route::get('/products', [OnlineStoreProductController::class, 'index'])->name('online-store.products');
+
+
+    Route::get('/products/{product}', 'ProductController@show')->name('products.show');
+    Route::get('/products/{product}/edit',[OnlineStoreProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [OnlineStoreProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [OnlineStoreProductController::class, 'destroy'])->name('products.destroy');
+
+    Route::post('/delete-image/{id}', [OnlineStoreProductController::class, 'deleteImage'])->name('delete_image_route');
+
+
+
+    Route::get('/categories', [OnlineStoreCategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [OnlineStoreCategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{category}/edit', [OnlineStoreCategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('/categories/{category}', [OnlineStoreCategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [OnlineStoreCategoryController::class, 'destroy'])->name('categories.destroy');
+
+
+});
+
+Route::get('/get-product-details/{productId}', [UserOnlineStoreController::class, 'getProductDetails']);
+
+

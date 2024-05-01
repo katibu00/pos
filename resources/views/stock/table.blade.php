@@ -27,6 +27,7 @@
                   <a class="btn btn-sm btn-primary my-1" href="{{route('stock.edit',$stock->id)}}"> <i class="fa fa-edit"></i></a>
                   <a class="btn btn-sm btn-info my-1" href="{{route('inventory.copy',$stock->id)}}"> <i class="fa fa-copy"></i></a>
                   <button class="btn btn-sm btn-danger delete1111" data-id="{{ $stock->id }}"><i class="fa fa-trash"></i></button>
+                  <a class="btn btn-sm btn-success my-1" href="{{ route('online-store.copy', $stock->id) }}"><i class="fa fa-upload"></i> Copy to Online Store</a>
               </td>
             </tr>
             @endforeach

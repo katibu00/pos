@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('cash_credits_id');
             $table->bigInteger('customer_id');
+            $table->unsignedBigInteger('cashier_id');
             $table->integer('branch_id');
             $table->float('amount_paid')->default(0); 
             $table->string('payment_method')->nullable(); 

@@ -790,15 +790,23 @@ class HomeController extends Controller
             return $purchase['product']['buying_price'] * $purchase->quantity;
         });
 
-        $totalStockValue = Stock::where('branch_id', $branch_id)
-        ->selectRaw('SUM(quantity * buying_price) as total_stock_value')
-        ->value('total_stock_value');
+        $stocks = Stock::where('branch_id', $branch_id)->get();
 
-        // Calculate number of low stocks
-        $lowStocksCount = Stock::where('branch_id', $branch_id)
-            ->whereColumn('quantity', '<=', 'critical_level')
-            ->count();
-
+        // Initialize variables for total stock value and low stocks count
+        $totalStockValue = 0;
+        $lowStocksCount = 0;
+        
+        // Loop through each stock to calculate total stock value and count low stocks
+        foreach ($stocks as $stock) {
+            // Calculate the total stock value for each stock
+            $totalStockValue += $stock->quantity * $stock->buying_price;
+        
+            // Check if the stock is low
+            if ($stock->quantity <= $stock->critical_level) {
+                $lowStocksCount++;
+            }
+        }
+        
         $data['total_stock_value'] = $totalStockValue;
         $data['low_stocks_count'] = $lowStocksCount;
 

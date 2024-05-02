@@ -38,7 +38,7 @@ class ReturnsController extends Controller
 
 
 
-        if (!$this->checkBalance($request->payment_method, $total_price)) {
+        if ($total_price > $this->getBalances($request->payment_method)) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Low Balance in the Payment Channel.',
@@ -109,62 +109,63 @@ class ReturnsController extends Controller
         ]);
     }
 
-    private function checkBalance($paymentMethod, $totalPrice)
+    private function getBalances($paymentMethod)
     {
         $branch_id = auth()->user()->branch_id;
+        $cashier_id = auth()->user()->id;
 
-        $todaySales = Sale::where('branch_id', $branch_id)
-            ->where('payment_method', $paymentMethod)
+        $todaySales = Sale::where('user_id', $cashier_id)
+            ->where('branch_id', $branch_id)
             ->whereNotIn('stock_id', [1093, 1012])
             ->whereDate('created_at', today())
             ->get();
 
-        $todayReturns = Returns::where('branch_id', $branch_id)
-            ->where('payment_method', $paymentMethod)
+        $todayReturns = Returns::where('cashier_id', $cashier_id)
+            ->where('branch_id', $branch_id)
+            ->whereNull('channel')
             ->whereDate('created_at', today())
             ->get();
 
-        $expenses = Expense::where('branch_id', $branch_id)
-            ->where('payment_method', $paymentMethod)
+        $todayExpenses = Expense::where('payer_id', $cashier_id)
+            ->where('branch_id', $branch_id)
             ->whereDate('created_at', today())
-            ->sum('amount');
+            ->get();
 
-        $creditRepayments = Payment::where('branch_id', $branch_id)
-            ->where('payment_method', $paymentMethod)
-            ->where('payment_type', 'credit')
+        $creditPayments = Payment::where('user_id', $cashier_id)
+            ->where('branch_id', $branch_id)
             ->whereDate('created_at', today())
-            ->sum('payment_amount');
+            ->get();
 
-        $deposits = Payment::where('branch_id', $branch_id)
-            ->where('payment_method', $paymentMethod)
-            ->where('payment_type', 'deposit')
-            ->whereDate('created_at', today())
-            ->sum('payment_amount');
+        $transfers = FundTransfer::where('cashier_id', $cashier_id)
+            ->whereDate('created_at', Carbon::today())
+            ->where('branch_id', $branch_id)
+            ->get();
 
+        $balances = $this->calculateBalances($todaySales, $todayReturns, $todayExpenses, $creditPayments, $transfers, $paymentMethod);
 
-        $cashCreditPayment = CashCreditPayment::where('branch_id', $branch_id)
-            ->whereDate('created_at', today())
-            ->where('payment_method', $paymentMethod)
-            ->sum('amount_paid');
-
-        $totalSales = $todaySales->sum(function ($sale) {
-            return ($sale->price * $sale->quantity) - $sale->discount;
-        });
-
-        $totalReturns = $todayReturns->sum(function ($return) {
-            return ($return->price * $return->quantity) - $return->discount;
-        });
-
-        $netAmount = $totalSales + $deposits + $creditRepayments + $cashCreditPayment - ($totalReturns + $expenses);
-
-        if ($paymentMethod === 'cash') {
-            $cashCredit = CashCredit::where('branch_id', $branch_id)
-                ->whereDate('created_at', today())
-                ->sum('amount');
-            $netAmount -= $cashCredit;
-        }
-
-        return ($totalPrice <= $netAmount);
+        return $balances;
     }
 
+    private function calculateBalances($sales, $returns, $expenses, $creditPayments, $transfers, $paymentMethod)
+    {
+        $salesAmount = $sales->where('payment_method', $paymentMethod)->sum(function ($sale) {
+            return $sale->price * $sale->quantity;
+        });
+
+        $returnsAmount = $returns->where('payment_method', $paymentMethod)->sum(function ($return) {
+            return $return->price * $return->quantity;
+        });
+
+        $expensesAmount = $expenses->where('payment_method', $paymentMethod)->sum('amount');
+
+        $creditPaymentsAmount = $creditPayments->where('payment_method', $paymentMethod)->sum('payment_amount');
+
+        $transfersFromAmount = $transfers->where('from_account', $paymentMethod)->sum('amount');
+
+        $transfersToAmount = $transfers->where('to_account', $paymentMethod)->sum('amount');
+
+        $balance = $salesAmount - ($returnsAmount + $expensesAmount) + $creditPaymentsAmount + $transfersToAmount - $transfersFromAmount;
+
+        return $balance;
+    }
 }

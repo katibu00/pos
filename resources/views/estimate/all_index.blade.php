@@ -284,9 +284,10 @@
                         }
 
                         formHtml += '<tr>';
-                        formHtml += '<td colspan="3">Labor Cost: <input type="text" class="form-control" name="labor_cost" value="' + estimates[0].labor_cost + '"></td>';
-                        formHtml += '<td colspan="3">Note: <textarea class="form-control" name="note">' + estimates[0].note + '</textarea></td>';
+                        formHtml += '<td colspan="3">Labor Cost: <input type="text" class="form-control" name="labor_cost" value="' + (estimates[0].labor_cost ? estimates[0].labor_cost : '') + '"></td>';
+                        formHtml += '<td colspan="3">Note: <textarea class="form-control" name="note">' + (estimates[0].note ? estimates[0].note : '') + '</textarea></td>';
                         formHtml += '</tr>';
+
 
                         formHtml += '</tbody></table>';
                         formHtml += '</form>';

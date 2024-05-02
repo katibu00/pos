@@ -12,19 +12,58 @@
                             <div class="card-body">
                                 <h5 class="card-title">Cash Balance</h5>
                                 <?php
-                                $result = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'] + $cashFundTransfer;
+                                $result = $cashSales - ($cashExpenses + $cashReturns) + $cashCreditPayments + $cashDepositPayments - $cashCreditToday + $CreditPaymentSummary['cash'] + ($cashFundTransfer);
                                 $formattedResult = number_format($result);
                                 ?>
 
                                 <p class="card-text">&#8358;{{ $formattedResult }}</p>
                                 <h6 class="card-subtitle mb-2 text-muted">
-                                    {{ 'Sales: ' . $cashSales . ', Returns: ' . $cashReturns . ', Expenses: ' . $cashExpenses . ', Repayments: ' . $cashCreditPayments . ', Deposit ' . $cashDepositPayments . ', Cash Credit: ' . $cashCreditToday . ', CC Repayment: ' . $CreditPaymentSummary['cash'] . ', Funds Transfer ' . $cashFundTransfer }}
+                                    {{ 'Sales: ' . $cashSales . ', Returns: ' . $cashReturns . ', Expenses: ' . $cashExpenses . ', Repayments: ' . $cashCreditPayments . ', Deposit ' . $cashDepositPayments . ', Cash Credit: ' . $cashCreditToday . ', CC Repayment: ' . $CreditPaymentSummary['cash'].', Funds Transfer '.$cashFundTransfer }}
                                 </h6>
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Transfer Balance</h5>
+
+                                <?php
+                                $transferResult = $transferSales - ($transferExpenses + $transferReturns) + $transferCreditPayments + $transferDepositPayments + $CreditPaymentSummary['transfer'] + ($transferFundTransfer);
+                                $formattedTransferResult = number_format($transferResult);
+                                ?>
+
+                                <p class="card-text">&#8358;{{ $formattedTransferResult }}</p>
+
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    {{ 'Sales: ' . $transferSales . ', Returns: ' . $transferReturns . ', Expenses: ' . $transferExpenses . ', Repayments: ' . $transferCreditPayments . ', Deposit ' . $transferDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['transfer'].', Funds Transfer '.$transferFundTransfer }}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">POS Balance</h5>
+                                <?php
+                                $posResult = $posSales - ($posExpenses + $posReturns) + $posCreditPayments + $posDepositPayments + $CreditPaymentSummary['pos'] + ($posFundTransfer);
+                                $formattedPosResult = number_format($posResult);
+                                ?>
+
+                                <p class="card-text">&#8358;{{ $formattedPosResult }}</p>
+
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    {{ 'Sales: ' . $posSales . ', Returns: ' . $posReturns . ', Expenses: ' . $posExpenses . ', Repayments: ' . $posCreditPayments . ', Deposit ' . $posDepositPayments . ', CC Repayment: ' . $CreditPaymentSummary['pos'].', Funds Transfer '.$posFundTransfer }}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
+
 
             <div class="container mt-2">
 
@@ -61,7 +100,7 @@
 
                             <li class="border border-success py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Walk-in Count: <span class="fw-bold"
+                                <span>Customers Attended: <span class="fw-bold"
                                         style="margin-left: 5px;">{{ number_format($uniqueSalesCount, 0) }}</span></span>
                                 <span style="margin-left: auto;"></span>
                             </li>

@@ -78,7 +78,7 @@
                                                     </td>
                                                     <td><input class="form-control form-control-sm oldPurchasePrice read-only-field" type="text" name="old_purchase_price[]" readonly></td>
                                                     <td><input class="form-control form-control-sm oldSellingPrice read-only-field" type="text" name="old_selling_price[]" readonly></td>
-                                                    <td><input class="form-control form-control-sm" type="text" name="quantity[]"></td>
+                                                    <td><input class="form-control form-control-sm" type="text" name="quantity[]" required></td>
                                                     <td><input type="checkbox" class="priceChangedCheckbox" name="price_changed[]"></td>
                                                     <td><input class="form-control form-control-sm newPurchasePrice" type="text" name="new_purchase_price[]" style="display: none;"></td>
                                                     <td><input class="form-control form-control-sm newSellingPrice" type="text" name="new_selling_price[]" style="display: none;"></td>
@@ -164,16 +164,16 @@
 
             // Checkbox change event
             $("tbody").on("change", ".priceChangedCheckbox", function () {
-                var row = $(this).closest("tr");
-                if ($(this).is(":checked")) {
-                    row.find(".newPurchasePrice").show();
-                    row.find(".newSellingPrice").show();
-                } else {
-                    row.find(".newPurchasePrice").hide();
-                    row.find(".newSellingPrice").hide();
-                }
-                updateTotalBuyingPrice();
-            });
+            var row = $(this).closest("tr");
+            if ($(this).is(":checked")) {
+                row.find(".newPurchasePrice").show().attr('required', true);
+                row.find(".newSellingPrice").show().attr('required', true);
+            } else {
+                row.find(".newPurchasePrice").hide().removeAttr('required');
+                row.find(".newSellingPrice").hide().removeAttr('required');
+            }
+            updateTotalBuyingPrice();
+        });
 
             // Update serial numbers
             function updateSerialNumbers() {

@@ -55,7 +55,6 @@ class PurchasesController extends Controller
                     'stock_id' => $productId,
                     'quantity' => $request->quantity[$key],
                     'old_quantity' => $product->quantity,
-                    'old_buying_price' => $product->buying_price,
                     'date' => $request->date,
                 ]);
                
@@ -68,6 +67,7 @@ class PurchasesController extends Controller
                     if (isset($request->new_purchase_price[$key], $request->new_selling_price[$key])) {
                         // Record old prices in the purchases table
                         $purchase->new_buying_price = $request->new_purchase_price[$key];
+                        $purchase->new_selling_price = $request->new_selling_price[$key];
                         $purchase->old_selling_price = $product->selling_price;
                         $purchase->old_buying_price = $product->buying_price;
                 
@@ -80,7 +80,6 @@ class PurchasesController extends Controller
 
                 $product->quantity += $request->quantity[$key];
                 $product->save();
-
                 $purchase->save();
             }
 

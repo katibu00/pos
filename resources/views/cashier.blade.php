@@ -70,19 +70,34 @@
                 <div class="row col-mb-50 mb-0">
                     <div class="col-md-6">
                         <ul class="iconlist fw-medium">
-
-
-                            <li class="border border-success py-2 px-3 rounded mb-2"
+                            <li class="border border-primary py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Cash Returns: <span class="fw-bold"
-                                        style="margin-left: 5px;">&#8358;{{ number_format($cashReturns, 0) }}</span></span>
+                                <span>Gross Sales: <span class="fw-bold"
+                                        style="margin-left: 5px;">&#8358;{{ number_format($grossSales, 0) }}</span></span>
+                                <span style="margin-left: auto;"></span>
                             </li>
-
                             <li class="border border-success py-2 px-3 rounded mb-2"
-                                style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Cash Expenses: <span class="fw-bold"
-                                        style="margin-left: 5px;">&#8358;{{ number_format($cashExpenses, 0) }}</span></span>
-                            </li>
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Total Returns: <span class="fw-bold"
+                                    style="margin-left: 5px;">&#8358;{{ number_format($totalReturn, 0) }}</span></span>
+                            <span style="margin-left: auto;">
+                                ({{ 'Cash: ' . number_format($cashReturns, 0) . ' POS: ' . number_format($posReturns, 0) . ' Trans: ' . number_format($transferReturns, 0) }})</span>
+                        </li>
+                        <li class="border border-success py-2 px-3 rounded mb-2"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Discounts: <span class="fw-bold"
+                                    style="margin-left: 5px;">&#8358;{{ number_format($totalDiscounts - $returnDiscounts, 0) }}</span></span>
+                            <span
+                                style="margin-left: auto;">({{ 'Sales Discount: ' . number_format($totalDiscounts, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})
+                            </span>
+                        </li>
+                        <li class="border border-success py-2 px-3 rounded mb-2"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Expenses: <span class="fw-bold"
+                                    style="margin-left: 5px;">&#8358;{{ number_format($totalExpenses, 0) }}</span></span>
+                            <span style="margin-left: auto;">
+                                ({{ 'Cash: ' . number_format($cashExpenses, 0) . ' POS: ' . number_format($posExpenses, 0) . ' Trans: ' . number_format($transferExpenses, 0) }})</span>
+                        </li>
 
                             <li class="border border-success py-2 px-3 rounded mb-2"
                                 style="display: flex; justify-content: space-between; align-items: center;">
@@ -132,13 +147,44 @@
                             </li>
 
                             <li class="border border-danger py-2 px-3 rounded mb-2"
-                                style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Cash Sales: <span class="fw-bold" style="margin-left: 5px;">
-                                        &#8358;{{ number_format($cashSales - ($cashExpenses + $cashReturns), 0) }}</span></span>
-                                <span
-                                    style="margin-left: auto;">({{ 'Sales: ' . number_format($cashSales, 0) . ' Returns: ' . number_format($cashReturns, 0) }})
-                                </span>
-                            </li>
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Credit Sales: <span class="fw-bold"
+                                    style="margin-left: 5px;">&#8358;{{ number_format($creditSales, 0) }}</span></span>
+                            <span style="margin-left: auto;"></span>
+                        </li>
+                        <li class="border border-danger py-2 px-3 rounded mb-2"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Deposit Sales: <span class="fw-bold"
+                                    style="margin-left: 5px;">&#8358;{{ number_format($depositSales, 0) }}</span></span>
+                            <span style="margin-left: auto;"></span>
+                        </li>
+
+                        <li class="border border-danger py-2 px-3 rounded mb-2"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Cash Sales: <span class="fw-bold" style="margin-left: 5px;">
+                                    &#8358;{{ number_format($cashSales - $cashReturns, 0) }}</span></span>
+                            <span
+                                style="margin-left: auto;">({{ 'Sales: ' . number_format($cashSales, 0) . ' Returns: ' . number_format($cashReturns, 0) }})
+                            </span>
+                        </li>
+
+                        <li class="border border-danger py-2 px-3 rounded mb-2"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>POS Sales: <span class="fw-bold"
+                                    style="margin-left: 5px;">&#8358;{{ number_format($posSales - $posReturns, 0) }}</span></span>
+                            <span
+                                style="margin-left: auto;">({{ 'Sales: ' . number_format($posSales, 0) . ' Returns: ' . number_format($posReturns, 0) }})
+                            </span>
+                        </li>
+                        <li class="border border-danger py-2 px-3 rounded mb-2"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Transfer Sales: <span class="fw-bold"
+                                style="margin-left: 5px;">&#8358;{{ number_format($transferSales - $transferReturns, 0) }}
+                            </span></span>
+                        <span
+                            style="margin-left: auto;">({{ 'Sales: ' . number_format($transferSales, 0) . ' Returns: ' . number_format($transferReturns, 0) }})
+                        </span>
+                    </li>
 
 
                             <li class="border border-success py-2 px-3 rounded mb-2"

@@ -41,6 +41,7 @@ class FundTransferController extends Controller
         $fundTransfer->from_account = $request->input('from_account');
         $fundTransfer->to_account = $request->input('to_account');
         $fundTransfer->amount = $request->input('amount');
+        $fundTransfer->cashier_id = auth()->user()->id;
         $fundTransfer->branch_id = auth()->user()->branch_id;
         $fundTransfer->save();
 

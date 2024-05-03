@@ -789,7 +789,7 @@ class HomeController extends Controller
             return $purchase['product']['buying_price'] * $purchase->quantity;
         });
 
-        $stocks = Stock::where('branch_id', $branch_id)->get();
+        $stocks = Stock::where('branch_id', $branch_id)->whereNotIn('id', [1093, 1012])->get();
 
         // Initialize variables for total stock value and low stocks count
         $totalStockValue = 0;

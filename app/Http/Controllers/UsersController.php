@@ -114,7 +114,7 @@ class UsersController extends Controller
             });
 
 
-        $data['cashcredits'] = CashCredit::where('customer_id', $id)
+        $data['cashcredits'] = CashCredit::with('cashier')->where('customer_id', $id)
             ->whereColumn('amount', '>', 'amount_paid')
             ->get();
 

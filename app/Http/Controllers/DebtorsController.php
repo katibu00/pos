@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Sale;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class DebtorsController extends Controller
 {
+
+   
 
     public function index()
     {
@@ -17,9 +18,9 @@ class DebtorsController extends Controller
         $sales = Sale::where('branch_id', $branchId)
             ->whereNotNull('customer')
             ->where('payment_method', 'credit')
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('status')
-                      ->orWhere('status', 'partial');
+                    ->orWhere('status', 'partial');
             })
             ->with('customerDetail')
             ->orderBy('receipt_no')
@@ -30,26 +31,30 @@ class DebtorsController extends Controller
         $customers = [];
         foreach ($groupedSales as $receiptNo => $salesGroup) {
             $firstSale = $salesGroup->first();
-            $customerId = $firstSale->customerDetail->id;
 
-            if (!isset($customers[$customerId])) {
-                $customers[$customerId] = [
-                    'customer_id' => $customerId,
-                    'first_name' => $firstSale->customerDetail->first_name,
-                    'phone' => $firstSale->customerDetail->phone,
-                    'total_owed' => 0,
-                    'total_paid' => 0,
-                    'last_sales_date' => $firstSale->created_at,
-                    'last_payment_date' => null,
-                ];
+            // Check if customerDetail exists
+            if ($firstSale->customerDetail) {
+                $customerId = $firstSale->customerDetail->id;
+
+                if (!isset($customers[$customerId])) {
+                    $customers[$customerId] = [
+                        'customer_id' => $customerId,
+                        'first_name' => $firstSale->customerDetail->first_name,
+                        'phone' => $firstSale->customerDetail->phone,
+                        'total_owed' => 0,
+                        'total_paid' => 0,
+                        'last_sales_date' => $firstSale->created_at,
+                        'last_payment_date' => null,
+                    ];
+                }
+
+                foreach ($salesGroup as $sale) {
+                    $customers[$customerId]['total_owed'] += $sale->price * $sale->quantity - $sale->discount;
+                }
+
+                $customers[$customerId]['total_paid'] += $firstSale->payment_amount ?? 0;
+                $customers[$customerId]['last_sales_date'] = max($customers[$customerId]['last_sales_date'], $firstSale->created_at);
             }
-
-            foreach ($salesGroup as $sale) {
-                $customers[$customerId]['total_owed'] += $sale->price * $sale->quantity - $sale->discount;
-            }
-
-            $customers[$customerId]['total_paid'] += $firstSale->payment_amount ?? 0;
-            $customers[$customerId]['last_sales_date'] = max($customers[$customerId]['last_sales_date'], $firstSale->created_at);
         }
 
         $payments = Payment::where('branch_id', $branchId)
@@ -76,7 +81,6 @@ class DebtorsController extends Controller
             return $b['days_since_last_payment'] <=> $a['days_since_last_payment'];
         });
 
-       
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $itemCollection = collect($customers);
         $perPage = 10;
@@ -88,27 +92,22 @@ class DebtorsController extends Controller
         return view('debtors.index', ['customers' => $paginatedCustomers]);
     }
 
-
     public function getCustomerSales($customerId)
     {
         // Fetch customer's credit sales transactions grouped by receipt_no
         $sales = Sale::with('product')
             ->where('customer', $customerId)
             ->where('payment_method', 'credit')
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('status')
-                      ->orWhere('status', 'partial');
+                    ->orWhere('status', 'partial');
             })
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('receipt_no');
-    
+
         // Return sales transactions as JSON
         return response()->json($sales);
     }
-    
-    
-
-
 
 }

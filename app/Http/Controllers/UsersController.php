@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\CashCredit;
 use App\Models\Payment;
 use App\Models\Returns;
 use App\Models\Sale;
@@ -112,6 +113,14 @@ class UsersController extends Controller
                 return $item->created_at->toDateString();
             });
 
+
+        $data['cashcredits'] = CashCredit::where('customer_id', $id)
+            ->whereColumn('amount', '>', 'amount_paid')
+            ->get();
+
+        $data['totalCashCreditOwed'] = $data['cashcredits']->sum(function ($cashcredit) {
+                return $cashcredit->amount - $cashcredit->amount_paid;
+            });
         return view('users.customers.profile', $data);
     }
 
@@ -295,6 +304,7 @@ class UsersController extends Controller
             $record->payment_amount += $total_amount_paid;
             $record->branch_id = auth()->user()->branch_id;
             $record->customer_id = $request->customer_id;
+            $record->customer_balance = $customer->balance;
             $record->receipt_nos = implode(',', $receipt_nos);
             $record->user_id = auth()->user()->id;
             $record->save();
@@ -361,15 +371,24 @@ class UsersController extends Controller
 
     public function loadReceipt(Request $request)
     {
-        // return $request->all();
         $payment = Payment::find($request->payment_id);
-        $date = $payment->created_at->format('l, d F, Y');
-        $user = User::select('balance','id')->where('id', $payment->customer_id)->first();
+        $receiptNos = explode(',', $payment->receipt_nos);
+    
+        $formattedDates = [];
+    
+        foreach ($receiptNos as $receiptNo) {
+            $sale = Sale::where('receipt_no', $receiptNo)->first();
+            if ($sale) {
+                $formattedDate = date('d F Y', strtotime($sale->created_at));
+                $formattedDates[] = $formattedDate;
+            }
+        }
+    
         return response()->json([
             'status' => 200,
             'payment' => $payment,
-            'date' => $date,
-            'balance' => $user->balance,
+            'dates' => $formattedDates,
+            'balance' => $payment->customer_balance ?? 0,
         ]);
     }
 

@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\CashCreditsController;
 use App\Http\Controllers\CashierDashboardController;
 use App\Http\Controllers\DataSyncController;
+use App\Http\Controllers\DebtorsController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\FundTransferController;
@@ -358,5 +358,13 @@ Route::group(['prefix' => 'online-store', 'middleware' => ['auth', 'admin']], fu
 });
 
 Route::get('/get-product-details/{productId}', [UserOnlineStoreController::class, 'getProductDetails']);
+
+Route::group(['prefix' => 'debtors', 'middleware' => ['auth', 'admin']], function () {
+    
+    Route::get('/index', [DebtorsController::class, 'index'])->name('debtors.index');
+    Route::get('/customer-sales/{customerId}', [DebtorsController::class, 'getCustomerSales']);
+
+
+});
 
 

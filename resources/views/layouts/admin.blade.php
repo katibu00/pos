@@ -131,7 +131,7 @@
 
 
     <li
-        class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'suppliers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }} {{ $route == 'admin.salary_advance.index' ? 'current' : '' }} {{ $route == 'customers.index' ? 'current' : '' }}">
+        class="menu-item {{ $route == 'customers.index' || $route == 'admin.salary_advance.index' || $route == 'customers.profile' || $route == 'suppliers.index' || $route == 'debtors.index' || $route == 'users.index' ? 'current' : '' }}">
         <a class="menu-link" href="#">
             <div>Users</div>
         </a>
@@ -164,6 +164,11 @@
             <li class="menu-item {{ $route == 'admin.salary_advance.index' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('admin.salary_advance.index') }}">
                     <div>Salary Advance</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'debtors.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('debtors.index') }}">
+                    <div>Debtors</div>
                 </a>
             </li>
         </ul>

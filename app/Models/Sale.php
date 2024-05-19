@@ -15,8 +15,13 @@ class Sale extends Model
     public function user(){
         return $this->belongsTo(User::class, 'user_id','id');
     }
-    public function buyer(){
-        return $this->belongsTo(User::class, 'customer','id');
+    // public function buyer(){
+    //     return $this->belongsTo(User::class, 'customer','id');
+    // }
+   
+    public function customerDetail()
+    {
+        return $this->belongsTo(User::class, 'customer', 'id');
     }
 
     protected $fillable = [
@@ -35,4 +40,9 @@ class Sale extends Model
         'collected',
         'buying_price',
     ];
+
+
+    public function payments() {
+        return $this->hasMany(Payment::class, 'customer_id', 'customer_id');
+    }
 }

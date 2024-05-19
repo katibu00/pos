@@ -51,4 +51,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(CashCredit::class, 'customer_id');
     }
+
+    public function sales() {
+        return $this->hasMany(Sale::class, 'customer');
+    }
+
+    public function payments() {
+        return $this->hasMany(Payment::class, 'customer_id');
+    }
 }

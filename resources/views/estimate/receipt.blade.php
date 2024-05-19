@@ -113,9 +113,9 @@
             Website: www.elhabibplumbing.com
         </div>
         @endif
-        <div style="font-size: 14px; margin-top: 15px;">Ref ID: <span class="tran_id"></span></div>
-        <div id="customer_name_div" style="font-size: 14px; margin-top: 7px;" class=""><span id="customer_name_span"></span></div> 
-        <div style="font-size: 14px; margin-top: 7px;">Sale Date & Time: {{ date('F j, Y h:i A') }}</div>
+        <div id="customer_name_div" style="font-size: 14px; margin-top: 7px;" class=""><span id="customer_name_span"></span></div>
+        <div id="transaction_date" style="font-size: 14px; margin-top: 7px;"></div>
+        <div id="account_details" style="font-size: 14px; margin-top: 7px;"></div>
     </div>
 
     <table>
@@ -127,11 +127,8 @@
                 <th>Total</th>
             </tr>
         </thead>
-        <tbody id="receipt_body">
-        </tbody>
-        <tfoot>
-           
-        </tfoot>
+        <tbody id="receipt_body"></tbody>
+        <tfoot></tfoot>
     </table>
     <div style="display: flex; justify-content: center;">
         <img src="/generatedBarcode.png" style="max-width: 100%; height: auto;">

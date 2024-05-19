@@ -178,6 +178,27 @@
                 </div>
 
 
+                <div class="modal fade" id="sendWhatsAppModal" tabindex="-1" aria-labelledby="sendWhatsAppModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="sendWhatsAppModalLabel">Send Estimate via WhatsApp</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="sendWhatsAppForm">
+                                    <div class="mb-3">
+                                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phoneNumber" required>
+                                    </div>
+                                    <input type="hidden" id="modalEstimateNo">
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
 
             </div>
         </div>
@@ -203,6 +224,108 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
+
+
+
+<script>
+    var branchDetails = {
+        'Azare': {
+            'address': 'Along Ali Kwara Hospital, Azare.',
+            'phone': '0916-844-3058',
+            'email': 'support@elhabibplumbing.com',
+            'website': 'www.elhabibplumbing.com'
+        },
+        'Misau': {
+            'address': 'Kofar Yamma, Misau, Bauchi State',
+            'phone': '0901-782-0678',
+            'email': 'support@elhabibplumbing.com',
+            'website': 'www.elhabibplumbing.com'
+        }
+    };
+
+    var currentBranch = "{{ auth()->user()->branch->name }}";
+</script>
+
+
+<script>
+    $('#sendWhatsAppModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var estimateNo = button.data('estimate_no');
+        var modal = $(this);
+        modal.find('#modalEstimateNo').val(estimateNo);
+    });
+
+    $('#sendWhatsAppForm').submit(function(event) {
+        event.preventDefault();
+        var phoneNumber = $('#phoneNumber').val();
+        var estimateNo = $('#modalEstimateNo').val();
+
+        data = {
+            'estimate_no': estimateNo
+        };
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('refresh-receipt-estimate') }}",
+            data: data,
+            success: function(res) {
+                var message = "Estimate Details:\n";
+                message += "Business Name: EL-Habib Plumbing Materials and Services - " + currentBranch + " Branch\n";
+                message += "Address: " + branchDetails[currentBranch]['address'] + "\n";
+                message += "Phone: " + branchDetails[currentBranch]['phone'] + "\n";
+                message += "Email: " + branchDetails[currentBranch]['email'] + "\n";
+                message += "Website: " + branchDetails[currentBranch]['website'] + "\n\n";
+                
+                // Add account details
+                message += "Account Number: 8033174228\n";
+                message += "Account Name: Umar Katibu\n";
+                message += "Bank Name: Opay Bank\n\n";
+
+                var total = 0;
+                var serialNumber = 1;
+
+                $.each(res.items, function(key, item) {
+                    total += item.quantity * item.price;
+                    message += serialNumber + ". " + item.product.name + ": " + item.quantity + " x " + item.price.toLocaleString() + " = " + (item.quantity * item.price).toLocaleString() + "\n";
+                    serialNumber++;
+                });
+
+                if (res.items[0].labor_cost !== null) {
+                    var laborCost = parseInt(res.items[0].labor_cost);
+                    message += "Labor Cost: " + laborCost.toLocaleString() + "\n";
+                    total += laborCost;
+                }
+
+                message += "Total: " + total.toLocaleString();
+
+                var whatsappUrl = "https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodeURIComponent(message);
+
+                window.open(whatsappUrl, '_blank');
+
+                $('#sendWhatsAppModal').modal('hide');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                if (xhr.status === 419) {
+                    Command: toastr["error"]("Session expired. please login again.");
+                    setTimeout(() => {
+                        window.location.replace('{{ route('login') }}');
+                    }, 2000);
+                }
+            }
+        });
+    });
+</script>
+
+
+
+
+
 
 
     <script>
@@ -615,114 +738,109 @@
     </script>
 
 
-    <script>
-        function PrintReceiptContent(estimate_no) {
-
-            data = {
-                'estimate_no': estimate_no,
-            }
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('refresh-receipt-estimate') }}",
-                data: data,
-                success: function(res) {
-                    var html = '';
-                    var total = 0;
-
-                    $.each(res.items, function(key, item) {
-                        total += item.quantity * item.price;
-
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td style="text-align: left"><span style="font-size: 12px;" >' + item
-                            .product.name + '</span></td>' +
-                            '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
-                            .toLocaleString() + '</td>' +
-                            '</tr>';
-                    });
-
-                    if (res.items[0].labor_cost !== null) {
-                        var laborCost = parseInt(res.items[0]
-                            .labor_cost); // Convert labor cost from string to integer
-
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Sub-total</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                            '</tr>';
-
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Labor Cost</b></td>' +
-                            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
-                            '</tr>';
-
-                        total += laborCost; // Add labor cost to the total
-
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Total</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                            '</tr>';
-
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
-                            '</tr>';
-                    } else {
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Total Amount</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                            '</tr>';
-                    }
-
-                    html = $('#receipt_body').html(html);
-                    $('.tran_id').html('E' + res.items[0].estimate_no);
-
-                    var data = document.getElementById('print').innerHTML;
-
-                    myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-
-                    myReceipt.screenX = 0;
-                    myReceipt.screenY = 0;
-                    myReceipt.document.write(data);
-                    myReceipt.document.title = "Print Estimate Certificate";
-                    myReceipt.focus();
-                    myReceipt.print();
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    if (xhr.status === 419) {
-                        Command: toastr["error"](
-                            "Session expired. please login again."
-                        );
-
-                        setTimeout(() => {
-                            window.location.replace('{{ route('login') }}');
-                        }, 2000);
-                    }
-                },
-            });
-
-
-            setTimeout(() => {
-                // myReceipt.close();
-            }, 8000);
+<script>
+    function PrintReceiptContent(estimate_no) {
+        data = {
+            'estimate_no': estimate_no,
         }
-    </script>
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('refresh-receipt-estimate') }}",
+            data: data,
+            success: function(res) {
+                var html = '';
+                var total = 0;
+
+                $.each(res.items, function(key, item) {
+                    total += item.quantity * item.price;
+
+                    html +=
+                        '<tr style="text-align: center">' +
+                        '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
+                        '<td style="font-size: 12px;">' + item.quantity + '</td>' +
+                        '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                        '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
+                        '</tr>';
+                });
+
+                if (res.items[0].labor_cost !== null) {
+                    var laborCost = parseInt(res.items[0].labor_cost);
+
+                    html +=
+                        '<tr style="text-align: center">' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Sub-total</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                        '</tr>';
+
+                    html +=
+                        '<tr style="text-align: center">' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Labor Cost</b></td>' +
+                        '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
+                        '</tr>';
+
+                    total += laborCost;
+
+                    html +=
+                        '<tr style="text-align: center">' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Total</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                        '</tr>';
+
+                    html +=
+                        '<tr style="text-align: center">' +
+                        '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                        '</tr>';
+                } else {
+                    html +=
+                        '<tr style="text-align: center">' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Total Amount</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                        '</tr>';
+                }
+
+                $('#receipt_body').html(html);
+                $('#transaction_date').html('Sale Date & Time: ' + res.transaction_date);
+                $('#account_details').html(
+                    'Account Number: ' + res.account_details.account_number + '<br>' +
+                    'Account Name: ' + res.account_details.account_name + '<br>' +
+                    'Bank Name: ' + res.account_details.bank_name
+                );
+
+                var data = document.getElementById('print').innerHTML;
+
+                var myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                myReceipt.document.write(data);
+                myReceipt.document.title = "Print Estimate Certificate";
+                myReceipt.focus();
+                myReceipt.print();
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                if (xhr.status === 419) {
+                    toastr["error"]("Session expired. please login again.");
+                    setTimeout(() => {
+                        window.location.replace('{{ route('login') }}');
+                    }, 2000);
+                }
+            }
+        });
+
+        setTimeout(() => {
+            // myReceipt.close();
+        }, 8000);
+    }
+</script>
+
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"

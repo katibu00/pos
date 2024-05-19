@@ -2,9 +2,6 @@
 <html>
 <head>
     <style>
-        /* CSS styles */
-
-        /* Reset default browser styles */
         * {
             margin: 0;
             padding: 0;
@@ -14,7 +11,7 @@
         /* Body styles */
         body {
             font-family: Arial, sans-serif;
-            font-size: 14px; /* Increased font size for better readability */
+            font-size: 14px; 
         }
 
         /* Header styles */
@@ -28,9 +25,9 @@
         }
 
         .business-name {
-            font-size: 16px; /* Increased font size for better readability */
+            font-size: 16px; 
             font-weight: bold;
-            margin-top: 10px; /* Increased margin for better spacing */
+            margin-top: 10px; 
         }
 
         .contact-details {
@@ -113,7 +110,6 @@
             Website: www.elhabibplumbing.com
         </div>
         @endif
-        <div style="font-size: 14px; margin-top: 15px;">Ref ID: <span class="tran_id"></span></div>
         <div id="customer_name_div" style="font-size: 14px; margin-top: 7px;" class=""><span id="customer_name_span"></span></div> 
         <div style="font-size: 14px; margin-top: 7px;">Sale Date & Time: {{ date('F j, Y h:i A') }}</div>
     </div>

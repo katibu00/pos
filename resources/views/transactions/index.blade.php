@@ -660,102 +660,103 @@
         });
 
         function PrintReceiptContent(receipt_no, transaction_type) {
-            var data = {
-                'receipt_no': receipt_no,
-                'transaction_type': transaction_type,
-            };
+    var data = {
+        'receipt_no': receipt_no,
+        'transaction_type': transaction_type,
+    };
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('refresh-receipt') }}",
-                data: data,
-                success: function(res) {
-                        var html = '';
-                        var total = 0;
-
-                        $.each(res.items, function(key, item) {
-                            html += '<tr style="text-align: center">' +
-                                '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
-                                '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                                '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-                                '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
-                                '</tr>';
-                            total += item.quantity * item.price;
-                        });
-
-                        // Check if labor cost is present
-                        if (res.items[0].labor_cost !== null) {
-                            var laborCost = parseInt(res.items[0].labor_cost);
-        
-                        // Calculate total before adding labor cost
-                        var subTotal = total;
-
-                        // Add labor cost to the total
-                        total += laborCost; 
-
-                        html += '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Sub-total</b></td>' +
-                            '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
-                            '</tr>';
-
-                        html += '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Labor Cost</b></td>' +
-                            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
-                            '</tr>';
-
-                        html += '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Total</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                            '</tr>';
-
-                        html += '<tr style="text-align: center">' +
-                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
-                            '</tr>';
-                    } else {
-                        html += '<tr style="text-align: center">' +
-                            '<td></td>' +
-                            '<td colspan="2"><b>Total Amount</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                            '</tr>';
-                    }
-
-                    $('#receipt_body').html(html);
-
-                    $('.tran_id').html('S' + res.items[0].receipt_no);
-
-                    var printableContent = document.getElementById('print').innerHTML;
-
-                    var printWindow = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-                    printWindow.screenX = 0;
-                    printWindow.screenY = 0;
-                    printWindow.document.write(printableContent);
-                    printWindow.document.title = "Print Estimate Certificate";
-                    printWindow.focus();
-
-                    // Print the content
-                    printWindow.print();
-                },
-
-                error: function(xhr, ajaxOptions, thrownError) {
-                    if (xhr.status === 419) {
-                        toastr.error("Session expired. Please login again.");
-
-                        setTimeout(function() {
-                            window.location.replace('{{ route('login') }}');
-                        }, 2000);
-                    }
-                },
-            });
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
+    });
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('refresh-receipt') }}",
+        data: data,
+        success: function(res) {
+            var html = '';
+            var total = 0;
+            var paidAmount = res.paid_amount || 0; 
+
+            $.each(res.items, function(key, item) {
+                html += '<tr style="text-align: center">' +
+                    '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
+                    '<td style="font-size: 12px;">' + item.quantity + '</td>' +
+                    '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                    '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
+                    '</tr>';
+                total += item.quantity * item.price;
+            });
+
+            if (res.items[0].labor_cost !== null) {
+                var laborCost = parseInt(res.items[0].labor_cost);
+                var subTotal = total;
+
+                total += laborCost;
+
+                html += '<tr style="text-align: center">' +
+                    '<td></td>' +
+                    '<td colspan="2"><b>Sub-total</b></td>' +
+                    '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
+                    '</tr>';
+
+                html += '<tr style="text-align: center">' +
+                    '<td></td>' +
+                    '<td colspan="2"><b>Labor Cost</b></td>' +
+                    '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
+                    '</tr>';
+            }
+
+            html += '<tr style="text-align: center">' +
+                '<td></td>' +
+                '<td colspan="2"><b>Total Amount</b></td>' +
+                '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                '</tr>';
+
+            if (paidAmount > 0) {
+                html += '<tr style="text-align: center">' +
+                    '<td></td>' +
+                    '<td colspan="2"><b>Amount Paid</b></td>' +
+                    '<td><b>&#8358;' + paidAmount.toLocaleString() + '</b></td>' +
+                    '</tr>';
+
+                var balance = total - paidAmount;
+
+                html += '<tr style="text-align: center">' +
+                    '<td></td>' +
+                    '<td colspan="2"><b>Balance</b></td>' +
+                    '<td><b>&#8358;' + balance.toLocaleString() + '</b></td>' +
+                    '</tr>';
+            }
+
+            $('#receipt_body').html(html);
+
+            var printableContent = document.getElementById('print').innerHTML;
+
+            var printWindow = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+            printWindow.screenX = 0;
+            printWindow.screenY = 0;
+            printWindow.document.write(printableContent);
+            printWindow.document.title = "Print Estimate Certificate";
+            printWindow.focus();
+
+            printWindow.print();
+        },
+
+        error: function(xhr, ajaxOptions, thrownError) {
+            if (xhr.status === 419) {
+                toastr.error("Session expired. Please login again.");
+
+                setTimeout(function() {
+                    window.location.replace('{{ route('login') }}');
+                }, 2000);
+            }
+        },
+    });
+}
+
 
         function updateTable() {
 

@@ -152,60 +152,62 @@
     $(document).ready(function () {
        
         $('#processCreditPaymentBtn').on('click', function() {
-            var paymentData = [];
+                var paymentData = [];
 
-            $('input[type="radio"]:checked').each(function() {
-                var paymentType = $(this).val();
-                var creditId = $(this).attr('name').split('_')[1];
-                var partialAmountInput = $('input[name="partial_amount_' + creditId + '"]');
-                var partialAmount = partialAmountInput.val();
+                $('input[type="radio"]:checked').each(function() {
+                    var paymentType = $(this).val();
+                    var creditId = $(this).attr('name').split('_')[1];
+                    var partialAmountInput = $('input[name="partial_amount_' + creditId + '"]');
+                    var partialAmount = partialAmountInput.val();
 
-                paymentData.push({
-                    creditId: creditId,
-                    paymentType: paymentType,
-                    partialAmount: partialAmount
+                    paymentData.push({
+                        creditId: creditId,
+                        paymentType: paymentType,
+                        partialAmount: partialAmount
+                    });
+                });
+
+                // Check if payment method is selected
+                var paymentMethod = $('#paymentMethod').val();
+                if (!paymentMethod) {
+                    toastr.error("Please select a payment method.");
+                    return;
+                }
+
+                // Disable the button and show loading spinner
+                var processBtn = $(this);
+                processBtn.prop('disabled', true);
+                processBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                // Send payment data to the server
+                $.ajax({
+                    url: '/process-credit-payment',
+                    method: 'POST',
+                    data: { paymentData: paymentData, paymentMethod: paymentMethod },
+                    success: function (response) {
+                        if (response.message) {
+                            toastr.success(response.message);
+                            $('.creditTable').load(location.href+' .creditTable');
+                            // Hide the modal upon success
+                            $('#creditPaymentModal').modal('hide');
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error("An error occurred while processing the payment.");
+                    },
+                    complete: function() {
+                        // Re-enable the button and revert its text
+                        processBtn.prop('disabled', false);
+                        processBtn.html('Process Payment');
+                    }
                 });
             });
-
-            // Check if payment method is selected
-            var paymentMethod = $('#paymentMethod').val();
-            if (!paymentMethod) {
-                toastr.error("Please select a payment method.");
-                return;
-            }
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            // Disable the button and show spinner animation
-            var processBtn = $(this);
-            processBtn.prop('disabled', true);
-            processBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
-
-            // Send payment data to the server
-            $.ajax({
-                url: '/process-credit-payment',
-                method: 'POST',
-                data: { paymentData: paymentData, paymentMethod: paymentMethod },
-                success: function (response) {
-                    if (response.message) {
-                        toastr.success(response.message);
-                        $('.creditTable').load(location.href+' .creditTable');
-                        processBtn.prop('disabled', false);
-                        processBtn.text('Process Payment');
-                        $('#creditPaymentModal').modal('hide');
-
-                    } 
-                },
-                error: function (error) {
-                    processBtn.prop('disabled', false);
-                    processBtn.text('Process Payment');
-                }
-            });
-        });
 
     });
 </script>

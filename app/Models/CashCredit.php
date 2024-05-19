@@ -12,6 +12,9 @@ class CashCredit extends Model
     public function customer(){
         return $this->belongsTo(User::class, 'customer_id','id');
     }
+    public function cashier(){
+        return $this->belongsTo(User::class, 'cashier_id','id');
+    }
 
     protected $fillable = [
         'customer_id',

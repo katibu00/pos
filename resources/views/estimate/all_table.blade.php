@@ -51,6 +51,9 @@
                 <button type="button" class="btn btn-primary btn-sm editEstimate" data-estimate_no="{{ $estimate->estimate_no }}">
                     <i class="fas fa-edit"></i>
                 </button>
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#sendWhatsAppModal" data-estimate_no="{{ $estimate->estimate_no }}">
+                    <i class="fab fa-whatsapp"></i>
+                </button>
               </td>
             </tr>
             @endforeach

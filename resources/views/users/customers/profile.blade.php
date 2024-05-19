@@ -397,7 +397,7 @@
                                                     @forelse($cashcredits as $key => $cashcredit)
                                                         <tr>
                                                             <td>{{ $key + 1 }}</td>
-                                                            <td>{{ $cashcredit->cashier->first_name }}</td>
+                                                            <td>{{ optional($cashcredit->cashier)->first_name }}</td>
                                                             <td>{{ $cashcredit->amount }}</td>
                                                             <td>{{ $cashcredit->amount_paid }}</td>
                                                             <td>{{ $cashcredit->status }}</td>

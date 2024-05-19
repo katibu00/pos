@@ -15,6 +15,7 @@ class DebtorsController extends Controller
         $branchId = auth()->user()->branch_id;
 
         $sales = Sale::where('branch_id', $branchId)
+            ->whereNotNull('customer')
             ->where('payment_method', 'credit')
             ->where(function($query) {
                 $query->whereNull('status')

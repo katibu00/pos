@@ -78,11 +78,18 @@ class EstimateController extends Controller
         $items = Estimate::with('product')->where('estimate_no', $request->estimate_no)->get();
         $transactionDate = $items->first()->created_at->format('F j, Y h:i A');
         $accountDetails = [
-            'account_number' => '8033174228',
-            'account_name' => 'Umar Katibu',
-            'bank_name' => 'Opay Bank'
+            [
+                'account_number' => '8255115541',
+                'account_name' => 'Alhabib Plumbing Materials',
+                'bank_name' => 'Moni Point'
+            ],
+            [
+                'account_number' => '8905855014',
+                'account_name' => 'Elhabib Plumbing Materials and Services',
+                'bank_name' => 'FCMB'
+            ]
         ];
-    
+
         return response()->json([
             'status' => 200,
             'items' => $items,
@@ -90,7 +97,7 @@ class EstimateController extends Controller
             'account_details' => $accountDetails,
         ]);
     }
-    
+
 
     public function allStore(Request $request)
     {

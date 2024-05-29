@@ -162,7 +162,7 @@
             businessDetails = "Address: Kofar Yamma, Misau, Bauchi State\nPhone: 0901-782-0678\nEmail: support@elhabibplumbing.com\nWebsite: www.elhabibplumbing.com";
         @endif
 
-        let accountDetails = "Account number: 8033174228\nAccount name: Umar Katibu\nBank name: Opay";
+        let accountDetails = "Account numbers:\nAlhabib plumbing materials 8255115541 Moni point\nElhabib plumbing materials and services 8905855014 FCMB";
 
         let balance = totalOwed - totalPaid;
 
@@ -182,6 +182,7 @@
         window.open(whatsappURL, '_blank');
     }
 </script>
+
 
 
 

@@ -518,7 +518,6 @@ class HomeController extends Controller
             ->where('branch_id',$branch_id)
             ->get();
             
-            // Get transfer transfers created today
             $transferTransfers = FundTransfer::where(function ($query) {
                 $query->where('from_account', 'transfer')
                       ->orWhere('to_account', 'transfer');
@@ -527,7 +526,6 @@ class HomeController extends Controller
             ->where('branch_id',$branch_id)
             ->get();
             
-            // Get pos transfers created today
             $posTransfers = FundTransfer::where(function ($query) {
                 $query->where('from_account', 'pos')
                       ->orWhere('to_account', 'pos');
@@ -537,7 +535,7 @@ class HomeController extends Controller
             ->get();
         
         } else {
-            // No date provided, use today's date
+
             $todaySales = Sale::where('branch_id', $branch_id)
                 ->whereNotIn('stock_id', [1093, 1012])
                 ->whereDate('created_at', today())
@@ -602,7 +600,6 @@ class HomeController extends Controller
             ->where('branch_id',$branch_id)
             ->get();
             
-            // Get transfer transfers created today
             $transferTransfers = FundTransfer::where(function ($query) {
                 $query->where('from_account', 'transfer')
                       ->orWhere('to_account', 'transfer');
@@ -611,7 +608,6 @@ class HomeController extends Controller
             ->where('branch_id',$branch_id)
             ->get();
             
-            // Get pos transfers created today
             $posTransfers = FundTransfer::where(function ($query) {
                 $query->where('from_account', 'pos')
                       ->orWhere('to_account', 'pos');
@@ -642,7 +638,7 @@ class HomeController extends Controller
             })
             ->reduce(function ($total, $sale) use (&$uniquePosReceipts) {
                 if ($sale->payment_method == 'multiple') {
-                    // Check if the receipt number is not already in the uniquePosReceipts array
+
                     if (!in_array($sale->receipt_no, $uniquePosReceipts)) {
                         $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
                             ->where('payment_type', 'multiple')
@@ -651,7 +647,6 @@ class HomeController extends Controller
 
                         $total += $paymentAmount ?? 0;
 
-                        // Add the receipt number to the uniquePosReceipts array to ensure uniqueness
                         $uniquePosReceipts[] = $sale->receipt_no;
                     }
                 } else {
@@ -670,7 +665,7 @@ class HomeController extends Controller
             })
             ->reduce(function ($total, $sale) use (&$uniqueReceipts) {
                 if ($sale->payment_method == 'multiple') {
-                    // Check if the receipt number is not already in the uniqueReceipts array
+
                     if (!in_array($sale->receipt_no, $uniqueReceipts)) {
                         $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
                             ->where('payment_type', 'multiple')
@@ -679,7 +674,6 @@ class HomeController extends Controller
 
                         $total += $paymentAmount ?? 0;
 
-                        // Add the receipt number to the uniqueReceipts array to ensure uniqueness
                         $uniqueReceipts[] = $sale->receipt_no;
                     }
                 } else {
@@ -764,6 +758,13 @@ class HomeController extends Controller
         $data['returnProfit'] = $todayReturns->sum(function ($return) {
             return (($return->price-@$return->product->buying_price) * $return->quantity);
         });
+
+        $data['profileReturns'] = $todayReturns->where('return_channel', 'profile')->sum(function ($return) {
+            return ($return->price * $return->quantity + $return->discount);
+        });
+
+        $data['profileReturnDiscounts'] = $todayReturns->where('channel', 'profile')->sum('discount');
+
 
         //Expenses
         $data['totalExpenses'] = $todayExpenses->sum('amount');

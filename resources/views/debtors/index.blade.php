@@ -21,6 +21,7 @@
                                         <th>Name</th>
                                         <th>Total Owed</th>
                                         <th>Total Paid</th>
+                                        <th>Balance</th>
                                         <th>Last Sales Date</th>
                                         <th>Last Payment Date</th>
                                         <th>Days Since Last Payment</th>
@@ -33,8 +34,9 @@
                                             <td>{{ ($customers->currentPage() - 1) * $customers->perPage() + $loop->iteration }}</td>
 
                                             <td>{{ $customer['first_name'] }}</td>
-                                            <td>{{ $customer['total_owed'] }}</td>
-                                            <td>{{ $customer['total_paid'] }}</td>
+                                            <td>{{ number_format($customer['total_owed'],0) }}</td>
+                                            <td>{{ number_format($customer['total_paid'],0) }}</td>
+                                            <td>{{ number_format($customer['total_owed'] - $customer['total_paid'],0) }}</td>
                                             <td>{{ $customer['last_sales_date']->format('Y-m-d') }}</td>
                                             <td>{{ $customer['last_payment_date'] ? $customer['last_payment_date']->format('Y-m-d') : 'N/A' }}</td>
                                             <td>{{ $customer['days_since_last_payment'] }}</td>
@@ -146,12 +148,11 @@
 
 <script>
     function sendWhatsAppMessage(phone, firstName, totalOwed, totalPaid) {
-        // Add country code if phone number is less than or equal to 11 digits
+
         if (phone.length <= 11) {
             phone = '234' + phone;
         }
 
-        // Get business details
         let businessName = "EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch";
         let businessDetails = '';
         @if (auth()->user()->branch->name == 'Azare')
@@ -161,25 +162,27 @@
             businessDetails = "Address: Kofar Yamma, Misau, Bauchi State\nPhone: 0901-782-0678\nEmail: support@elhabibplumbing.com\nWebsite: www.elhabibplumbing.com";
         @endif
 
-        // Account details
         let accountDetails = "Account number: 8033174228\nAccount name: Umar Katibu\nBank name: Opay";
 
-        // Calculate balance
         let balance = totalOwed - totalPaid;
 
-        // Compose message
-        let message = `Hello ${firstName},\n\nYou have an outstanding credit balance of NGN ${balance.toFixed(2)} with ${businessName}.\n\n${businessDetails}\n\nPlease make a payment at your earliest convenience.\n\n${accountDetails}`;
+        // Function to format numbers with commas
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
-        // Encode message for WhatsApp URL
+        let formattedBalance = numberWithCommas(balance.toFixed(2));
+
+        let message = `Dear ${firstName},\n\nYou have an urgent outstanding credit balance of ₦${formattedBalance} with ${businessName}.\n\n${businessDetails}\n\nWe kindly request that you make the payment at your earliest convenience to settle your account.\n\n${accountDetails}\n\nThank you for your prompt attention to this matter.`;
+
         let encodedMessage = encodeURIComponent(message);
 
-        // Construct WhatsApp URL
         let whatsappURL = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
 
-        // Open WhatsApp in new tab with the composed message
         window.open(whatsappURL, '_blank');
     }
 </script>
+
 
 
 

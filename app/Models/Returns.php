@@ -27,5 +27,6 @@ class Returns extends Model
         'quantity',
         'customer',
         'note',
+        'return_channel',
     ];
 }

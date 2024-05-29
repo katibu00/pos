@@ -163,7 +163,7 @@
                                         <span>Total Returns: <span class="fw-bold"
                                                 style="margin-left: 5px;">&#8358;{{ number_format($totalReturn, 0) }}</span></span>
                                         <span style="margin-left: auto;">
-                                            ({{ 'Cash: ' . number_format($cashReturns, 0) . ' POS: ' . number_format($posReturns, 0) . ' Trans: ' . number_format($transferReturns, 0) }})</span>
+                                            ({{ 'Cash: ' . number_format($cashReturns, 0) . ' POS: ' . number_format($posReturns, 0) . ' Trans: ' . number_format($transferReturns, 0). ' Credit: ' . number_format($profileReturns, 0) }})</span>
                                     </li>
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
@@ -193,15 +193,15 @@
                                                 style="margin-left: 5px;">&#8358;{{ number_format($totalEstimate, 0) }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
-                                    @php
+                                    {{-- @php
                                         $owed = App\Models\User::select('balance')
                                             ->where('branch_id', auth()->user()->branch_id)
                                             ->sum('balance');
-                                    @endphp
+                                    @endphp --}}
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Total Credit: <span class="fw-bold"
-                                                style="margin-left: 5px;">{{ number_format($owed, 0) }}</span></span>
+                                                style="margin-left: 5px;">-</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
                                     <li class="border border-success py-2 px-3 rounded mb-2"
@@ -255,8 +255,17 @@
                                     <li class="border border-danger py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Credit Sales: <span class="fw-bold"
-                                                style="margin-left: 5px;">&#8358;{{ number_format($creditSales, 0) }}</span></span>
-                                        <span style="margin-left: auto;"></span>
+                                                style="margin-left: 5px;">&#8358;{{ number_format($creditSales-$profileReturns+$profileReturnDiscounts, 0) }}</span></span>
+                                            <span
+                                                style="margin-left: auto;">({{ 'Total Credit Sales: ' . number_format($creditSales, 0) . ' Returns: ' . number_format($profileReturns, 0). ' Returns Discount: ' . number_format($profileReturnDiscounts, 0) }})
+                                            </span>                    
+                                   </li>
+                                   <li class="border border-success py-2 px-3 rounded mb-2"
+                                        style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Credit Payments: <span class="fw-bold"
+                                                style="margin-left: 5px;">&#8358;{{ number_format($totalCreditPayments, 0) }}</span></span>
+                                        <span style="margin-left: auto;">
+                                            ({{ 'Cash: ' . number_format($cashCreditPayments, 0) . ' POS: ' . number_format($posCreditPayments, 0) . ' Trans: ' . number_format($transferCreditPayments, 0) }})</span>
                                     </li>
                                     <li class="border border-danger py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
@@ -299,13 +308,6 @@
                                         <span
                                             style="margin-left: auto;">({{ 'Gross Sale: ' . number_format($grossSales, 0) . ' Sales Discount: ' . number_format($totalDiscount, 0) . ' Total Return: ' . number_format($totalReturn, 0) . ' Return Discount: ' . number_format($returnDiscounts, 0) }})
                                         </span>
-                                    </li>
-                                    <li class="border border-success py-2 px-3 rounded mb-2"
-                                        style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span>Credit Payments: <span class="fw-bold"
-                                                style="margin-left: 5px;">&#8358;{{ number_format($totalCreditPayments, 0) }}</span></span>
-                                        <span style="margin-left: auto;">
-                                            ({{ 'Cash: ' . number_format($cashCreditPayments, 0) . ' POS: ' . number_format($posCreditPayments, 0) . ' Trans: ' . number_format($transferCreditPayments, 0) }})</span>
                                     </li>
 
                                     <li class="border border-danger py-2 px-3 rounded mb-2"

@@ -24,6 +24,7 @@ class CreateReturnsTable extends Migration
             $table->integer('quantity');
             $table->string('customer')->nullable();
             $table->string('note')->nullable();
+            $table->enum('return_channel', ['profifle','normal'])->default('normal');
             $table->timestamps();
         });
     }

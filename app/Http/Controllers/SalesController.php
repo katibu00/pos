@@ -562,44 +562,94 @@ class SalesController extends Controller
     }
 
 
-    public function loadReceipt(Request $request)
-    {
-        $transactionType = $request->transaction_type;
-        $transactionNo = $request->receipt_no;
-        $items = [];
-        $paidAmount = 0;
+    // public function loadReceipt(Request $request)
+    // {
+    //     $transactionType = $request->transaction_type;
+    //     $transactionNo = $request->receipt_no;
+    //     $items = [];
+    //     $paidAmount = 0;
 
-        if ($transactionType === 'Sales') {
-            $items = Sale::with('product')
-                ->where('receipt_no', $transactionNo)
-                ->get();
+    //     if ($transactionType === 'Sales') {
+    //         $items = Sale::with('product')
+    //             ->where('receipt_no', $transactionNo)
+    //             ->get();
             
-            if ($items->isNotEmpty() && $items[0]->payment_method === 'credit' && $items[0]->status === 'partial') {
-                $paidAmount = Payment::where('receipt_nos', 'like', "%$transactionNo%")
-                    ->sum('payment_amount');
+    //         if ($items->isNotEmpty() && $items[0]->payment_method === 'credit' && $items[0]->status === 'partial') {
+    //             $paidAmount = Payment::where('receipt_nos', 'like', "%$transactionNo%")
+    //                 ->sum('payment_amount');
+    //         }
+    //     } elseif ($transactionType === 'Returns') {
+    //         $items = Returns::with('product')
+    //             ->where('return_no', $transactionNo)
+    //             ->get();
+    //     } elseif ($transactionType === 'Estimates') {
+    //         $items = Estimate::with('product')
+    //             ->where('estimate_no', $transactionNo)
+    //             ->get();
+    //     }
+
+    //     if (!$transactionType) {
+    //         $items = Sale::with('product')
+    //             ->where('receipt_no', $transactionNo)
+    //             ->get();
+    //     }
+
+    //     return response()->json([
+    //         'status' => 200,
+    //         'items' => $items,
+    //         'paid_amount' => $paidAmount,
+    //     ]);
+    // }
+
+
+    public function loadReceipt(Request $request)
+{
+    $transactionType = $request->transaction_type;
+    $transactionNo = $request->receipt_no;
+    $items = [];
+    $paidAmount = 0;
+    $transactionDate = null;
+
+    switch ($transactionType) {
+        case 'Sales':
+            $items = Sale::with('product')->where('receipt_no', $transactionNo)->get();
+            if ($items->isNotEmpty()) {
+                $transactionDate = $items[0]->created_at;
+                if ($items[0]->payment_method === 'credit' && $items[0]->status === 'partial') {
+                    $paidAmount = Payment::where('receipt_nos', 'like', "%$transactionNo%")->sum('payment_amount');
+                }
             }
-        } elseif ($transactionType === 'Returns') {
-            $items = Returns::with('product')
-                ->where('return_no', $transactionNo)
-                ->get();
-        } elseif ($transactionType === 'Estimates') {
-            $items = Estimate::with('product')
-                ->where('estimate_no', $transactionNo)
-                ->get();
-        }
-
-        if (!$transactionType) {
-            $items = Sale::with('product')
-                ->where('receipt_no', $transactionNo)
-                ->get();
-        }
-
-        return response()->json([
-            'status' => 200,
-            'items' => $items,
-            'paid_amount' => $paidAmount,
-        ]);
+            break;
+        case 'Returns':
+            $items = Returns::with('product')->where('return_no', $transactionNo)->get();
+            if ($items->isNotEmpty()) {
+                $transactionDate = $items[0]->created_at;
+            }
+            break;
+        case 'Estimates':
+            $items = Estimate::with('product')->where('estimate_no', $transactionNo)->get();
+            if ($items->isNotEmpty()) {
+                $transactionDate = $items[0]->created_at;
+            }
+            break;
+        default:
+            $items = Sale::with('product')->where('receipt_no', $transactionNo)->get();
+            if ($items->isNotEmpty()) {
+                $transactionDate = $items[0]->created_at;
+            }
+            break;
     }
+
+    return response()->json([
+        'status' => 200,
+        'items' => $items,
+        'paid_amount' => $paidAmount,
+        'transaction_date' => $transactionDate ? $transactionDate->format('F j, Y h:i A') : null,
+    ]);
+}
+
+
+
 
 
     public function allIndex()

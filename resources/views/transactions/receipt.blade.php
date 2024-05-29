@@ -8,13 +8,11 @@
             box-sizing: border-box;
         }
 
-        /* Body styles */
         body {
             font-family: Arial, sans-serif;
-            font-size: 14px; 
+            font-size: 14px;
         }
 
-        /* Header styles */
         .header {
             text-align: center;
             margin-bottom: 10px;
@@ -25,18 +23,17 @@
         }
 
         .business-name {
-            font-size: 16px; 
+            font-size: 16px;
             font-weight: bold;
-            margin-top: 10px; 
+            margin-top: 10px;
         }
 
         .contact-details {
-            font-size: 14px; /* Increased font size for better readability */
-            margin-top: 5px; /* Increased margin for better spacing */
-            margin-bottom: 10px; /* Increased margin for better spacing */
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 10px;
         }
 
-        /* Table styles */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -44,10 +41,10 @@
         }
 
         th, td {
-            padding: 8px; /* Increased padding for better spacing */
+            padding: 8px;
             text-align: left;
             border-bottom: 1px solid #000;
-            font-size: 14px; /* Increased font size for better readability */
+            font-size: 14px;
         }
 
         th {
@@ -110,8 +107,9 @@
             Website: www.elhabibplumbing.com
         </div>
         @endif
-        <div id="customer_name_div" style="font-size: 14px; margin-top: 7px;" class=""><span id="customer_name_span"></span></div> 
-        <div style="font-size: 14px; margin-top: 7px;">Sale Date & Time: {{ date('F j, Y h:i A') }}</div>
+        <div id="customer_name_div" style="font-size: 14px; margin-top: 7px;"><span id="customer_name_span"></span></div>
+        <div style="font-size: 14px; margin-top: 7px;">Sale Date & Time: <span id="transaction_date_span"></span></div>
+        <div style="font-size: 14px; margin-top: 7px;" id="transaction_type_div"><span id="transaction_type_span"></span></div>
     </div>
 
     <table>
@@ -123,17 +121,12 @@
                 <th>Total</th>
             </tr>
         </thead>
-        <tbody id="receipt_body">
-        </tbody>
-        <tfoot>
-           
-        </tfoot>
+        <tbody id="receipt_body"></tbody>
     </table>
     <div style="display: flex; justify-content: center;">
         <img src="/generatedBarcode.png" style="max-width: 100%; height: auto;">
     </div>
     <div style="text-align: center; margin-bottom: 15px;">*** Thank you! ***</div>
-
     <p>.</p><br>
     <p>.</p><br>
 </body>

@@ -80,6 +80,7 @@
             margin-left: 10px;
 
         }
+
         .thin-input {
             width: 100%;
         }
@@ -163,7 +164,8 @@
                                                                     <option value="0">Walk-in Customer</option>
                                                                     @foreach ($customers as $customer)
                                                                         <option value="{{ $customer->id }}">
-                                                                            {{ $customer->first_name.' '. $customer->last_name }}</option>
+                                                                            {{ $customer->first_name . ' ' . $customer->last_name }}
+                                                                        </option>
                                                                     @endforeach
                                                                 </select>
                                                             </div>
@@ -232,8 +234,10 @@
                                             </div>
                                             <!-- Add the "Multiple" option -->
                                             <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="payment_method" id="multiple" value="multiple" required>
-                                                <label class="form-check-label nott" for="multiple"><i class="fa fa-list text-primary"></i> Multiple</label>
+                                                <input class="form-check-input" type="radio" name="payment_method"
+                                                    id="multiple" value="multiple" required>
+                                                <label class="form-check-label nott" for="multiple"><i
+                                                        class="fa fa-list text-primary"></i> Multiple</label>
                                             </div>
 
                                         </div>
@@ -270,19 +274,23 @@
                                             }
                                         </style>
 
-                                        <div id="multiplePaymentsSection" class="col-12 form-group" style="display: none;">
+                                        <div id="multiplePaymentsSection" class="col-12 form-group"
+                                            style="display: none;">
                                             <label>Multiple Payments:</label><br>
                                             <div class="form-group">
                                                 <label for="cashAmount">Cash:</label>
-                                                <input type="number" class="form-control" name="cashAmount" id="cashAmount">
+                                                <input type="number" class="form-control" name="cashAmount"
+                                                    id="cashAmount">
                                             </div>
                                             <div class="form-group">
                                                 <label for="posAmount">POS:</label>
-                                                <input type="number" class="form-control" name="posAmount" id="posAmount">
+                                                <input type="number" class="form-control" name="posAmount"
+                                                    id="posAmount">
                                             </div>
                                             <div class="form-group">
                                                 <label for="transferAmount">Transfer:</label>
-                                                <input type="number" class="form-control" name="transferAmount" id="transferAmount">
+                                                <input type="number" class="form-control" name="transferAmount"
+                                                    id="transferAmount">
                                             </div>
                                         </div>
 
@@ -323,16 +331,42 @@
             </div>
         </div>
     </section>
+
+
+    <!-- Modal HTML -->
+<div id="whatsappModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Receipt via WhatsApp</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="whatsappForm">
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="Enter phone number">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="sendWhatsAppButton">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @endsection
 
 @section('js')
-<script>
-    $(document).ready(function() {
-        $('#customer').select2({
-            theme: 'classic'
+    <script>
+        $(document).ready(function() {
+            $('#customer').select2({
+                theme: 'classic'
+            });
         });
-    });
-</script>
+    </script>
     <script>
         $(document).ready(function() {
             updateSections();
@@ -381,116 +415,118 @@
 
 
 
-<script>
-    $(document).ready(function() {
+    <script>
+        $(document).ready(function() {
 
-        function updateTotalMultiplePayments() {
-            var cashAmount = parseFloat($('#cashAmount').val()) || 0;
-            var posAmount = parseFloat($('#posAmount').val()) || 0;
-            var transferAmount = parseFloat($('#transferAmount').val()) || 0;
-            var totalMultiplePayments = cashAmount + posAmount + transferAmount;
+            function updateTotalMultiplePayments() {
+                var cashAmount = parseFloat($('#cashAmount').val()) || 0;
+                var posAmount = parseFloat($('#posAmount').val()) || 0;
+                var transferAmount = parseFloat($('#transferAmount').val()) || 0;
+                var totalMultiplePayments = cashAmount + posAmount + transferAmount;
 
-            // Create or update the totalAmountMultiplePayments element
-            var totalAmountMultiplePayments = $('#totalAmountMultiplePayments');
-            if (totalAmountMultiplePayments.length === 0) {
-                totalAmountMultiplePayments = $('<p id="totalAmountMultiplePayments" class="font-weight-bold"></p>');
-                $('#multiplePaymentsSection').append(totalAmountMultiplePayments);
-            }
-
-            totalAmountMultiplePayments.text('₦' + totalMultiplePayments.toLocaleString());
-        }
-            
-        $('input[name="payment_method"]').change(function() {
-
-            var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
-            var selectedUserId = $('#customer').val();
-
-            if (selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'deposit') {
-                if (selectedUserId == 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Please select a user before choosing the payment method.',
-                    }); 
-                    $('input[name="payment_method"]').prop('checked', false);
-                    return;
+                // Create or update the totalAmountMultiplePayments element
+                var totalAmountMultiplePayments = $('#totalAmountMultiplePayments');
+                if (totalAmountMultiplePayments.length === 0) {
+                    totalAmountMultiplePayments = $(
+                        '<p id="totalAmountMultiplePayments" class="font-weight-bold"></p>');
+                    $('#multiplePaymentsSection').append(totalAmountMultiplePayments);
                 }
-                
-                $.ajax({
-                    url: '/fetch-credit-balance',
-                    method: 'GET',
-                    data: {
-                        payment_method: selectedPaymentMethod,
-                        user_id: selectedUserId,
-                    },
-                    success: function(response) {
 
-                        $('#balanceContainer').show();
-                        if (selectedPaymentMethod === 'credit') {
-
-                            $('#previousBalanceLabel').text('Previous Credit Balance:');
-                            $('#previousBalance').text(response.balance_or_deposit);
-                            var newCreditBalance = parseFloat(response.balance_or_deposit) +
-                                parseFloat($('#totalAmount').text().replace('₦', '')
-                                    .replace(',', ''));
-                            $('#newBalanceLabel').text('New Credit Balance:');
-                            $('#newBalance').text(newCreditBalance.toLocaleString());
-
-                            $("#paid_amount_span").text('Partial Cash Amount Paid (if any)');
-                            $("#paidAmountField").show();
-                            $("#partialAmountField").show();
-                            $("#changeField").hide();
-
-                        } else if (selectedPaymentMethod === 'deposit') {
-
-                            $('#previousBalanceLabel').text('Previous Deposit Balance:');
-                            $('#previousBalance').text(response.balance_or_deposit);
-
-                            var newDepositBalance = parseFloat(response
-                                .balance_or_deposit) - parseFloat($('#totalAmount')
-                                .text()
-                                .replace('₦', '').replace(',', ''));
-                            $('#newBalanceLabel').text('New Deposit Balance:');
-                            $('#newBalance').text(newDepositBalance.toLocaleString());
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error fetching balance:', error);
-                    }
-                });
-            } else {
-
-                $('#balanceContainer').hide();
-                $("#paid_amount_span").text('Cash Amount Paid');
+                totalAmountMultiplePayments.text('₦' + totalMultiplePayments.toLocaleString());
             }
-            if(selectedPaymentMethod === 'cash'){
+
+            $('input[name="payment_method"]').change(function() {
+
+                var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
+                var selectedUserId = $('#customer').val();
+
+                if (selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'deposit') {
+                    if (selectedUserId == 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Please select a user before choosing the payment method.',
+                        });
+                        $('input[name="payment_method"]').prop('checked', false);
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '/fetch-credit-balance',
+                        method: 'GET',
+                        data: {
+                            payment_method: selectedPaymentMethod,
+                            user_id: selectedUserId,
+                        },
+                        success: function(response) {
+
+                            $('#balanceContainer').show();
+                            if (selectedPaymentMethod === 'credit') {
+
+                                $('#previousBalanceLabel').text('Previous Credit Balance:');
+                                $('#previousBalance').text(response.balance_or_deposit);
+                                var newCreditBalance = parseFloat(response.balance_or_deposit) +
+                                    parseFloat($('#totalAmount').text().replace('₦', '')
+                                        .replace(',', ''));
+                                $('#newBalanceLabel').text('New Credit Balance:');
+                                $('#newBalance').text(newCreditBalance.toLocaleString());
+
+                                $("#paid_amount_span").text(
+                                    'Partial Cash Amount Paid (if any)');
+                                $("#paidAmountField").show();
+                                $("#partialAmountField").show();
+                                $("#changeField").hide();
+
+                            } else if (selectedPaymentMethod === 'deposit') {
+
+                                $('#previousBalanceLabel').text('Previous Deposit Balance:');
+                                $('#previousBalance').text(response.balance_or_deposit);
+
+                                var newDepositBalance = parseFloat(response
+                                    .balance_or_deposit) - parseFloat($('#totalAmount')
+                                    .text()
+                                    .replace('₦', '').replace(',', ''));
+                                $('#newBalanceLabel').text('New Deposit Balance:');
+                                $('#newBalance').text(newDepositBalance.toLocaleString());
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Error fetching balance:', error);
+                        }
+                    });
+                } else {
+
+                    $('#balanceContainer').hide();
+                    $("#paid_amount_span").text('Cash Amount Paid');
+                }
+                if (selectedPaymentMethod === 'cash') {
                     $("#paidAmountField").show();
                     $("#partialAmountField").hide();
 
-                }else{
+                } else {
                     $("#paidAmountField").hide();
                     $("#partialAmountField").hide();
-             }
+                }
 
-             if (selectedPaymentMethod === 'multiple') {
-                // Show additional form fields for multiple payments
-                $('#multiplePaymentsSection').show();
+                if (selectedPaymentMethod === 'multiple') {
+                    // Show additional form fields for multiple payments
+                    $('#multiplePaymentsSection').show();
+                    updateTotalMultiplePayments();
+
+                } else {
+                    $('#multiplePaymentsSection').hide();
+
+                }
+
+            });
+
+            $('#multiplePaymentsSection input').on('input', function() {
                 updateTotalMultiplePayments();
-                
-            }else{
-                $('#multiplePaymentsSection').hide();
+            });
 
-            } 
-           
+
         });
-
-        $('#multiplePaymentsSection input').on('input', function() {
-            updateTotalMultiplePayments();
-        });
-
-
-    });
-</script>
+    </script>
 
     <script>
         var transactionType = $("input[name='transaction_type']:checked").val();
@@ -596,7 +632,9 @@
                     "<td class='total'>0</td>" +
                     "<td>" +
                     "<input type='hidden' name='product_id[]' value='" + product.id + "'>" +
-                    "<input type='hidden' name='price[]' value='" + product.selling_price + "'><input type='hidden' name='buying_price[]' value='" + product.buying_price + "'><input type='hidden' name='remaining_quantity[]' value='" + product.quantity + "'>" +
+                    "<input type='hidden' name='price[]' value='" + product.selling_price +
+                    "'><input type='hidden' name='buying_price[]' value='" + product.buying_price +
+                    "'><input type='hidden' name='remaining_quantity[]' value='" + product.quantity + "'>" +
                     "<button class='btn btn-danger remove-btn'>X</button>" +
                     "</td>" +
                     "</tr>";
@@ -659,103 +697,176 @@
             }
         });
 
+
+        
         function PrintReceiptContent(receipt_no, transaction_type) {
-    var data = {
-        'receipt_no': receipt_no,
-        'transaction_type': transaction_type,
-    };
+            var data = {
+                'receipt_no': receipt_no,
+                'transaction_type': transaction_type,
+            };
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    $.ajax({
-        type: "POST",
-        url: "{{ route('refresh-receipt') }}",
-        data: data,
-        success: function(res) {
-            var html = '';
-            var total = 0;
-            var paidAmount = res.paid_amount || 0; 
-
-            $.each(res.items, function(key, item) {
-                html += '<tr style="text-align: center">' +
-                    '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
-                    '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                    '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-                    '<td style="font-size: 12px;">' + (item.quantity * item.price).toLocaleString() + '</td>' +
-                    '</tr>';
-                total += item.quantity * item.price;
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
             });
 
-            if (res.items[0].labor_cost !== null) {
-                var laborCost = parseInt(res.items[0].labor_cost);
-                var subTotal = total;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('refresh-receipt') }}",
+                data: data,
+                success: function(res) {
+                    var html = '';
+                    var total = 0;
+                    var paidAmount = res.paid_amount || 0;
 
-                total += laborCost;
+                    $.each(res.items, function(key, item) {
+                        var productName = item.product.name;
+                        var quantity = item.quantity;
+                        var price = item.price;
+                        var totalPrice = quantity * price;
 
-                html += '<tr style="text-align: center">' +
-                    '<td></td>' +
-                    '<td colspan="2"><b>Sub-total</b></td>' +
-                    '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
-                    '</tr>';
+                        html += '<tr style="text-align: center">' +
+                            '<td style="text-align: left"><span style="font-size: 12px;">' +
+                            productName + '</span></td>' +
+                            '<td style="font-size: 12px;">' + quantity + '</td>' +
+                            '<td style="font-size: 12px;">' + price.toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + totalPrice.toLocaleString() + '</td>' +
+                            '</tr>';
+                        total += totalPrice;
+                    });
 
-                html += '<tr style="text-align: center">' +
-                    '<td></td>' +
-                    '<td colspan="2"><b>Labor Cost</b></td>' +
-                    '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
-                    '</tr>';
+                    var laborCost = res.items[0].labor_cost ? parseInt(res.items[0].labor_cost) : 0;
+                    if (laborCost) {
+                        var subTotal = total;
+                        total += laborCost;
+
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Sub-total</b></td>' +
+                            '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Labor Cost</b></td>' +
+                            '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
+
+                    html += '<tr style="text-align: center">' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Total Amount</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                        '</tr>';
+
+                    if (paidAmount > 0) {
+                        var balance = total - paidAmount;
+
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Amount Paid</b></td>' +
+                            '<td><b>&#8358;' + paidAmount.toLocaleString() + '</b></td>' +
+                            '</tr>';
+
+                        html += '<tr style="text-align: center">' +
+                            '<td></td>' +
+                            '<td colspan="2"><b>Balance</b></td>' +
+                            '<td><b>&#8358;' + balance.toLocaleString() + '</b></td>' +
+                            '</tr>';
+                    }
+
+                    $('#receipt_body').html(html);
+                    $('#transaction_type_span').html('<u>' + transaction_type + ' Receipt</u>');
+                    $('#transaction_date_span').text(res.transaction_date);
+
+                    var printableContent = document.getElementById('print').innerHTML;
+
+                    var printWindow = window.open("", "myWin", "left=150, top=130, width=300, height=400");
+                    printWindow.document.write(printableContent);
+                    printWindow.document.title = "Print Estimate Certificate";
+                    printWindow.focus();
+                    printWindow.print();
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    if (xhr.status === 419) {
+                        toastr.error("Session expired. Please login again.");
+                        setTimeout(function() {
+                            window.location.replace('{{ route('login') }}');
+                        }, 2000);
+                    }
+                },
+            });
+        }
+
+
+  
+        $('#whatsappModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var transactionNo = button.data('transaction-no'); // Extract info from data-* attributes
+            var transactionType = button.data('transaction-type');
+
+            // Store transaction details in modal's data attributes
+            var modal = $(this);
+            modal.find('#sendWhatsAppButton').data('transaction-no', transactionNo);
+            modal.find('#sendWhatsAppButton').data('transaction-type', transactionType);
+        });
+
+        $('#sendWhatsAppButton').click(function() {
+            var phone = $('#phoneNumber').val();
+            var transactionNo = $(this).data('transaction-no');
+            var transactionType = $(this).data('transaction-type');
+
+            if (phone.length <= 11) {
+                phone = '234' + phone;
             }
 
-            html += '<tr style="text-align: center">' +
-                '<td></td>' +
-                '<td colspan="2"><b>Total Amount</b></td>' +
-                '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
-                '</tr>';
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
-            if (paidAmount > 0) {
-                html += '<tr style="text-align: center">' +
-                    '<td></td>' +
-                    '<td colspan="2"><b>Amount Paid</b></td>' +
-                    '<td><b>&#8358;' + paidAmount.toLocaleString() + '</b></td>' +
-                    '</tr>';
+            $.ajax({
+                type: "POST",
+                url: "{{ route('refresh-receipt') }}",
+                data: {
+                    'receipt_no': transactionNo,
+                    'transaction_type': transactionType
+                },
+                success: function(res) {
+                    let businessName = "EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch";
+                    let businessDetails = '';
+                    @if (auth()->user()->branch->name == 'Azare')
+                        businessDetails = "Address: Along Ali Kwara Hospital, Azare.\nPhone: 0916-844-3058\nEmail: support@elhabibplumbing.com\nWebsite: www.elhabibplumbing.com";
+                    @endif
+                    @if (auth()->user()->branch->name == 'Misau')
+                        businessDetails = "Address: Kofar Yamma, Misau, Bauchi State\nPhone: 0901-782-0678\nEmail: support@elhabibplumbing.com\nWebsite: www.elhabibplumbing.com";
+                    @endif
 
-                var balance = total - paidAmount;
+                    let itemsList = res.items.map(item => `${item.product.name} (Qty: ${item.quantity}, Price: ${item.price.toLocaleString()})`).join('\n');
+                    let totalAmount = res.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toLocaleString();
 
-                html += '<tr style="text-align: center">' +
-                    '<td></td>' +
-                    '<td colspan="2"><b>Balance</b></td>' +
-                    '<td><b>&#8358;' + balance.toLocaleString() + '</b></td>' +
-                    '</tr>';
-            }
+                    let message = `Hello,\n\nHere is your receipt from ${businessName}.\n\nTransaction Type: ${transactionType}\nDate: ${res.transaction_date}\n\nItems:\n${itemsList}\n\nTotal: ₦${totalAmount}\n\n${businessDetails}\n\nThank you for your business!`;
+                    let encodedMessage = encodeURIComponent(message);
+                    let whatsappURL = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
 
-            $('#receipt_body').html(html);
+                    window.open(whatsappURL, '_blank');
 
-            var printableContent = document.getElementById('print').innerHTML;
+                    $('#whatsappModal').modal('hide'); // Hide the modal after sending the message
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    if (xhr.status === 419) {
+                        toastr.error("Session expired. Please login again.");
+                        setTimeout(function() {
+                            window.location.replace('{{ route('login') }}');
+                        }, 2000);
+                    }
+                }
+            });
+        });
 
-            var printWindow = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-            printWindow.screenX = 0;
-            printWindow.screenY = 0;
-            printWindow.document.write(printableContent);
-            printWindow.document.title = "Print Estimate Certificate";
-            printWindow.focus();
 
-            printWindow.print();
-        },
-
-        error: function(xhr, ajaxOptions, thrownError) {
-            if (xhr.status === 419) {
-                toastr.error("Session expired. Please login again.");
-
-                setTimeout(function() {
-                    window.location.replace('{{ route('login') }}');
-                }, 2000);
-            }
-        },
-    });
-}
 
 
         function updateTable() {
@@ -802,16 +913,18 @@
                 var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
 
                 if (selectedPaymentMethod === 'multiple') {
-                    var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(',', ''));
-                    var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace('₦', '').replace(',', ''));
+                    var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(
+                        ',', ''));
+                    var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace(
+                        '₦', '').replace(',', ''));
 
                     if (totalAmountEntered !== totalAmountDisplayed) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
                             text: 'Total amount entered does not match the displayed total. Please check the amounts again.'
-                        });           
-                     return;
+                        });
+                        return;
                     }
                 }
 
@@ -850,13 +963,14 @@
                                 icon: 'error',
                                 title: 'Error',
                                 text: response.message,
-                            }); 
+                            });
                         }
                         $.LoadingOverlay("hide");
 
                     },
                     error: function(error) {
-                        if (error.responseJSON && error.responseJSON.status === 400 && error.responseJSON.message) {
+                        if (error.responseJSON && error.responseJSON.status === 400 && error
+                            .responseJSON.message) {
                             // Display validation error using Swal
                             Swal.fire({
                                 icon: 'error',
@@ -864,7 +978,8 @@
                                 text: error.responseJSON.message,
                             });
                         } else {
-                            toastr.error('An error occurred while processing the request.', 'Error');
+                            toastr.error('An error occurred while processing the request.',
+                                'Error');
                         }
 
                         $.LoadingOverlay("hide");

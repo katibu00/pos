@@ -260,7 +260,7 @@
         var phoneNumber = $('#phoneNumber').val();
         var estimateNo = $('#modalEstimateNo').val();
 
-        data = {
+        const data = {
             'estimate_no': estimateNo
         };
 
@@ -275,20 +275,51 @@
             url: "{{ route('refresh-receipt-estimate') }}",
             data: data,
             success: function(res) {
-                var message = "Estimate Details:\n";
+                let message = "Estimate Details:\n";
+                const currentBranch = "{{ auth()->user()->branch->name }}";
+                const branchDetails = {
+                    'Azare': {
+                        'address': "Along Ali Kwara Hospital, Azare.",
+                        'phone': "0916-844-3058",
+                        'email': "support@elhabibplumbing.com",
+                        'website': "www.elhabibplumbing.com"
+                    },
+                    'Misau': {
+                        'address': "Kofar Yamma, Misau, Bauchi State",
+                        'phone': "0901-782-0678",
+                        'email': "support@elhabibplumbing.com",
+                        'website': "www.elhabibplumbing.com"
+                    }
+                };
+
                 message += "Business Name: EL-Habib Plumbing Materials and Services - " + currentBranch + " Branch\n";
                 message += "Address: " + branchDetails[currentBranch]['address'] + "\n";
                 message += "Phone: " + branchDetails[currentBranch]['phone'] + "\n";
                 message += "Email: " + branchDetails[currentBranch]['email'] + "\n";
                 message += "Website: " + branchDetails[currentBranch]['website'] + "\n\n";
-                
-                // Add account details
-                message += "Account Number: 8033174228\n";
-                message += "Account Name: Umar Katibu\n";
-                message += "Bank Name: Opay Bank\n\n";
 
-                var total = 0;
-                var serialNumber = 1;
+                // Add account details
+                const accountDetails = [
+                    {
+                        'account_number': '8255115541',
+                        'account_name': 'Alhabib Plumbing Materials',
+                        'bank_name': 'Moni Point'
+                    },
+                    {
+                        'account_number': '8905855014',
+                        'account_name': 'Elhabib Plumbing Materials and Services',
+                        'bank_name': 'FCMB'
+                    }
+                ];
+
+                accountDetails.forEach(function(account) {
+                    message += "Account Number: " + account.account_number + "\n";
+                    message += "Account Name: " + account.account_name + "\n";
+                    message += "Bank Name: " + account.bank_name + "\n\n";
+                });
+
+                let total = 0;
+                let serialNumber = 1;
 
                 $.each(res.items, function(key, item) {
                     total += item.quantity * item.price;
@@ -297,14 +328,14 @@
                 });
 
                 if (res.items[0].labor_cost !== null) {
-                    var laborCost = parseInt(res.items[0].labor_cost);
+                    const laborCost = parseInt(res.items[0].labor_cost);
                     message += "Labor Cost: " + laborCost.toLocaleString() + "\n";
                     total += laborCost;
                 }
 
                 message += "Total: " + total.toLocaleString();
 
-                var whatsappUrl = "https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodeURIComponent(message);
+                const whatsappUrl = "https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodeURIComponent(message);
 
                 window.open(whatsappUrl, '_blank');
 
@@ -321,10 +352,6 @@
         });
     });
 </script>
-
-
-
-
 
 
 

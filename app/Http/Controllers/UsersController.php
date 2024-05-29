@@ -111,7 +111,7 @@ class UsersController extends Controller
         });
     
         // Paginate results
-        $perPage = 20; // Adjust the number of customers per page as needed
+        $perPage = 2000; // Adjust the number of customers per page as needed
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $itemCollection = collect($customerData);
         $paginatedCustomers = $itemCollection->slice(($currentPage - 1) * $perPage, $perPage)->all();

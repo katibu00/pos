@@ -82,11 +82,6 @@ class EstimateController extends Controller
                 'account_number' => '8255115541',
                 'account_name' => 'Alhabib Plumbing Materials',
                 'bank_name' => 'Moni Point'
-            ],
-            [
-                'account_number' => '8905855014',
-                'account_name' => 'Elhabib Plumbing Materials and Services',
-                'bank_name' => 'FCMB'
             ]
         ];
 

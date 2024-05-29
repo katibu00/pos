@@ -740,9 +740,9 @@
 
 <script>
     function PrintReceiptContent(estimate_no) {
-        data = {
+        const data = {
             'estimate_no': estimate_no,
-        }
+        };
 
         $.ajaxSetup({
             headers: {
@@ -755,8 +755,8 @@
             url: "{{ route('refresh-receipt-estimate') }}",
             data: data,
             success: function(res) {
-                var html = '';
-                var total = 0;
+                let html = '';
+                let total = 0;
 
                 $.each(res.items, function(key, item) {
                     total += item.quantity * item.price;
@@ -771,7 +771,7 @@
                 });
 
                 if (res.items[0].labor_cost !== null) {
-                    var laborCost = parseInt(res.items[0].labor_cost);
+                    const laborCost = parseInt(res.items[0].labor_cost);
 
                     html +=
                         '<tr style="text-align: center">' +
@@ -811,15 +811,20 @@
 
                 $('#receipt_body').html(html);
                 $('#transaction_date').html('Sale Date & Time: ' + res.transaction_date);
-                $('#account_details').html(
-                    'Account Number: ' + res.account_details.account_number + '<br>' +
-                    'Account Name: ' + res.account_details.account_name + '<br>' +
-                    'Bank Name: ' + res.account_details.bank_name
-                );
 
-                var data = document.getElementById('print').innerHTML;
+                let accountDetailsHtml = '';
+                res.account_details.forEach(function(account) {
+                    accountDetailsHtml +=
+                        'Account Number: ' + account.account_number + '<br>' +
+                        'Account Name: ' + account.account_name + '<br>' +
+                        'Bank Name: ' + account.bank_name + '<br><br>';
+                });
 
-                var myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
+                $('#account_details').html(accountDetailsHtml);
+
+                const data = document.getElementById('print').innerHTML;
+
+                const myReceipt = window.open("", "myWin", "left=150, top=130, width=300, height=400");
                 myReceipt.document.write(data);
                 myReceipt.document.title = "Print Estimate Certificate";
                 myReceipt.focus();
@@ -840,6 +845,7 @@
         }, 8000);
     }
 </script>
+
 
 
 

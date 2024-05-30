@@ -116,7 +116,7 @@ class UsersController extends Controller
             'last_sales_date' => $lastSalesDate ? $lastSalesDate->format('Y-m-d') : 'N/A',
             'last_payment_date' => $lastPaymentDate ? $lastPaymentDate->format('Y-m-d') : 'N/A',
             'days_since_last_payment' => $daysSinceLastPayment !== 'N/A' ? $daysSinceLastPayment . ' days' : 'N/A',
-            'last_payment_amount' => $lastPaymentAmount, // Include last payment amount
+            'last_payment_amount' => $lastPaymentAmount,
         ];
     }
 

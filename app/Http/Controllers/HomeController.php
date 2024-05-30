@@ -760,11 +760,10 @@ class HomeController extends Controller
         });
 
         $data['profileReturns'] = $todayReturns->where('return_channel', 'profile')->sum(function ($return) {
-            return ($return->price * $return->quantity + $return->discount);
+            return ($return->price * $return->quantity);
         });
 
-        $data['profileReturnDiscounts'] = $todayReturns->where('channel', 'profile')->sum('discount');
-
+        $data['profileReturnDiscounts'] = $todayReturns->where('return_channel', 'profile')->sum('discount');
 
         //Expenses
         $data['totalExpenses'] = $todayExpenses->sum('amount');

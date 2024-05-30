@@ -106,7 +106,7 @@
                                                             <tr>
                                                                 <td>{{ $key3 + 1 }}</td>
                                                                 <td colspan="2">
-                                                                    {{ $date->created_at->format('l, d F') . ' (S' . $date->receipt_no . ')' }}
+                                                                    {{ $date->created_at->format('l, d F') . ' ('. $date->receipt_no . ')' }}
                                                                 </td>
                                                                 <td></td>
                                                                 <td></td>

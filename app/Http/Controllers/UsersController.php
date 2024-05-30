@@ -30,120 +30,12 @@ class UsersController extends Controller
 
 
 
-
-    // public function customersIndex()
-    // {
-    //     $branchId = auth()->user()->branch_id;
-
-    //     // Paginate the initial customer query
-    //     $perPage = 2; // Number of customers per page
-    //     $currentPage = LengthAwarePaginator::resolveCurrentPage();
-
-    //     // Fetch customers for the current page
-    //     $customersQuery = User::where('usertype', 'customer')
-    //         ->where('branch_id', $branchId)
-    //         ->orderBy('first_name');
-
-    //     $totalCustomers = $customersQuery->count();
-    //     $customers = $customersQuery->skip(($currentPage - 1) * $perPage)
-    //         ->take($perPage)
-    //         ->get();
-
-    //     $customerData = [];
-
-    //     foreach ($customers as $customer) {
-    //         $customerId = $customer->id;
-
-    //         // Fetch credit sales transactions for the customer that are not fully paid
-    //         $sales = Sale::where('customer', $customerId)
-    //             ->where('branch_id', $branchId)
-    //             ->where('payment_method', 'credit')
-    //             ->where(function ($query) {
-    //                 $query->whereNull('status')
-    //                     ->orWhere('status', 'partial');
-    //             })
-    //             ->orderBy('receipt_no')
-    //             ->get()
-    //             ->groupBy('receipt_no');
-
-    //         $totalCreditBalance = 0;
-    //         $lastSalesDate = null;
-
-    //         foreach ($sales as $receiptNo => $salesGroup) {
-    //             $transactionOwed = 0;
-    //             $transactionPaid = $salesGroup->first()->payment_amount ?? 0;
-
-    //             foreach ($salesGroup as $sale) {
-    //                 $transactionOwed += ($sale->price * ($sale->quantity)) - $sale->discount;
-    //                 $lastSalesDate = $lastSalesDate ? max($lastSalesDate, $sale->created_at) : $sale->created_at;
-    //             }
-
-    //             // Fetch the return transactions matching the receipt_no
-    //             $returns = Returns::where('branch_id', $branchId)
-    //                 ->where('return_no', $receiptNo)
-    //                 ->get();
-
-    //             foreach ($returns as $return) {
-    //                 $transactionOwed -= (($return->price * $return->quantity) - $return->discount);
-    //             }
-
-    //             // Calculate total credit balance for this transaction
-    //             $totalCreditBalance += $transactionOwed - $transactionPaid;
-    //         }
-
-    //         // Fetch the last payment date and amount for the customer
-    //         $lastPayment = Payment::where('customer_id', $customerId)
-    //             ->where('branch_id', $branchId)
-    //             ->orderBy('created_at', 'desc')
-    //             ->first();
-
-    //         $lastPaymentDate = $lastPayment ? $lastPayment->created_at : null;
-    //         $lastPaymentAmount = $lastPayment ? $lastPayment->payment_amount : 'N/A';
-
-    //         $daysSinceLastPayment = $lastPaymentDate ? now()->diffInDays($lastPaymentDate) : ($lastSalesDate ? now()->diffInDays($lastSalesDate) : 'N/A');
-
-    //         $customerData[] = [
-    //             'customer_id' => $customerId,
-    //             'first_name' => $customer->first_name,
-    //             'phone' => $customer->phone,
-    //             'credit_balance' => $totalCreditBalance,
-    //             'deposit' => $customer->deposit,
-    //             'last_sales_date' => $lastSalesDate ? $lastSalesDate->format('Y-m-d') : 'N/A',
-    //             'last_payment_date' => $lastPaymentDate ? $lastPaymentDate->format('Y-m-d') : 'N/A',
-    //             'days_since_last_payment' => $daysSinceLastPayment !== 'N/A' ? $daysSinceLastPayment . ' days' : 'N/A',
-    //             'last_payment_amount' => $lastPaymentAmount, // Include last payment amount
-    //         ];
-    //     }
-
-    //     // Sort customers by days since last payment
-    //     usort($customerData, function ($a, $b) {
-    //         return $b['days_since_last_payment'] <=> $a['days_since_last_payment'];
-    //     });
-
-    //     // Create a paginator instance
-    //     $paginatedCustomers = new LengthAwarePaginator(
-    //         $customerData,
-    //         $totalCustomers,
-    //         $perPage,
-    //         $currentPage
-    //     );
-
-    //     $paginatedCustomers->setPath(route('customers.index'));
-
-    //     return view('users.customers.index', ['customers' => $paginatedCustomers]);
-    // }
-
-
-
-
-
     public function customersIndex(Request $request)
 {
     $branchId = auth()->user()->branch_id;
     $search = $request->input('search');
 
-    // Paginate the initial customer query
-    $perPage = 2; // Number of customers per page
+    $perPage = 10; 
     $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
     // Fetch customers for the current page

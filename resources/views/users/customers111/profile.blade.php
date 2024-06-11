@@ -100,13 +100,13 @@
                                                                     'discount',
                                                                     'payment_method',
                                                                 )
-                                                                    ->where('return_no', 'R' . $date->receipt_no)
+                                                                    ->where('return_no', $date->receipt_no)
                                                                     ->get();
                                                             @endphp
                                                             <tr>
                                                                 <td>{{ $key3 + 1 }}</td>
                                                                 <td colspan="2">
-                                                                    {{ $date->created_at->format('l, d F') . ' (S' . $date->receipt_no . ')' }}
+                                                                    {{ $date->created_at->format('l, d F') . ' ('. $date->receipt_no . ')' }}
                                                                 </td>
                                                                 <td></td>
                                                                 <td></td>
@@ -530,7 +530,7 @@
                                                 'discount',
                                                 'payment_method',
                                             )
-                                                ->where('return_no', 'R' . $date->receipt_no)
+                                                ->where('return_no', $date->receipt_no)
                                                 ->get();
 
                                             foreach ($sales as $sale) {

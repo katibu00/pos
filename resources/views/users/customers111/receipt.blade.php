@@ -44,6 +44,7 @@
         <!--End Info-->
     </center>
     <em>Tranx ID:</em>  <em class="tran_id"></em>
+
     <div id="mid">
         <div class="info">
             @if (auth()->user()->branch->name == 'Azare')

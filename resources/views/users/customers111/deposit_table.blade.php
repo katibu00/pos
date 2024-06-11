@@ -10,7 +10,6 @@
                 <th></th>
             </tr>
         </thead>
-        
         @php
             $total_deposit = 0;
         @endphp

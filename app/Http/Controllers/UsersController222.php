@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\SalesNotification;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class UsersController extends Controller
 {
@@ -26,11 +28,124 @@ class UsersController extends Controller
         return view('users.index', $data);
     }
 
-    public function customersIndex()
-    {
-        $data['customers'] = User::where('usertype', 'customer')->where('branch_id', auth()->user()->branch_id)->orderBy('first_name')->get();
-        return view('users.customers.index', $data);
+
+
+    public function customersIndex(Request $request)
+{
+    $branchId = auth()->user()->branch_id;
+    $search = $request->input('search');
+
+    $perPage = 10; 
+    $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+    // Fetch customers for the current page
+    $customersQuery = User::where('usertype', 'customer')
+        ->where('branch_id', $branchId)
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        })
+        ->orderBy('first_name');
+
+    $totalCustomers = $customersQuery->count();
+    $customers = $customersQuery->skip(($currentPage - 1) * $perPage)
+        ->take($perPage)
+        ->get();
+
+    $customerData = [];
+
+    foreach ($customers as $customer) {
+        $customerId = $customer->id;
+
+        // Fetch credit sales transactions for the customer that are not fully paid
+        $sales = Sale::where('customer', $customerId)
+            ->where('branch_id', $branchId)
+            ->where('payment_method', 'credit')
+            ->where(function ($query) {
+                $query->whereNull('status')
+                    ->orWhere('status', 'partial');
+            })
+            ->orderBy('receipt_no')
+            ->get()
+            ->groupBy('receipt_no');
+
+        $totalCreditBalance = 0;
+        $lastSalesDate = null;
+
+        foreach ($sales as $receiptNo => $salesGroup) {
+            $transactionOwed = 0;
+            $transactionPaid = $salesGroup->first()->payment_amount ?? 0;
+
+            foreach ($salesGroup as $sale) {
+                $transactionOwed += ($sale->price * ($sale->quantity)) - $sale->discount;
+                $lastSalesDate = $lastSalesDate ? max($lastSalesDate, $sale->created_at) : $sale->created_at;
+            }
+
+            // Fetch the return transactions matching the receipt_no
+            $returns = Returns::where('branch_id', $branchId)
+                ->where('return_no', $receiptNo)
+                ->get();
+
+            foreach ($returns as $return) {
+                $transactionOwed -= (($return->price * $return->quantity) - $return->discount);
+            }
+
+            // Calculate total credit balance for this transaction
+            $totalCreditBalance += $transactionOwed - $transactionPaid;
+        }
+
+        // Fetch the last payment date and amount for the customer
+        $lastPayment = Payment::where('customer_id', $customerId)
+            ->where('branch_id', $branchId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $lastPaymentDate = $lastPayment ? $lastPayment->created_at : null;
+        $lastPaymentAmount = $lastPayment ? $lastPayment->payment_amount : 'N/A';
+
+        $daysSinceLastPayment = $lastPaymentDate ? now()->diffInDays($lastPaymentDate) : ($lastSalesDate ? now()->diffInDays($lastSalesDate) : 'N/A');
+
+        $customerData[] = [
+            'customer_id' => $customerId,
+            'first_name' => $customer->first_name,
+            'phone' => $customer->phone,
+            'credit_balance' => $totalCreditBalance,
+            'deposit' => $customer->deposit,
+            'last_sales_date' => $lastSalesDate ? $lastSalesDate->format('Y-m-d') : 'N/A',
+            'last_payment_date' => $lastPaymentDate ? $lastPaymentDate->format('Y-m-d') : 'N/A',
+            'days_since_last_payment' => $daysSinceLastPayment !== 'N/A' ? $daysSinceLastPayment . ' days' : 'N/A',
+            'last_payment_amount' => $lastPaymentAmount,
+        ];
     }
+
+    // Sort customers by days since last payment
+    usort($customerData, function ($a, $b) {
+        return $b['days_since_last_payment'] <=> $a['days_since_last_payment'];
+    });
+
+    // Create a paginator instance
+    $paginatedCustomers = new LengthAwarePaginator(
+        $customerData,
+        $totalCustomers,
+        $perPage,
+        $currentPage
+    );
+
+    $paginatedCustomers->setPath(route('customers.index'));
+
+    if ($request->ajax()) {
+        return view('users.customers.table', ['customers' => $paginatedCustomers])->render();
+    }
+
+    return view('users.customers.index', ['customers' => $paginatedCustomers]);
+}
+
+
+
+
+
 
     public function customerStore(Request $request)
     {
@@ -417,197 +532,189 @@ class UsersController extends Controller
         return view('users.customers.return', $data);
 
     }
-    public function returnStoreaaa(Request $request)
-    {
-
-        $sale = Sale::find($request->sale_id[0]);
-
-        $sales = Sale::where('receipt_no', $sale->receipt_no)->where('branch_id', auth()->user()->branch_id)->where('customer', $sale->customer)->get(); 
-        $net_amount = 0;
-       
-        foreach($sales as $sale)
-       {
-        $net_amount += ($sale->quantity - $sale->returned_qty) * $sale->price - $sale->discount;
-       
-       }
-       $remaining_balance = $net_amount - $sales[0]->payment_amount;
-
-       $returned_amount = 0;
-       $productCount = count($request->sale_id);
-       if ($productCount != null) {
-           for ($i = 0; $i < $productCount; $i++) {
-
-                if($request->returned_qty[$i] != null)
-                {
-                    $returned_amount += $request->price[$i] * $request->returned_qty[$i];
-                }
-           }
-        }
-       
-      if($returned_amount > $remaining_balance)
-      {
-        Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
-        return redirect()->back();
-
-      }
-
-        $productCount = count($request->sale_id);
-        if ($productCount != null) {
-            for ($i = 0; $i < $productCount; $i++) {
-
-
-                if ($request->returned_qty[$i] != '') {
-
-                    if ($request->returned_qty[$i] <= $sale->quantity) {
-
-                        $sale->returned_qty += $request->returned_qty[$i];
-                        $sale->update();
-
-                        $data = new Returns();
-                        $data->branch_id = auth()->user()->branch_id;
-                        $data->return_no = 'R' . $sale->receipt_no;
-                        $data->product_id = $request->product_id[$i];
-                        $data->price = $request->price[$i];
-                        $data->quantity = $request->returned_qty[$i];
-                        if ($request->discount[$i] == null) {
-                            $data->discount = 0;
-
-                        } else {
-                            $discount = $request->discount[$i] / $request->quantity[$i] * $request->returned_qty[$i];
-                            $data->discount = $discount;
-                        }
-                        $data->cashier_id = auth()->user()->id;
-                        $data->customer = $sale->customer;
-                        $data->channel = 'credit';
-                        $data->note = $sale->note;
-                        $data->payment_method = $request->payment_method;
-                        $data->save();
-
-                        $data = Stock::find($request->product_id[$i]);
-                        $data->quantity += $request->returned_qty[$i];
-                        $data->update();
-
-                        $user = User::find($request->customer_id);
-                        if ($request->discount[$i] == null) {
-
-                        } else {
-                            $user->balance -= $request->price[$i] * $request->returned_qty[$i] - $discount;
-
-                        }
-                        $user->update();
-                    }
-                }
-            }
-        }
-        Toastr::success('Credit Sales was Updated Successfully');
-        return redirect()->route('customers.profile', $sale->customer);
-
-    }
-
+ 
     public function returnStore(Request $request)
     {
-        $fistRow = Sale::select('receipt_no','customer')->where('id', $request->sale_id[0])->first();
-
         $branchId = auth()->user()->branch_id;
+        $receiptNo = Sale::where('id', $request->sale_id[0])->value('receipt_no');
+        $customer = Sale::where('id', $request->sale_id[0])->value('customer');
+        
+        // Retrieve sales for the given receipt number, customer, and branch
+        $sales = Sale::where('receipt_no', $receiptNo)
+            ->where('customer', $customer)
+            ->where('branch_id', $branchId)
+            ->get();
+        
+        $remainingBalance = $sales->sum(fn($sale) => ($sale->quantity - $sale->returned_qty) * $sale->price - $sale->discount) - ($sales[0]->payment_amount ?? 0);
 
-        $sales = Sale::where('receipt_no', $fistRow->receipt_no)
-        ->where('customer', $fistRow->customer)
-        ->where('branch_id', $branchId)
-        ->get();
-         
-        $net_amount = 0;
-       
-        foreach($sales as $sale)
-       {
-        $net_amount += ($sale->quantity - $sale->returned_qty) * $sale->price - $sale->discount;
-       
-       }
-       $remaining_balance = $net_amount - ($sales[0]->payment_amount ?? 0);
+        // dd($remainingBalance);
 
-       $returned_amount = 0;
-       $saleIdCount = count($request->sale_id);
-       if ($saleIdCount != null) {
-           for ($i = 0; $i < $saleIdCount; $i++) {
-                $sale = Sale::select('returned_qty','quantity','price','discount')->where('id',$request->sale_id[$i])->first();
-                $returned_amount += ($sale->price * $sale->quantity - $sale->discount);
+        $totalReturnedValue = 0;
+
+        foreach ($request->sale_id as $index => $saleId) {
+            $returnedQty = $request->returned_qty[$index];
+
+            if ($returnedQty > 0) {
+                $sale = Sale::findOrFail($saleId);
+                $discountPerUnit = $sale->discount / $sale->quantity;
+                $appliedDiscount = $discountPerUnit * $returnedQty;
+                $returnedValue = ($sale->price * $returnedQty) - $appliedDiscount;
+
+                $totalReturnedValue += $returnedValue;
             }
         }
-        //   dd($remaining_balance);
-        //   if($returned_amount > $remaining_balance)
-        //   {
-        //     Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
-        //     return redirect()->back();
+        if ($totalReturnedValue > $remainingBalance) {
+            return back()->withErrors(['error' => 'The value of the returned products exceeds the remaining balance.']);
+        }
+        foreach ($request->sale_id as $index => $saleId) {
+            $returnedQty = $request->returned_qty[$index];
 
-        //   }
+            if ($returnedQty > 0) {
+                $sale = Sale::findOrFail($saleId);
+                $sale->returned_qty += $returnedQty;
+                $sale->save();
 
-        $productCount = count($request->sale_id);
-        if ($productCount != null) {
-            for ($i = 0; $i < $productCount; $i++) {
+                $discountPerUnit = $sale->discount / $sale->quantity;
+                $appliedDiscount = $discountPerUnit * $returnedQty;
 
-                $sale = Sale::select('id','returned_qty','quantity')->where('id',$request->sale_id[$i])->first();
+                // Save return details
+                Returns::create([
+                    'branch_id' => $branchId,
+                    'return_no' => $receiptNo,
+                    'product_id' => $request->product_id[$index],
+                    'price' => $request->price[$index],
+                    'quantity' => $returnedQty,
+                    'discount' => $appliedDiscount,
+                    'cashier_id' => auth()->user()->id,
+                    'customer' => $customer,
+                    'channel' => 'credit',
+                    'note' => $sale->note,
+                    'return_channel' => 'profile',
+                ]);
 
-                if ($request->returned_qty[$i] != '') {
+                // Update stock
+                $product = Stock::findOrFail($request->product_id[$index]);
+                $product->quantity += $returnedQty;
+                $product->save();
 
-                    if ($request->returned_qty[$i] <= $sale->quantity) {
-
-                        $sale->returned_qty += $request->returned_qty[$i];
-                        $sale->update();
-
-                        $data = new Returns();
-                        $data->branch_id = auth()->user()->branch_id;
-                        $data->return_no = 'R' . $fistRow->receipt_no;
-                        $data->product_id = $request->product_id[$i];
-                        $data->price = $request->price[$i];
-                        $data->quantity = $request->returned_qty[$i];
-                        if ($request->discount[$i] == null) {
-                            $data->discount = 0;
-
-                        } else {
-                            $discount = $request->discount[$i] / $request->quantity[$i] * $request->returned_qty[$i];
-                            $data->discount = $discount;
-                        }
-                        $data->cashier_id = auth()->user()->id;
-                        $data->customer = $sale->customer;
-                        $data->channel = 'credit';
-                        $data->note = $sale->note;
-                        $data->save();
-
-                        $data = Stock::find($request->product_id[$i]);
-                        $data->quantity += $request->returned_qty[$i];
-                        $data->update();
-
-                        $user = User::find($request->customer_id);
-                        if ($request->discount[$i] == null) {
-                            $user->balance -= $request->price[$i] * $request->returned_qty[$i];
-                        } else {
-                            $user->balance -= $request->price[$i] * $request->returned_qty[$i] - $discount;
-
-                        }
-                        $user->update();
-                    }
-                }
+                // Update customer balance
+                $user = User::findOrFail($request->customer_id);
+                $user->balance -= ($request->price[$index] * $returnedQty - $appliedDiscount);
+                $user->save();
             }
         }
+
         Toastr::success('Credit Sales was Updated Successfully');
-        return redirect()->route('customers.profile', $fistRow->customer);
-
+        return redirect()->route('customers.profile', $customer);
     }
+
 
     public function search(Request $request)
     {
-        $searchQuery = $request->input('query');
-
-        $data['customers'] = User::where('usertype', 'customer')
-            ->where('branch_id', auth()->user()->branch_id)
-            ->where(function ($query) use ($searchQuery) {
-                $query->where('first_name', 'LIKE', '%' . $searchQuery . '%')
-                    ->orWhere('last_name', 'LIKE', '%' . $searchQuery . '%');
+        $query = $request->input('query');
+        $branchId = auth()->user()->branch_id;
+        $perPage = 10;
+        // dd($query);
+        // Perform the search query with pagination
+        $customersQuery = User::where('usertype', 'customer')
+            ->where('branch_id', $branchId)
+            ->where(function($q) use ($query) {
+                $q->where('first_name', 'like', '%' . $query . '%')
+                  ->orWhere('phone', 'like', '%' . $query . '%');
             })
-            ->orderBy('first_name')
+            ->orderBy('first_name');
+    
+        $totalCustomers = $customersQuery->count();
+        $customers = $customersQuery->skip(($request->page - 1) * $perPage)
+            ->take($perPage)
             ->get();
-
-        return view('users.customers.table', $data)->render();
-
+    
+        $customerData = [];
+    
+        foreach ($customers as $customer) {
+            $customerId = $customer->id;
+    
+            // Fetch credit sales transactions for the customer that are not fully paid
+            $sales = Sale::where('customer', $customerId)
+                ->where('branch_id', $branchId)
+                ->where('payment_method', 'credit')
+                ->where(function ($query) {
+                    $query->whereNull('status')
+                        ->orWhere('status', 'partial');
+                })
+                ->orderBy('receipt_no')
+                ->get()
+                ->groupBy('receipt_no');
+    
+            $totalCreditBalance = 0;
+            $lastSalesDate = null;
+    
+            foreach ($sales as $receiptNo => $salesGroup) {
+                $transactionOwed = 0;
+                $transactionPaid = $salesGroup->first()->payment_amount ?? 0;
+    
+                foreach ($salesGroup as $sale) {
+                    $transactionOwed += ($sale->price * ($sale->quantity)) - $sale->discount;
+                    $lastSalesDate = $lastSalesDate ? max($lastSalesDate, $sale->created_at) : $sale->created_at;
+                }
+    
+                // Fetch the return transactions matching the receipt_no
+                $returns = Returns::where('branch_id', $branchId)
+                    ->where('return_no', $receiptNo)
+                    ->get();
+    
+                foreach ($returns as $return) {
+                    $transactionOwed -= (($return->price * $return->quantity) - $return->discount);
+                }
+    
+                // Calculate total credit balance for this transaction
+                $totalCreditBalance += $transactionOwed - $transactionPaid;
+            }
+    
+            // Fetch the last payment date and amount for the customer
+            $lastPayment = Payment::where('customer_id', $customerId)
+                ->where('branch_id', $branchId)
+                ->orderBy('created_at', 'desc')
+                ->first();
+    
+            $lastPaymentDate = $lastPayment ? $lastPayment->created_at : null;
+            $lastPaymentAmount = $lastPayment ? $lastPayment->payment_amount : 'N/A';
+    
+            $daysSinceLastPayment = $lastPaymentDate ? now()->diffInDays($lastPaymentDate) : ($lastSalesDate ? now()->diffInDays($lastSalesDate) : 'N/A');
+    
+            $customerData[] = [
+                'customer_id' => $customerId,
+                'first_name' => $customer->first_name,
+                'phone' => $customer->phone,
+                'credit_balance' => $totalCreditBalance,
+                'deposit' => $customer->deposit,
+                'last_sales_date' => $lastSalesDate ? $lastSalesDate->format('Y-m-d') : 'N/A',
+                'last_payment_date' => $lastPaymentDate ? $lastPaymentDate->format('Y-m-d') : 'N/A',
+                'days_since_last_payment' => $daysSinceLastPayment !== 'N/A' ? $daysSinceLastPayment . ' days' : 'N/A',
+                'last_payment_amount' => $lastPaymentAmount, // Include last payment amount
+            ];
+        }
+    
+        // Sort customers by days since last payment
+        usort($customerData, function ($a, $b) {
+            return $b['days_since_last_payment'] <=> $a['days_since_last_payment'];
+        });
+    
+        // Create a paginator instance
+        $paginatedCustomers = new LengthAwarePaginator(
+            $customerData,
+            $totalCustomers,
+            $perPage,
+            $request->page
+        );
+    
+        $paginatedCustomers->setPath(route('users.search'));
+    
+        // Render the table partial view and return the result
+        $html = view('users.customers.table', ['customers' => $paginatedCustomers])->render();
+    
+        return response()->json(['html' => $html, 'pagination' => $paginatedCustomers->links()->toHtml()]);
     }
+    
 
 }

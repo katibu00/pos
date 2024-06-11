@@ -4,7 +4,9 @@
     <section id="content">
         <div class="content-wrap">
             <div class="container">
+
                 <div class="card">
+                    <!-- Default panel contents -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="col-4 "><span class="text-bold fs-16">Edit Customer</span></div>
                         <div class="col-md-2 float-right"><a href="{{ route('customers.index') }}" class="btn btn-sm btn-secondary me-2"> <--- Customer List</a></div>

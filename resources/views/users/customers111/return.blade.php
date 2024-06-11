@@ -11,9 +11,19 @@
                         <div class="col-md-2 float-right"><a href="javascript:void(0)" onclick="history.back();" class="btn btn-sm btn-primary me-2"><-- Go back to User Profile</a></div>
                     </div>
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <form action="{{ route('users.return.index') }}" method="post">
                             @csrf
                         <div class="table-responsive">
+
                             <table class=" table"
                                 style="width:100%">
                                 <thead>

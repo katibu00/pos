@@ -32,8 +32,6 @@
                                 <label for="balance" class="col-form-label">Credit Balance:</label>
                                 <input type="number" class="form-control" id="balance" name="balance" value="{{$user->balance}}">
                             </div>
-                           
-                           
                             
                             <div class="form-group row">
                                 <div class="col-sm-10">

@@ -193,15 +193,15 @@
                                                 style="margin-left: 5px;">&#8358;{{ number_format($totalEstimate, 0) }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
-                                    {{-- @php
+                                    @php
                                         $owed = App\Models\User::select('balance')
                                             ->where('branch_id', auth()->user()->branch_id)
                                             ->sum('balance');
-                                    @endphp --}}
+                                    @endphp
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Total Credit: <span class="fw-bold"
-                                                style="margin-left: 5px;">-</span></span>
+                                                style="margin-left: 5px;">&#8358;{{ number_format($owed, 0) }}</span></span>
                                         <span style="margin-left: auto;"></span>
                                     </li>
                                     <li class="border border-success py-2 px-3 rounded mb-2"

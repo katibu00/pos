@@ -6,6 +6,7 @@ use App\Models\CashCredit;
 use App\Models\CashCreditPayment;
 use App\Models\Estimate;
 use App\Models\Expense;
+use App\Models\FundTransfer;
 use App\Models\Payment;
 use App\Models\Returns;
 use App\Models\Sale;
@@ -15,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Notifications\SalesNotification;
-
+use Carbon\Carbon;
 
 class SalesController extends Controller
 {
@@ -366,6 +367,7 @@ class SalesController extends Controller
         }
 
         if ($transaction_type == "return") {
+          
             $total_price = collect($request->quantity)
                 ->map(function ($quantity, $index) use ($request) {
                     return ($quantity * $request->price[$index]) - $request->discount[$index];
@@ -380,12 +382,13 @@ class SalesController extends Controller
                     ]);
                 }
 
-            if (!$this->checkBalance($request->payment_method, $total_price)) {
-                return response()->json([
-                    'status' => 400,
-                    'message' => 'Low Balance in the Payment Channel.',
-                ]);
-            }
+                if ($total_price > $this->getTodayBalance($request->payment_method)) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Low Balance in the Payment Channel.',
+                    ]);
+                }
+        
 
             $productCount = count($request->product_id);
             if ($productCount != null) {
@@ -442,61 +445,89 @@ class SalesController extends Controller
 
     }
 
-    private function checkBalance($paymentMethod, $totalPrice)
+    private function getTodayBalance($paymentMethod)
     {
         $branch_id = auth()->user()->branch_id;
-
-        $todaySales = Sale::where('branch_id', $branch_id)
-            ->where('payment_method', $paymentMethod)
-            ->whereNotIn('stock_id', [1093, 1012])
-            ->whereDate('created_at', today())
+        $today = Carbon::today();
+    
+        // Get sales for today
+        $sales = Sale::where('branch_id', $branch_id)
+            ->whereDate('created_at', $today)
+            ->where(function($query) use ($paymentMethod) {
+                $query->where('payment_method', $paymentMethod)
+                    ->orWhere('payment_method', 'multiple');
+            })
             ->get();
-
-        $todayReturns = Returns::where('branch_id', $branch_id)
+    
+        // Calculate sales amount
+        $salesAmount = $sales->reduce(function ($total, $sale) use ($paymentMethod) {
+            if ($sale->payment_method == 'multiple') {
+                $paymentAmount = Payment::where('receipt_nos', $sale->receipt_no)
+                    ->where('payment_type', 'multiple')
+                    ->where('payment_method', $paymentMethod)
+                    ->value('payment_amount');
+                $total += $paymentAmount ?? 0;
+            } else {
+                $total += ($sale->price * $sale->quantity) - $sale->discount;
+            }
+            return $total;
+        }, 0);
+    
+        // Get returns for today
+        $returns = Returns::where('branch_id', $branch_id)
+            ->whereDate('created_at', $today)
             ->where('payment_method', $paymentMethod)
-            ->whereDate('created_at', today())
-            ->get();
-
+            ->sum(DB::raw('price * quantity - discount'));
+    
+        // Get expenses for today
         $expenses = Expense::where('branch_id', $branch_id)
+            ->whereDate('created_at', $today)
             ->where('payment_method', $paymentMethod)
-            ->whereDate('created_at', today())
             ->sum('amount');
-
-        $creditRepayments = Payment::where('branch_id', $branch_id)
+    
+        // Get credit payments for today
+        $creditPayments = Payment::where('branch_id', $branch_id)
+            ->whereDate('created_at', $today)
             ->where('payment_method', $paymentMethod)
             ->where('payment_type', 'credit')
-            ->whereDate('created_at', today())
             ->sum('payment_amount');
-
-        $deposits = Payment::where('branch_id', $branch_id)
+    
+        // Get deposit payments for today
+        $depositPayments = Payment::where('branch_id', $branch_id)
+            ->whereDate('created_at', $today)
             ->where('payment_method', $paymentMethod)
             ->where('payment_type', 'deposit')
-            ->whereDate('created_at', today())
             ->sum('payment_amount');
-
-        $cashCreditPayment = CashCreditPayment::where('branch_id', $branch_id)
-            ->whereDate('created_at', today())
+    
+        // Get cash credit for today (only applicable for cash)
+        $cashCredit = $paymentMethod == 'cash' 
+            ? CashCredit::where('branch_id', $branch_id)
+                ->whereDate('created_at', $today)
+                ->sum('amount')
+            : 0;
+    
+        // Get credit repayments for today
+        $creditRepayments = DB::table('cash_credit_payments')
+            ->whereDate('created_at', $today)
             ->where('payment_method', $paymentMethod)
             ->sum('amount_paid');
-
-        $totalSales = $todaySales->sum(function ($sale) {
-            return ($sale->price * $sale->quantity) - $sale->discount;
-        });
-
-        $totalReturns = $todayReturns->sum(function ($return) {
-            return ($return->price * $return->quantity) - $return->discount;
-        });
-
-        $netAmount = $totalSales + $deposits + $creditRepayments + $cashCreditPayment - ($totalReturns + $expenses);
-
-        if ($paymentMethod === 'cash') {
-            $cashCredit = CashCredit::where('branch_id', $branch_id)
-                ->whereDate('created_at', today())
-                ->sum('amount');
-            $netAmount -= $cashCredit;
-        }
-
-        return ($totalPrice <= $netAmount);
+    
+        // Get fund transfers for today
+        $fundTransfers = FundTransfer::whereDate('created_at', $today)
+            ->where('branch_id', $branch_id)
+            ->where(function ($query) use ($paymentMethod) {
+                $query->where('from_account', $paymentMethod)
+                      ->orWhere('to_account', $paymentMethod);
+            })
+            ->get()
+            ->reduce(function ($total, $transfer) use ($paymentMethod) {
+                return $total + ($transfer->from_account === $paymentMethod ? -$transfer->amount : ($transfer->to_account === $paymentMethod ? $transfer->amount : 0));
+            }, 0);
+    
+        // Calculate total balance
+        $balance = $salesAmount - $returns - $expenses + $creditPayments + $depositPayments - $cashCredit + $creditRepayments + $fundTransfers;
+    
+        return $balance;
     }
 
     public function refresh(Request $request)
@@ -561,96 +592,51 @@ class SalesController extends Controller
         return view('transactions.recent_sales_table', compact('transactionData'))->render();
     }
 
-
-    // public function loadReceipt(Request $request)
-    // {
-    //     $transactionType = $request->transaction_type;
-    //     $transactionNo = $request->receipt_no;
-    //     $items = [];
-    //     $paidAmount = 0;
-
-    //     if ($transactionType === 'Sales') {
-    //         $items = Sale::with('product')
-    //             ->where('receipt_no', $transactionNo)
-    //             ->get();
-            
-    //         if ($items->isNotEmpty() && $items[0]->payment_method === 'credit' && $items[0]->status === 'partial') {
-    //             $paidAmount = Payment::where('receipt_nos', 'like', "%$transactionNo%")
-    //                 ->sum('payment_amount');
-    //         }
-    //     } elseif ($transactionType === 'Returns') {
-    //         $items = Returns::with('product')
-    //             ->where('return_no', $transactionNo)
-    //             ->get();
-    //     } elseif ($transactionType === 'Estimates') {
-    //         $items = Estimate::with('product')
-    //             ->where('estimate_no', $transactionNo)
-    //             ->get();
-    //     }
-
-    //     if (!$transactionType) {
-    //         $items = Sale::with('product')
-    //             ->where('receipt_no', $transactionNo)
-    //             ->get();
-    //     }
-
-    //     return response()->json([
-    //         'status' => 200,
-    //         'items' => $items,
-    //         'paid_amount' => $paidAmount,
-    //     ]);
-    // }
-
-
     public function loadReceipt(Request $request)
-{
-    $transactionType = $request->transaction_type;
-    $transactionNo = $request->receipt_no;
-    $items = [];
-    $paidAmount = 0;
-    $transactionDate = null;
+    {
+        $transactionType = $request->transaction_type;
+        $transactionNo = $request->receipt_no;
+        $items = [];
+        $paidAmount = 0;
+        $transactionDate = null;
 
-    switch ($transactionType) {
-        case 'Sales':
-            $items = Sale::with('product')->where('receipt_no', $transactionNo)->get();
-            if ($items->isNotEmpty()) {
-                $transactionDate = $items[0]->created_at;
-                if ($items[0]->payment_method === 'credit' && $items[0]->status === 'partial') {
-                    $paidAmount = Payment::where('receipt_nos', 'like', "%$transactionNo%")->sum('payment_amount');
+        switch ($transactionType) {
+            case 'Sales':
+                $items = Sale::with('product')->where('receipt_no', $transactionNo)->get();
+                if ($items->isNotEmpty()) {
+                    $transactionDate = $items[0]->created_at;
+                    if ($items[0]->payment_method === 'credit' && $items[0]->status === 'partial') {
+                        $paidAmount = Payment::where('receipt_nos', 'like', "%$transactionNo%")->sum('payment_amount');
+                    }
                 }
-            }
-            break;
-        case 'Returns':
-            $items = Returns::with('product')->where('return_no', $transactionNo)->get();
-            if ($items->isNotEmpty()) {
-                $transactionDate = $items[0]->created_at;
-            }
-            break;
-        case 'Estimates':
-            $items = Estimate::with('product')->where('estimate_no', $transactionNo)->get();
-            if ($items->isNotEmpty()) {
-                $transactionDate = $items[0]->created_at;
-            }
-            break;
-        default:
-            $items = Sale::with('product')->where('receipt_no', $transactionNo)->get();
-            if ($items->isNotEmpty()) {
-                $transactionDate = $items[0]->created_at;
-            }
-            break;
+                break;
+            case 'Returns':
+                $items = Returns::with('product')->where('return_no', $transactionNo)->get();
+                if ($items->isNotEmpty()) {
+                    $transactionDate = $items[0]->created_at;
+                }
+                break;
+            case 'Estimates':
+                $items = Estimate::with('product')->where('estimate_no', $transactionNo)->get();
+                if ($items->isNotEmpty()) {
+                    $transactionDate = $items[0]->created_at;
+                }
+                break;
+            default:
+                $items = Sale::with('product')->where('receipt_no', $transactionNo)->get();
+                if ($items->isNotEmpty()) {
+                    $transactionDate = $items[0]->created_at;
+                }
+                break;
+        }
+
+        return response()->json([
+            'status' => 200,
+            'items' => $items,
+            'paid_amount' => $paidAmount,
+            'transaction_date' => $transactionDate ? $transactionDate->format('F j, Y h:i A') : null,
+        ]);
     }
-
-    return response()->json([
-        'status' => 200,
-        'items' => $items,
-        'paid_amount' => $paidAmount,
-        'transaction_date' => $transactionDate ? $transactionDate->format('F j, Y h:i A') : null,
-    ]);
-}
-
-
-
-
 
     public function allIndex()
     {

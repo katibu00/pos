@@ -1,55 +1,51 @@
-<div class="ec-main-slider section section-space-mb">
-    <div class="ec-slider">
-        <div class="ec-slide-item d-flex slide-1">
-            <img src="/frontend/images/main-slider-banner/arrow-26.png" class="main_banner_arrow_img" alt="" />
-            <div class="container align-self-center">
-                <div class="row">
-                    <div class="col-xl-6 col-lg-7 col-md-7 col-sm-7 align-self-center">
-                        <div class="ec-slide-content slider-animation">
-                            <h2 class="ec-slide-stitle">Power Backup</h2>
-                            <h1 class="ec-slide-title">12V Electric Drill Machine</h1>
-                            <p>Introducing Drill Series 4. Fundamentally redesigned and re-engineered to help
-                                you stay even more active & accurate.</p>
-                            <span class="ec-slide-disc">Starting @<span>$150</span></span>
-                            <a href="#" class="btn btn-lg btn-secondary">Shop Now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="ec-slide-item d-flex slide-2">
-            <img src="/frontend/images/main-slider-banner/arrow-27.png" class="main_banner_arrow_img" alt="" />
-            <div class="container align-self-center">
-                <div class="row">
-                    <div class="col-xl-6 col-lg-7 col-md-7 col-sm-7 align-self-center">
-                        <div class="ec-slide-content slider-animation">
-                            <h2 class="ec-slide-stitle">Accuracy 100%</h2>
-                            <h1 class="ec-slide-title">Ceramic tiles cutter</h1>
-                            <p>Introducing tiles cutter vss4 model. Fundamentally redesigned and re-engineered to help
-                                you stay even more active.</p>
-                            <span class="ec-slide-disc">Starting @<span>$654</span></span>
-                            <a href="#" class="btn btn-lg btn-secondary">Shop Now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="ec-slide-item d-flex slide-3">
-            <img src="/frontend/images/main-slider-banner/arrow-28.png" class="main_banner_arrow_img" alt="" />
-            <div class="container align-self-center">
-                <div class="row">
-                    <div class="col-xl-6 col-lg-7 col-md-7 col-sm-7 align-self-center">
-                        <div class="ec-slide-content slider-animation">
-                            <h2 class="ec-slide-stitle">Smooth </h2>
-                            <h1 class="ec-slide-title">grinder machine</h1>
-                            <p>Introducing grinder machine bs. Fundamentally redesigned and re-engineered to help
-                                you stay even more active, healthy, and connected.</p>
-                            <span class="ec-slide-disc">Starting @<span>$150</span></span>
-                            <a href="#" class="btn btn-lg btn-secondary">Shop Now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+	<!--==================================================-->
+	<!-- Start Hero Section  -->
+	<!--==================================================-->
+
+	<div class="hero-list owl-carousel">
+		<div class="hero-section d-flex align-items-center">
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-lg-6 col-md-12">
+						<div class="sero-content">
+							<h4>100% Satisfaction Gaurenty</h4>
+							<h1> We’re Top <span>Expert</span> </h1>
+							<h1> in Plumbing </h1>
+							<p class="hero-desc">Competently repurpose go forward benefits without oriented conveniently target business opportunities done</p>
+							<div class="hero-button">
+								<a href="about.html"> Get An Estimate <i class="bi bi-plus"></i></a>
+							</div>
+							<div class="hero-shape">
+								<img src="/ecommerce/assets/images/slider/hero-shape.png" alt="">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="hero-section slider d-flex align-items-center">
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-lg-6 col-md-12">
+						<div class="sero-content">
+							<h4>100% Satisfaction Gaurenty</h4>
+							<h1> We’re Top <span>Expert</span> </h1>
+							<h1> in Plumbing </h1>
+							<p class="hero-desc">Competently repurpose go forward benefits without oriented conveniently target business opportunities done</p>
+							<div class="hero-button">
+								<a href="about.html"> Get An Estimate <i class="bi bi-plus"></i></a>
+							</div>
+							<div class="hero-shape">
+								<img src="/ecommerce/assets/images/slider/hero-shape.png" alt="">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--==================================================-->
+	<!-- End hendrio Hero Section  -->
+	<!--==================================================-->

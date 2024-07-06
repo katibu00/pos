@@ -76,6 +76,9 @@
     <script>
         function submitForm() {
             var form = $('#fundTransferForm');
+
+            $.LoadingOverlay("show");
+
             $.ajax({
                 type: form.attr('method'),
                 url: form.attr('action'),
@@ -92,10 +95,13 @@
                         });
                     }
                     $('#fundTransferForm')[0].reset(); 
+                    $.LoadingOverlay("hide");
                 },
                 error: function (xhr, status, error) {
                     // Handle Ajax errors
                     console.error(xhr.responseText);
+
+                    $.LoadingOverlay("hide");
 
                     try {
                         var data = JSON.parse(xhr.responseText);

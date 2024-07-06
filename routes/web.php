@@ -247,9 +247,9 @@ Route::group(['prefix' => 'branches', 'middleware' => ['auth', 'admin']], functi
 });
 
 Route::group(['prefix' => 'returns', 'middleware' => ['auth', 'staff']], function () {
-    Route::get('/index', [ReturnsController::class, 'index'])->name('returns');
-    Route::post('/record', [ReturnsController::class, 'store'])->name('returns.record');
-    Route::post('/refresh-table-return', [ReturnsController::class, 'refresh'])->name('refresh-table-return');
+    // Route::get('/index', [ReturnsController::class, 'index'])->name('returns');
+    // Route::post('/record', [ReturnsController::class, 'store'])->name('returns.record');
+    // Route::post('/refresh-table-return', [ReturnsController::class, 'refresh'])->name('refresh-table-return');
     Route::post('/refresh-receipt-return', [ReturnsController::class, 'loadReceipt'])->name('refresh-receipt-return');
     Route::get('/all/index', [ReturnsController::class, 'allIndex'])->name('returns.all');
 });

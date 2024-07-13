@@ -22,7 +22,11 @@ class UsersController extends Controller
     public function index()
     {
         $data['users'] = User::whereNotIn('usertype', ['customer', 'supplier'])->get();
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         return view('users.index', $data);
     }
 
@@ -78,7 +82,11 @@ class UsersController extends Controller
 
     public function edit($id)
     {
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $data['user'] = User::find($id);
         return view('users.edit', $data);
     }

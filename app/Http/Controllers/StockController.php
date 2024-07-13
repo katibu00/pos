@@ -13,7 +13,11 @@ class StockController extends Controller
 {
     function index(){
         $data['stocks'] = Stock::where('branch_id',0)->paginate(25);
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         return view('stock.index',$data);
     }
    
@@ -46,7 +50,11 @@ class StockController extends Controller
 
     function copyIndex($id){
         $data['stock'] = Stock::find($id);
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         return view('stock.copy',$data);
     }
 
@@ -126,7 +134,11 @@ class StockController extends Controller
 
 
     function correctIndex(){
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         return view('correct_sales.index',$data);
     }
 

@@ -20,7 +20,11 @@ class ShoppingListController extends Controller
     public function index()
     {
 
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $data['suppliers'] = User::where('usertype', 'supplier')->get();
         $data['stocks'] = [];
 
@@ -30,7 +34,11 @@ class ShoppingListController extends Controller
 
     public function allIndex()
     {
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $data['suppliers'] = User::where('usertype', 'supplier')->get();
     
         $reorders = Reorder::select('reorder_no', DB::raw('MIN(created_at) as date'), 'supplier_id', 'status')

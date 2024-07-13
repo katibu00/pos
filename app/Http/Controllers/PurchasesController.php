@@ -12,20 +12,31 @@ use Illuminate\Support\Facades\DB;
 class PurchasesController extends Controller
 {
     function index(){
-        $data['branches'] = Branch::all();
-
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $data['purchases'] = Purchase::select('date')->where('branch_id',0)->groupBy('date')->paginate(15);
         return view('purchases.index',$data);
     }
 
     function create(){
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $data['products'] = Stock::where('branch_id', auth()->user()->branch_id)->orderBy('name')->get();
         return view('purchases.create',$data);
     }
     function shopping_list(){
 
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $data['lows'] = [];
         return view('purchases.shopping_list',$data);
     }

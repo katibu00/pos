@@ -25,7 +25,11 @@ class CashierDashboardController extends Controller
     {
         $staff_id = auth()->user()->branch_id;
 
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         
         $data['staffss'] = User::where('branch_id',$staff_id)->whereNotIn('usertype', ['customer', 'supplier'])->get();
 
@@ -37,7 +41,11 @@ class CashierDashboardController extends Controller
 
     public function viewCashierDashboard(Request $request)
     {
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         $staff_id = $request->staff_id;
 
 

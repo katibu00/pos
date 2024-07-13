@@ -220,19 +220,27 @@ class EstimateController extends Controller
 
         // Check for price changes
         $priceChanges = [];
-
+        $oldPrices = [];
+    
         foreach ($estimates as $estimate) {
             $currentPrice = $estimate->price;
             $newSellingPrice = Stock::find($estimate->product_id)->selling_price;
-
+    
             if ($currentPrice != $newSellingPrice) {
                 $priceChanges[$estimate->id] = $newSellingPrice;
+                $oldPrices[$estimate->id] = $currentPrice;
             }
         }
+    
         $products = Stock::where('branch_id', auth()->user()->branch_id)->get();
 
 
-        return response()->json(['estimates' => $estimates, 'price_changes' => $priceChanges,'products' => $products]);
+        return response()->json([
+            'estimates' => $estimates, 
+            'price_changes' => $priceChanges,
+            'old_prices' => $oldPrices,
+            'products' => $products
+        ]);
     }
 
     public function update(Request $request)

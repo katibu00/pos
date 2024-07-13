@@ -385,6 +385,7 @@
                         estimates = response.estimates;
                         products = response.products;
                         priceChanges = response.price_changes;
+                        oldPrices = response.old_prices;
 
                         var formHtml = '<form id="editEstimateForm">';
                         formHtml += '<div class="mb-3">';
@@ -393,28 +394,31 @@
                             '<input type="text" class="form-control" id="productSearch" placeholder="Enter product name">';
                         formHtml += '<div id="productSuggestions"></div>';
                         formHtml += '</div>';
-                        formHtml += '<input type="hidden" name="estimate_no" value="' + estimates[0]
-                            .estimate_no + '">';
+                        formHtml += '<input type="hidden" name="estimate_no" value="' + estimates[0].estimate_no + '">';
                         formHtml += '<table class="table">';
                         formHtml +=
-                            '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
+                            '<thead><tr><th>Product</th><th>Old Price</th><th>Price</th><th>Quantity</th><th>Discount</th><th>Total Price</th><th>Action</th></tr></thead>';
                         formHtml += '<tbody class="modaltbody">';
 
                         for (var i = 0; i < estimates.length; i++) {
                             var estimate = estimates[i];
                             var priceChangeClass = '';
+                            var oldPriceHtml = '';
 
                             // Check if the product's price has changed
                             if (priceChanges[estimate.id]) {
                                 priceChangeClass = 'price-change';
-                                estimate.price = priceChanges[estimate
-                                .id]; // Update the price with the new selling price
+                                oldPriceHtml = '<td>' + oldPrices[estimate.id] + '</td>';
+                                estimate.price = priceChanges[estimate.id]; // Update the price with the new selling price
+                            } else {
+                                oldPriceHtml = '<td></td>'; // Empty cell if no price change
                             }
 
                             formHtml += '<tr class="' + priceChangeClass + '">';
                             formHtml += '<td>' + estimate.product.name +
                                 '<input type="hidden" name="product[]" value="' + estimate.product.id +
                                 '"></td>';
+                            formHtml += oldPriceHtml;
                             formHtml +=
                                 '<td><input type="number" class="form-control price-field" name="price[]" value="' +
                                 estimate.price + '" readonly></td>';
@@ -434,10 +438,9 @@
                         }
 
                         formHtml += '<tr>';
-                        formHtml += '<td colspan="3">Labor Cost: <input type="text" class="form-control" name="labor_cost" value="' + (estimates[0].labor_cost ? estimates[0].labor_cost : '') + '"></td>';
+                        formHtml += '<td colspan="4">Labor Cost: <input type="text" class="form-control" name="labor_cost" value="' + (estimates[0].labor_cost ? estimates[0].labor_cost : '') + '"></td>';
                         formHtml += '<td colspan="3">Note: <textarea class="form-control" name="note">' + (estimates[0].note ? estimates[0].note : '') + '</textarea></td>';
                         formHtml += '</tr>';
-
 
                         formHtml += '</tbody></table>';
                         formHtml += '</form>';
@@ -461,31 +464,24 @@
                                     success: function(response) {
                                         if (response.length > 0) {
                                             var suggestionList = '<ul>';
-                                            for (var i = 0; i < response
-                                                .length; i++) {
+                                            for (var i = 0; i < response.length; i++) {
                                                 suggestionList +=
                                                     '<li class="product-suggestion" data-product-id="' +
                                                     response[i].id + '">' +
                                                     response[i].name + '</li>';
                                             }
                                             suggestionList += '</ul>';
-                                            productSuggestionsDiv.html(
-                                                suggestionList);
+                                            productSuggestionsDiv.html(suggestionList);
 
                                             $('.product-suggestion').on('click',
                                                 function() {
-                                                    var productId = $(this)
-                                                        .data('product-id');
-                                                    addProductToTable(
-                                                        productId);
+                                                    var productId = $(this).data('product-id');
+                                                    addProductToTable(productId);
                                                     productSearchInput.val('');
-                                                    productSuggestionsDiv
-                                                        .empty();
+                                                    productSuggestionsDiv.empty();
                                                 });
                                         } else {
-                                            productSuggestionsDiv.html(
-                                                '<p>No matching products found</p>'
-                                            );
+                                            productSuggestionsDiv.html('<p>No matching products found</p>');
                                         }
                                     },
                                     error: function(xhr) {
@@ -496,8 +492,6 @@
                         });
 
                         $('.addRow').on('click', function() {
-                         
-
                             $('.removeRow').on('click', function() {
                                 $(this).closest('tr').remove();
                                 updateTotalPrice();
@@ -527,7 +521,6 @@
                         updateTotalPrice();
                     }
                 },
-
                 error: function(xhr) {
                     console.error(xhr.responseText);
                 }

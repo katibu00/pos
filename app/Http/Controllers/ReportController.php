@@ -28,7 +28,11 @@ class ReportController extends Controller
 
     public function index()
     {
-        $data['branches'] = Branch::all();
+        if (in_array(auth()->user()->id, [4, 443])) {
+            $data['branches'] = Branch::all();
+        } else {
+            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+        }   
         return view('reports.index', $data);
     }
 

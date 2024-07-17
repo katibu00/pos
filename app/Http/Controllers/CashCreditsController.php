@@ -141,7 +141,7 @@ class CashCreditsController extends Controller
         // Calculate total balance
         $balance = $salesAmount - $returns - $expenses + $creditPayments + $depositPayments - $cashCredit + $creditRepayments + $fundTransfers;
 
-        $minimumBalance = 500; // Set the minimum balance
+        $minimumBalance = 50; // Set the minimum balance
 
         return [
             'current_balance' => $balance,

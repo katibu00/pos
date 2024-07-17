@@ -43,9 +43,13 @@ class FundTransferController extends Controller
             ], 422);
         }
 
-        if ($request->input('amount') > $this->getTodayBalance($request->input('from_account'))) {
+        $balanceInfo = $this->getTodayBalance($request->input('from_account'));
+        $currentBalance = $balanceInfo['current_balance'];
+        $minimumBalance = $balanceInfo['minimum_balance'];
+        
+        if ($currentBalance <= 0 || ($currentBalance - $request->input('amount')) < $minimumBalance) {
             return response()->json([
-                'errors' => ['Insufficient balance in the selected account.'],
+                'errors' => ['Insufficient funds. Please ensure you maintain a minimum balance of ' . $minimumBalance . ' in the selected account.'],
             ], 422);
         }
 
@@ -146,7 +150,12 @@ class FundTransferController extends Controller
         // Calculate total balance
         $balance = $salesAmount - $returns - $expenses + $creditPayments + $depositPayments - $cashCredit + $creditRepayments + $fundTransfers;
     
-        return $balance;
+        $minimumBalance = 50; // Set the minimum balance
+
+        return [
+            'current_balance' => $balance,
+            'minimum_balance' => $minimumBalance
+        ];
     }
 
 

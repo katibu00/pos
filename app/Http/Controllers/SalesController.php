@@ -382,10 +382,14 @@ class SalesController extends Controller
                     ]);
                 }
 
-                if ($total_price > $this->getTodayBalance($request->payment_method)) {
+                $balanceInfo = $this->getTodayBalance($request->payment_method);
+                $currentBalance = $balanceInfo['current_balance'];
+                $minimumBalance = $balanceInfo['minimum_balance'];
+                
+                if ($currentBalance <= 0 || ($currentBalance - $total_price) < $minimumBalance) {
                     return response()->json([
                         'status' => 400,
-                        'message' => 'Low Balance in the Payment Channel.',
+                        'message' => 'Insufficient funds. Please ensure you maintain a minimum balance of ' . $minimumBalance . '.',
                     ]);
                 }
         
@@ -527,7 +531,12 @@ class SalesController extends Controller
         // Calculate total balance
         $balance = $salesAmount - $returns - $expenses + $creditPayments + $depositPayments - $cashCredit + $creditRepayments + $fundTransfers;
     
-        return $balance;
+        $minimumBalance = 500; // Set the minimum balance
+
+        return [
+            'current_balance' => $balance,
+            'minimum_balance' => $minimumBalance
+        ];
     }
 
     public function refresh(Request $request)

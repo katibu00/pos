@@ -29,17 +29,31 @@ class ExpensesController extends Controller
 
     public function store(Request $request)
     {
-
         $dataCount = count($request->expense_category_id);
         if ($dataCount != null) {
+            // Calculate total expenses
+            $totalExpenses = array_sum($request->amount);
+
+            // Get unique payment methods
+            $uniquePaymentMethods = array_unique($request->payment_method);
+
+            // Calculate total balance across all payment methods
+            $totalBalance = 0;
+            $minimumBalance = 0;
+            foreach ($uniquePaymentMethods as $paymentMethod) {
+                $balanceInfo = $this->getTodayBalance($paymentMethod);
+                $totalBalance += $balanceInfo['current_balance'];
+                $minimumBalance += $balanceInfo['minimum_balance'];
+            }
+
+            // Check if total expenses exceed total balance or minimum balance
+            if ($totalBalance <= 0 || ($totalBalance - $totalExpenses) < $minimumBalance) {
+                Toastr::error('Insufficient funds. Total expenses exceed available balance.');
+                return redirect()->route('expense.index');
+            }
+
+            // If balance is sufficient, process individual expenses
             for ($i = 0; $i < $dataCount; $i++) {
-
-                if ($request->amount[$i] > $this->getTodayBalance($request->payment_method[$i])) {
-
-                    Toastr::error('Low Balance in the Payment Channel.');
-                    return redirect()->route('expense.index');
-                }
-
                 $data = new Expense();
                 $data->expense_category_id = $request->expense_category_id[$i];
                 $data->amount = $request->amount[$i];
@@ -50,9 +64,12 @@ class ExpensesController extends Controller
                 $data->date = $request->date;
                 $data->save();
             }
+
+            Toastr::success('Expenses Recorded successfully', 'Done');
+            return redirect()->route('expense.index');
         }
 
-        Toastr::success('Expenses Recorded sucessfully', 'Done');
+        Toastr::error('No expenses to record');
         return redirect()->route('expense.index');
     }
 
@@ -138,6 +155,11 @@ class ExpensesController extends Controller
         // Calculate total balance
         $balance = $salesAmount - $returns - $expenses + $creditPayments + $depositPayments - $cashCredit + $creditRepayments + $fundTransfers;
 
-        return $balance;
+        $minimumBalance = 500; // Set the minimum balance
+
+        return [
+            'current_balance' => $balance,
+            'minimum_balance' => $minimumBalance,
+        ];
     }
 }

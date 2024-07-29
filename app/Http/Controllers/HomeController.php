@@ -470,10 +470,10 @@ class HomeController extends Controller
                 ->whereDate('created_at', $selectedDate)
                 ->get();
         
-            // $creditPayments = Payment::where('branch_id', $branch_id)
-            //     ->whereDate('created_at', $selectedDate)
-            //     ->where('payment_type', 'credit')
-            //     ->get();
+            $creditPayments = Payment::where('branch_id', $branch_id)
+                ->whereDate('created_at', $selectedDate)
+                ->where('payment_type', 'credit')
+                ->get();
 
             $data['totalCreditPayments'] = Payment::where('branch_id', $branch_id)
                 ->where('payment_type', 'credit')
@@ -583,10 +583,10 @@ class HomeController extends Controller
                 ->whereDate('created_at', today())
                 ->get();
         
-            // $creditPayments = Payment::where('branch_id', $branch_id)
-            //     ->where('payment_type', 'credit')
-            //     ->whereDate('created_at', today())
-            //     ->get();
+            $creditPayments = Payment::where('branch_id', $branch_id)
+                ->where('payment_type', 'credit')
+                ->whereDate('created_at', today())
+                ->get();
 
             $data['totalCreditPayments'] = Payment::where('branch_id', $branch_id)
                 ->where('payment_type', 'credit')

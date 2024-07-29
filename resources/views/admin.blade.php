@@ -265,7 +265,7 @@
                                         <span>Credit Payments: <span class="fw-bold"
                                                 style="margin-left: 5px;">&#8358;{{ number_format($totalCreditPayments, 0) }}</span></span>
                                         <span style="margin-left: auto;">
-                                            ({{ 'Cash: ' . number_format($cashCreditPayments, 0) . ' POS: ' . number_format($posCreditPayments, 0) . ' Trans: ' . number_format($transferCreditPayments, 0) }})</span>
+                                            ({{ 'Cash: ' . number_format($cashCreditPayments, 0) . ' POS: ' . number_format($posCreditPayments, 0) . ' Trans: ' . number_format($transferCreditPayments, 0) . ' deposit: ' . number_format($depositCreditPayments, 0) }})</span>
                                     </li>
                                     <li class="border border-danger py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">

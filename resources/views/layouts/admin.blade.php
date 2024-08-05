@@ -173,3 +173,27 @@
             </li>
         </ul>
     </li>
+
+
+    <li class="menu-item {{ $prefix == '/expenses' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Expenses</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li class="menu-item {{ $route == 'expense-accounts.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expense-accounts.index') }}">
+                    <div>Expense Accounts</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'expense-accounts.create' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expense-accounts.create') }}">
+                    <div>Create Account</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'expense-reports.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expense-reports.index') }}">
+                    <div>Expense Reports</div>
+                </a>
+            </li>
+        </ul>
+    </li>

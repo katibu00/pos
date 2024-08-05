@@ -7,6 +7,9 @@ use App\Http\Controllers\CashierDashboardController;
 use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\DebtorsController;
 use App\Http\Controllers\EstimateController;
+use App\Http\Controllers\ExpenseAccountController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpenseReportController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\FundTransferController;
 use App\Http\Controllers\HomeController;
@@ -365,6 +368,22 @@ Route::group(['prefix' => 'debtors', 'middleware' => ['auth', 'admin']], functio
     Route::get('/customer-sales/{customerId}', [DebtorsController::class, 'getCustomerSales']);
 
 
+});
+
+
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::resource('expense-accounts', ExpenseAccountController::class);
+    Route::post('expense-accounts/{account}/deposit', [ExpenseAccountController::class, 'deposit'])->name('expense-accounts.deposit');
+    Route::put('expense-accounts/{account}/set-limit', [ExpenseAccountController::class, 'setLimit'])->name('expense-accounts.set-limit');
+});
+
+Route::middleware(['auth', 'cashier'])->group(function () {
+    Route::resource('expenses', ExpenseController::class)->only(['create', 'store', 'index']);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('expense-reports', [ExpenseReportController::class, 'index'])->name('expense-reports.index');
 });
 
 

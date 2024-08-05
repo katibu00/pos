@@ -214,7 +214,9 @@
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>Today's Deposit: <span class="fw-bold"
                                                 style="margin-left: 5px;">&#8358;{{ number_format($totalDepositPayments, 0) }}</span></span>
-                                        <span style="margin-left: auto;"></span>
+                                                <span style="margin-left: auto;">
+                                                   ({{ 'Cash: ' . number_format($cashDepositPayments, 0) . ' POS: ' . number_format($posDepositPayments, 0) . ' Trans: ' . number_format($transferDepositPayments, 0) }})</span>
+                                          
                                     </li>
                                     <li class="border border-success py-2 px-3 rounded mb-2"
                                         style="display: flex; justify-content: space-between; align-items: center;">

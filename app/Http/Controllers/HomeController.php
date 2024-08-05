@@ -373,7 +373,6 @@ class HomeController extends Controller
                 ->get();
         
             $creditPayments = Payment::where('branch_id', $branch_id)
-                ->where('payment_type', 'credit')
                 ->whereDate('created_at', '>=', $startDate)
                 ->whereDate('created_at', '<=', $endDate)
                 ->get();
@@ -472,7 +471,6 @@ class HomeController extends Controller
         
             $creditPayments = Payment::where('branch_id', $branch_id)
                 ->whereDate('created_at', $selectedDate)
-                ->where('payment_type', 'credit')
                 ->get();
             
         
@@ -560,7 +558,6 @@ class HomeController extends Controller
                 ->get();
         
             $creditPayments = Payment::where('branch_id', $branch_id)
-                ->where('payment_type', 'credit')
                 ->whereDate('created_at', today())
                 ->get();
         
@@ -782,10 +779,10 @@ class HomeController extends Controller
         $data['transferExpenses'] = $todayExpenses->where('payment_method', 'transfer')->sum('amount');
         //credit Payments
         $data['totalCreditPayments'] = $creditPayments->where('payment_type','credit')->sum('payment_amount');
-        $data['cashCreditPayments'] = $creditPayments->where('payment_method', 'cash')->sum('payment_amount');
-        $data['posCreditPayments'] = $creditPayments->where('payment_method', 'POS')->sum('payment_amount');
-        $data['transferCreditPayments'] = $creditPayments->where('payment_method', 'transfer')->sum('payment_amount');
-        $data['depositCreditPayments'] = $creditPayments->where('payment_method', 'deposit')->sum('payment_amount');
+        $data['cashCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'cash')->sum('payment_amount');
+        $data['posCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'POS')->sum('payment_amount');
+        $data['transferCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'transfer')->sum('payment_amount');
+        $data['depositCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'deposit')->sum('payment_amount');
 
         
         //deposits

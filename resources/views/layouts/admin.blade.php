@@ -197,26 +197,3 @@
             </li>
         </ul>
     </li>
-
-    <li class="menu-item {{ request()->is('expenses*') ? 'current' : '' }}">
-        <a class="menu-link" href="#">
-            <div>Expenses</div>
-        </a>
-        <ul class="sub-menu-container">
-            <li class="menu-item {{ request()->is('expenses/deposits*') ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('expenses.deposits') }}">
-                    <div>Deposits</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('expenses/records*') ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('expenses.records') }}">
-                    <div>Record Expenses</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('expenses/reports*') ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('expenses.reports') }}">
-                    <div>Reports</div>
-                </a>
-            </li>
-        </ul>
-    </li>

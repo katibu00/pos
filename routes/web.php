@@ -7,7 +7,6 @@ use App\Http\Controllers\CashierDashboardController;
 use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\DebtorsController;
 use App\Http\Controllers\EstimateController;
-use App\Http\Controllers\ExpenseAccountController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseReportController;
 use App\Http\Controllers\ExpensesController;
@@ -30,6 +29,9 @@ use App\Http\Controllers\UsersController;
 use App\Models\OnlineStoreProduct;
 use Illuminate\Support\Facades\Route;
 use App\Models\OnlineStoreCategory;
+
+use App\Http\Controllers\ExpenseDepositController;
+use App\Http\Controllers\ExpenseRecordController;
 
 
 /*
@@ -372,18 +374,20 @@ Route::group(['prefix' => 'debtors', 'middleware' => ['auth', 'admin']], functio
 
 
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::resource('expense-accounts', ExpenseAccountController::class);
-    Route::post('expense-accounts/{account}/deposit', [ExpenseAccountController::class, 'deposit'])->name('expense-accounts.deposit');
-    Route::put('expense-accounts/{account}/set-limit', [ExpenseAccountController::class, 'setLimit'])->name('expense-accounts.set-limit');
-});
+Route::middleware(['auth', 'staff'])->group(function () {
+    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+    
+    Route::get('/expenses/deposits', [ExpenseDepositController::class, 'index'])->name('expenses.deposits');
+    Route::post('/expenses/deposits', [ExpenseDepositController::class, 'store'])->name('expenses.deposits.store');
+    
+    Route::get('/expenses/records', [ExpenseRecordController::class, 'index'])->name('expenses.records');
+    Route::post('/expenses/records', [ExpenseRecordController::class, 'store'])->name('expenses.records.store');
+    
+    Route::get('/expenses/reports', [ExpenseReportController::class, 'index'])->name('expenses.reports');
 
-Route::middleware(['auth', 'cashier'])->group(function () {
-    Route::resource('expenses', ExpenseController::class)->only(['create', 'store', 'index']);
-});
+    Route::post('/expenses/generate-report', [ExpenseReportController::class, 'generateReport'])->name('expenses.generate_report');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('expense-reports', [ExpenseReportController::class, 'index'])->name('expense-reports.index');
+    Route::get('/expenses/balance-cards', [ExpenseDepositController::class, 'getBalanceCards'])->name('expenses.balance_cards');
 });
 
 

@@ -13,15 +13,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('expense_accounts', function (Blueprint $table) {
+        Schema::create('expense_deposits', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('branch_id');
-            $table->decimal('balance', 10, 2)->default(0);
-            $table->decimal('daily_limit', 10, 2)->nullable();
+            $table->float('amount');
+            $table->text('note')->nullable();
+            $table->unsignedBigInteger('user_id'); 
             $table->timestamps();
         
-            // $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
-        });
+            // Foreign key constraints
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        });        
+        
     }
 
     /**
@@ -31,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('expense_accounts');
+        Schema::dropIfExists('expense_deposits');
     }
 };

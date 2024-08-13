@@ -15,14 +15,16 @@ return new class extends Migration
     {
         Schema::create('expense_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('expense_account_id');
-            $table->unsignedBigInteger('cashier_id');
-            $table->string('description');
-            $table->decimal('amount', 10, 2);
+            $table->unsignedBigInteger('branch_id');
+            $table->unsignedBigInteger('category_id');
+            $table->float('amount');
+            $table->text('note')->nullable();
+            $table->unsignedBigInteger('user_id'); // admin who recorded the expense
             $table->timestamps();
         
-            $table->foreign('expense_account_id')->references('id')->on('expense_accounts')->onDelete('cascade');
-            $table->foreign('cashier_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('expense_categories')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -9,15 +9,15 @@ class ExpenseDeposit extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['expense_account_id', 'admin_id', 'amount'];
+    protected $fillable = ['branch_id', 'amount', 'note', 'user_id'];
 
-    public function expenseAccount()
+    public function branch()
     {
-        return $this->belongsTo(ExpenseAccount::class);
+        return $this->belongsTo(Branch::class);
     }
 
-    public function admin()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(User::class);
     }
 }

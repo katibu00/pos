@@ -34,10 +34,34 @@
             <div>Report</div>
         </a>
     </li>
-    <li class="menu-item {{ $route == 'expense.index' ? 'current' : '' }} "><a class="menu-link"
+    {{-- <li class="menu-item {{ $route == 'expense.index' ? 'current' : '' }} "><a class="menu-link"
             href="{{ route('expense.index') }}">
             <div>Expense</div>
-        </a></li>
+        </a></li> --}}
+
+
+    <li class="menu-item {{ request()->is('expenses*') ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Expenses</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li class="menu-item {{ request()->is('expenses/deposits*') ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expenses.deposits') }}">
+                    <div>Deposits</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('expenses/records*') ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expenses.records') }}">
+                    <div>Record Expenses</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('expenses/reports*') ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expenses.reports') }}">
+                    <div>Reports</div>
+                </a>
+            </li>
+        </ul>
+    </li>
 
     <li
         class="menu-item {{ $prefix == '/online-store' ? 'current' : '' }}">
@@ -174,25 +198,24 @@
         </ul>
     </li>
 
-
-    <li class="menu-item {{ $prefix == '/expenses' ? 'current' : '' }}">
+    <li class="menu-item {{ request()->is('expenses*') ? 'current' : '' }}">
         <a class="menu-link" href="#">
             <div>Expenses</div>
         </a>
         <ul class="sub-menu-container">
-            <li class="menu-item {{ $route == 'expense-accounts.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('expense-accounts.index') }}">
-                    <div>Expense Accounts</div>
+            <li class="menu-item {{ request()->is('expenses/deposits*') ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expenses.deposits') }}">
+                    <div>Deposits</div>
                 </a>
             </li>
-            <li class="menu-item {{ $route == 'expense-accounts.create' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('expense-accounts.create') }}">
-                    <div>Create Account</div>
+            <li class="menu-item {{ request()->is('expenses/records*') ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expenses.records') }}">
+                    <div>Record Expenses</div>
                 </a>
             </li>
-            <li class="menu-item {{ $route == 'expense-reports.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('expense-reports.index') }}">
-                    <div>Expense Reports</div>
+            <li class="menu-item {{ request()->is('expenses/reports*') ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('expenses.reports') }}">
+                    <div>Reports</div>
                 </a>
             </li>
         </ul>

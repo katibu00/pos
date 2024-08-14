@@ -197,3 +197,30 @@
             </li>
         </ul>
     </li>
+
+
+
+    {{-- <li class="menu-item {{ $prefix == '/restock' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Restock</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li class="menu-item {{ $route == 'restock.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.index') }}">
+                    <div>All Restocks</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'restock.create.planned' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.create.planned') }}">
+                    <div>Create Planned Restock</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'restock.create.direct' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.create.direct') }}">
+                    <div>Create Direct Restock</div>
+                </a>
+            </li>
+        </ul>
+    </li> --}}
+
+

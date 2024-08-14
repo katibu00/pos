@@ -32,7 +32,7 @@ use App\Models\OnlineStoreCategory;
 
 use App\Http\Controllers\ExpenseDepositController;
 use App\Http\Controllers\ExpenseRecordController;
-
+use App\Http\Controllers\RestockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -388,6 +388,19 @@ Route::middleware(['auth', 'staff'])->group(function () {
     Route::post('/expenses/generate-report', [ExpenseReportController::class, 'generateReport'])->name('expenses.generate_report');
 
     Route::get('/expenses/balance-cards', [ExpenseDepositController::class, 'getBalanceCards'])->name('expenses.balance_cards');
+});
+
+// routes/web.php
+
+Route::prefix('restock')->group(function () {
+    Route::get('/', [RestockController::class, 'index'])->name('restock.index');
+    Route::get('/planned/create', [RestockController::class, 'createPlanned'])->name('restock.create.planned');
+    Route::get('/direct/create', [RestockController::class, 'createDirect'])->name('restock.create.direct');
+    // Add more routes as needed
+
+    Route::get('/restock/direct/create', [RestockController::class, 'createDirect'])->name('restock.create.direct');
+    Route::post('/restock/direct', [RestockController::class, 'storeDirect'])->name('restock.store.direct');
+    Route::get('/restock/search-stocks', [RestockController::class, 'searchStocks'])->name('restock.search.stocks');
 });
 
 

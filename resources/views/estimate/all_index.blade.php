@@ -353,6 +353,7 @@
     });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 
     <script>
@@ -531,21 +532,18 @@
             var selectedProduct = products.find(product => product.id == productId);
 
             var newRow = '<tr>';
-            newRow +=
-                '<td>' + selectedProduct.name +
-                '<input type="hidden" name="product[]" value="' + selectedProduct.id +
-                '"><input type="hidden" name="estimate_no" value="' + estimates[0].estimate_no + '"></td>';
-            newRow +=
-                '<td><input type="number" class="form-control price-field" name="price[]" value="' + selectedProduct
-                .selling_price + '" readonly></td>';
-            newRow +=
-                '<td><input type="text" class="form-control" name="quantity[]"></td>';
-            newRow +=
-                '<td><input type="text" class="form-control" name="discount[]"></td>';
-            newRow +=
-                '<td><input type="text" class="form-control total-price-field" name="total_price[]" readonly></td>';
-            newRow +=
-                '<td><button class="btn btn-danger removeRow">X</button></td>';
+            newRow += '<td>' + selectedProduct.name +
+                '<input type="hidden" name="product[]" value="' + selectedProduct.id + '">';
+            newRow += '<input type="hidden" name="estimate_no" value="' + estimates[0].estimate_no + '"></td>';
+            
+            // Empty "Old Price" column
+            newRow += '<td></td>';
+            
+            newRow += '<td><input type="number" class="form-control price-field" name="price[]" value="' + selectedProduct.selling_price + '" readonly></td>';
+            newRow += '<td><input type="text" class="form-control" name="quantity[]"></td>';
+            newRow += '<td><input type="text" class="form-control" name="discount[]"></td>';
+            newRow += '<td><input type="text" class="form-control total-price-field" name="total_price[]" readonly></td>';
+            newRow += '<td><button class="btn btn-danger removeRow">X</button></td>';
             newRow += '</tr>';
 
             $('.modaltbody').prepend(newRow);
@@ -555,10 +553,6 @@
                 updateTotalPrice();
             });
 
-            $('.product-select').on('change', function() {
-                updatePriceField($(this));
-            });
-
             $('[name="quantity[]"], [name="discount[]"]').on('input', function() {
                 updateTotalPrice();
             });
@@ -566,17 +560,7 @@
             updateTotalPrice();
         }
 
-
-        // Add the following functions for updating price fields and total price
-        function updatePriceField(selectElement) {
-            // Update the price field based on the selected product
-            // ...
-        }
-
-        function updateTotalPrice() {
-            // Update the total price based on quantity, discount, and price fields
-            // ...
-        }
+     
 
 
 
@@ -642,7 +626,6 @@
         });
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 
     <script>

@@ -10,8 +10,14 @@ class Stock extends Model
     use HasFactory;
 
 
+    protected $fillable = [
+        'buying_price',
+        'selling_price',
+        'quantity',
+    ];
+
     public function sales()
-{
-    return $this->hasMany(Sale::class);
-}
+    {
+        return $this->hasMany(Sale::class);
+    }
 }

@@ -277,8 +277,10 @@ $(document).ready(function() {
     }
 
     function formatCurrency(amount) {
+        amount = parseFloat(amount) || 0; // Ensure the amount is a number
         return '₦' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
+
 });
 </script>
 @endsection

@@ -39,8 +39,8 @@
 
             <!-- Create New Restock Buttons -->
             <div class="mb-4">
-                <a href="{{ route('restock.create.planned') }}" class="btn btn-primary me-2">Create Planned Restock</a>
-                <a href="{{ route('restock.create.direct') }}" class="btn btn-secondary">Create Direct Restock</a>
+                <a href="{{ route('restock.create.planned') }}" class="btn btn-primary me-2">+ New Planned Reorder</a>
+                <a href="{{ route('restock.create.direct') }}" class="btn btn-secondary">+ New Direct Restock</a>
             </div>
 
             <!-- Filters and Sorting -->
@@ -117,10 +117,153 @@
         </div>
     </div>
 </div>
+
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Restock Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detailsContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expenses Modal -->
+<div class="modal fade" id="expensesModal" tabindex="-1" aria-labelledby="expensesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="expensesModalLabel">Manage Expenses</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="expensesContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Damages Modal -->
+<div class="modal fade" id="damagesModal" tabindex="-1" aria-labelledby="damagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="damagesModalLabel">Manage Damages</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="damagesContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @endsection
 
 @section('js')
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<script>
+    $(document).ready(function() {
+    
+        // View Details
+        $(document).on('click', '.view-details', function(e) {
+            e.preventDefault();
+            var restockId = $(this).data('restock-id');
+            $('#detailsModal').modal('show');
+            fetchDetails(restockId);
+        });
+
+        // Manage Expenses
+        $(document).on('click', '.manage-expenses', function(e) {
+            e.preventDefault();
+            var restockId = $(this).data('restock-id');
+            $('#expensesModal').modal('show');
+            fetchExpenses(restockId);
+        });
+
+        // Manage Damages
+        $(document).on('click', '.manage-damages', function(e) {
+            e.preventDefault();
+            var restockId = $(this).data('restock-id');
+            $('#damagesModal').modal('show');
+            fetchDamages(restockId);
+        });
+
+        // Download PDF
+        $(document).on('click', '.download-pdf', function(e) {
+            e.preventDefault();
+            var restockId = $(this).data('restock-id');
+            window.location.href = '/restock/' + restockId + '/download-pdf';
+        });
+
+        function fetchDetails(restockId) {
+            $.ajax({
+                url: '/restock/' + restockId + '/details',
+                type: 'GET',
+                success: function(response) {
+                    $('#detailsContent').html(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        function fetchExpenses(restockId) {
+            $.ajax({
+                url: '/restock/' + restockId + '/expenses',
+                type: 'GET',
+                success: function(response) {
+                    $('#expensesContent').html(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        function fetchDamages(restockId) {
+            $.ajax({
+                url: '/restock/' + restockId + '/damages',
+                type: 'GET',
+                success: function(response) {
+                    $('#damagesContent').html(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+    });
+</script>
+
+
 <script>
     $(document).ready(function() {
         function fetchRestocks(url = null) {

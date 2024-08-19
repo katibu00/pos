@@ -33,6 +33,7 @@ use App\Models\OnlineStoreCategory;
 use App\Http\Controllers\ExpenseDepositController;
 use App\Http\Controllers\ExpenseRecordController;
 use App\Http\Controllers\RestockController;
+use App\Http\Controllers\StockTransferController;
 
 /*
 |--------------------------------------------------------------------------
@@ -394,13 +395,34 @@ Route::middleware(['auth', 'staff'])->group(function () {
 
 Route::prefix('restock')->group(function () {
     Route::get('/', [RestockController::class, 'index'])->name('restock.index');
-    Route::get('/planned/create', [RestockController::class, 'createPlanned'])->name('restock.create.planned');
     Route::get('/direct/create', [RestockController::class, 'createDirect'])->name('restock.create.direct');
-    // Add more routes as needed
-
     Route::get('/restock/direct/create', [RestockController::class, 'createDirect'])->name('restock.create.direct');
     Route::post('/restock/direct', [RestockController::class, 'storeDirect'])->name('restock.store.direct');
     Route::get('/restock/search-stocks', [RestockController::class, 'searchStocks'])->name('restock.search.stocks');
+
+    Route::get('/planned/create', [RestockController::class, 'createPlanned'])->name('restock.create.planned');
+    Route::post('/planned', [RestockController::class, 'storePlanned'])->name('restock.store.planned');
+    Route::get('/fetch-stocks', [RestockController::class, 'fetchStocks'])->name('restock.fetch.stocks');
+    
+    Route::get('/planned/{restock}/complete', [RestockController::class, 'showCompleteForm'])->name('restock.complete.form');
+    Route::post('/planned/{restock}/complete', [RestockController::class, 'completeRestock'])->name('restock.complete');
+
+    Route::get('/{restock}/details', [RestockController::class, 'getDetails'])->name('restock.details');
+    Route::get('/{restock}/expenses', [RestockController::class, 'getExpenses'])->name('restock.expenses');
+    Route::post('/{restock}/expenses', [RestockController::class, 'storeExpenses'])->name('restock.store.expenses');
+    Route::get('/{restock}/damages', [RestockController::class, 'getDamages'])->name('restock.damages');
+    Route::post('/{restock}/damages', [RestockController::class, 'storeDamages'])->name('restock.store.damages');
+    Route::get('/{restock}/download-pdf', [RestockController::class, 'downloadPdf'])->name('restock.download.pdf');
+
+    
 });
+
+
+Route::get('/stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
+Route::get('/stock-transfers/create', [StockTransferController::class, 'create'])->name('stock-transfers.create');
+Route::post('/stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store');
+Route::get('/stock-transfers/search', [StockTransferController::class, 'search'])->name('stock-transfers.search');
+Route::get('/stock-transfers/{id}', [StockTransferController::class, 'show'])->name('stock-transfers.show');
+
 
 

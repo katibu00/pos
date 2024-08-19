@@ -5,12 +5,23 @@
         <div class="content-wrap">
             <div class="container">
 
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="card">
                     <!-- Default panel contents -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="col-4 "><span class="text-bold fs-16">Staffs</span></div>
                         <div class="col-md-2 float-right"><button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal"
-                                data-bs-target=".addModal">Add New</button></div>
+                                data-bs-target=".addModal">Create New Staff</button></div>
                     </div>
                     <div class="card-body">
 
@@ -116,7 +127,7 @@
                         </div>
                         <div class="form-group">
                                 <label for="position">Branch</label>
-                                <select class="form-control" name="branch_id">
+                                <select class="form-select" name="branch_id">
                                     <option value="">Select Branch</option>
                                     @foreach ($branches as $branch)
                                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
@@ -125,7 +136,7 @@
                         </div>
                         <div class="form-group">
                                 <label for="position">Position</label>
-                                <select class="form-control" id="position" name="position" required>
+                                <select class="form-select" id="position" name="position" required>
                                     <option value=""></option>
                                     <option value="admin">Branch Manager</option>
                                     <option value="cashier">Cashier</option>

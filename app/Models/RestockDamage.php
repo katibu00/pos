@@ -9,7 +9,7 @@ class RestockDamage extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['restock_id', 'product_id', 'quantity', 'damage_level', 'notes'];
+    protected $fillable = ['restock_id', 'stock_id', 'quantity', 'damage_level', 'notes'];
 
     public function restock()
     {

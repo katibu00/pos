@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('restock_id')->constrained()->onDelete('cascade');
             $table->string('expense_type');
             $table->decimal('amount', 10, 2);
+            $table->timestamps();
         });
     }
 

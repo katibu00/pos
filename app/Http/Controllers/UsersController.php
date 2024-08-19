@@ -56,17 +56,28 @@ class UsersController extends Controller
 
     public function store(Request $request)
     {
+        $validatedData = $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'position' => 'required|string|in:admin,cashier',
+            'password' => 'required|string|min:8',
+        ]);
+    
         $user = new User();
-        $user->branch_id = $request->branch_id;
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->email = $request->email;
-        $user->usertype = $request->position;
-        $user->password = Hash::make($request->password);
+        $user->branch_id = $validatedData['branch_id'];
+        $user->first_name = $validatedData['first_name'];
+        $user->last_name = $validatedData['last_name'];
+        $user->email = $validatedData['email'];
+        $user->usertype = $validatedData['position'];
+        $user->password = Hash::make($validatedData['password']);
         $user->save();
-        Toastr::success('User has been created sucessfully', 'Done');
+    
+        Toastr::success('User has been created successfully', 'Done');
         return redirect()->route('users.index');
     }
+    
 
     public function delete(Request $request)
     {

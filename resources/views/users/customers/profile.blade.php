@@ -559,6 +559,8 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $date->created_at }}</td>
                                             <td>&#8358;{{ number_format($amount_payable, 0) }}</td>
+                                            <input type="hidden" value="{{ $amount_payable }}" name="full_payment_payable[]" />
+
                                             <td>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio"
@@ -598,15 +600,21 @@
                                     @endforeach
 
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="text-end"><strong>Total Amount to be Paid:</strong></td>
+                                        <td id="totalAmountToPay">&#8358;0</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                         <input type="hidden" id="grand_total" value="{{ $grand_total }}">
-                        {{-- <h3>Grand Total: <span id="grand_total_span"></span></h3> --}}
 
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" id="submitFormBtn" class="btn btn-primary ml-2">Add Payment</button>
+                        
                     </div>
                 </form>
             </div>
@@ -697,6 +705,60 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
         integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('addPaymentForm');
+                const totalAmountToPayElement = document.getElementById('totalAmountToPay');
+            
+                if (!form) {
+                    console.error('Form with id "addPaymentForm" not found');
+                    return;
+                }
+            
+                if (!totalAmountToPayElement) {
+                    console.error('Element with id "totalAmountToPay" not found');
+                    return;
+                }
+            
+                form.addEventListener('change', calculateTotal);
+                form.addEventListener('input', calculateTotal);
+            
+                function calculateTotal() {
+                    let total = 0;
+                    const rows = form.querySelectorAll('tbody tr');
+            
+                    rows.forEach((row, index) => {
+                        const fullPaymentRadio = row.querySelector(`input[name="payment_option[]${index}"][value="Full Payment"]`);
+                        const partialPaymentRadio = row.querySelector(`input[name="payment_option[]${index}"][value="Partial Payment"]`);
+                        const partialAmountInput = row.querySelector('.partial-amount-input');
+                        const fullPaymentPayable = row.querySelector('input[name="full_payment_payable[]"]');
+            
+                        if (!fullPaymentPayable) {
+                            console.error(`Full payment payable input not found in row ${index + 1}`);
+                            return;
+                        }
+            
+                        const fullPaymentAmount = parseFloat(fullPaymentPayable.value);
+            
+                        if (fullPaymentRadio && fullPaymentRadio.checked) {
+                            total += fullPaymentAmount;
+                        } else if (partialPaymentRadio && partialPaymentRadio.checked && partialAmountInput && partialAmountInput.value) {
+                            total += parseFloat(partialAmountInput.value);
+                        }
+            
+                        // Show/hide partial amount input
+                        const partialAmountCell = row.querySelector('.partial-amount');
+                        if (partialAmountCell && partialPaymentRadio) {
+                            partialAmountCell.classList.toggle('d-none', !partialPaymentRadio.checked);
+                        }
+                    });
+            
+                    totalAmountToPayElement.textContent = '₦' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                }
+            });
+        </script>
 
     <script>
         $(document).ready(function() {

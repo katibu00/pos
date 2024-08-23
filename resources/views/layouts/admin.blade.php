@@ -85,7 +85,7 @@
         </ul>
     </li>
 
-    <li
+    {{-- <li
         class="menu-item {{ $route == 'purchase.index' ? 'current' : '' }}  {{ $route == 'purchase.create' ? 'current' : '' }} {{ $route == 'purchase.details' ? 'current' : '' }} {{ $route == 'reorder.all.index' ? 'current' : '' }} {{ $route == 'reorder.index' ? 'current' : '' }}">
         <a class="menu-link" href="#">
             <div>Reorder</div>
@@ -109,6 +109,35 @@
                 </a>
             </li>
 
+        </ul>
+    </li> --}}
+
+
+    <li class="menu-item {{ $prefix == '/restock' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Restock</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li class="menu-item {{ $route == 'restock.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.index') }}">
+                    <div>Restock by Reorder</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'restock.create.planned' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.create.planned') }}">
+                    <div>Restock From Warehouse</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'stock-transfers.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('stock-transfers.index') }}">
+                    <div>Inter-Branch Transfer</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'restock.create.direct' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.create.direct') }}">
+                    <div>Report</div>
+                </a>
+            </li>
         </ul>
     </li>
 
@@ -200,32 +229,29 @@
 
 
 
-    <li class="menu-item {{ $prefix == '/restock' ? 'current' : '' }}">
+    <li class="menu-item {{ $prefix == '/warehouse' ? 'current' : '' }}">
         <a class="menu-link" href="#">
-            <div>Restock</div>
+            <div>Warehouse</div>
         </a>
         <ul class="sub-menu-container">
-            <li class="menu-item {{ $route == 'restock.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('restock.index') }}">
-                    <div>Restock by Reorder</div>
+            <li class="menu-item {{ $route == 'admin.warehouse.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('admin.warehouse.index') }}">
+                    <div>Warehouse Store</div>
                 </a>
             </li>
-            <li class="menu-item {{ $route == 'restock.create.planned' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('restock.create.planned') }}">
-                    <div>Restock From Warehouse</div>
+            <li class="menu-item {{ $route == 'admin.warehouse.transactions' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('admin.warehouse.transactions') }}">
+                    <div>Transactions</div>
                 </a>
             </li>
-            <li class="menu-item {{ $route == 'stock-transfers.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('stock-transfers.index') }}">
-                    <div>Inter-Branch Transfer</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'restock.create.direct' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('restock.create.direct') }}">
-                    <div>Report</div>
+            <li class="menu-item {{ $route == 'admin.warehouse.transfer' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('admin.warehouse.transfer') }}">
+                    <div>Transfer from Store</div>
                 </a>
             </li>
         </ul>
     </li>
+
+
 
 

@@ -34,6 +34,7 @@ use App\Http\Controllers\ExpenseDepositController;
 use App\Http\Controllers\ExpenseRecordController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\StockTransferController;
+use App\Http\Controllers\WarehouseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -425,4 +426,22 @@ Route::get('/stock-transfers/search', [StockTransferController::class, 'search']
 Route::get('/stock-transfers/{id}', [StockTransferController::class, 'show'])->name('stock-transfers.show');
 
 
+
+Route::prefix('warehouse')->group(function () {
+    Route::get('/', [WarehouseController::class, 'index'])->name('admin.warehouse.index');
+    Route::get('/transactions', [WarehouseController::class, 'transactions'])->name('admin.warehouse.transactions');
+    Route::get('/transfer', [WarehouseController::class, 'transferForm'])->name('admin.warehouse.transfer');
+    Route::post('/transfer', [WarehouseController::class, 'transfer'])->name('admin.warehouse.transfer.post');
+    Route::post('/move-in', [WarehouseController::class, 'moveIn'])->name('admin.warehouse.move-in');
+    Route::post('/move-out', [WarehouseController::class, 'moveOut'])->name('admin.warehouse.move-out');
+
+    Route::get('/search-stocks', [WarehouseController::class, 'searchStocks'])->name('admin.warehouse.search-stocks');
+
+    Route::post('/transfer-to-store', [WarehouseController::class, 'transferToStore'])->name('admin.warehouse.transfer-to-store');
+    Route::get('/transaction-details/{batchNumber}', [WarehouseController::class, 'transactionDetails'])->name('admin.warehouse.transaction-details');
+
+
+
+
+});
 

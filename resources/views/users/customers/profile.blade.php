@@ -465,8 +465,7 @@
         </div>
     </section>
 
-    <div class="modal fade addModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-        aria-hidden="true">
+    <div class="modal fade addModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -559,8 +558,6 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $date->created_at }}</td>
                                             <td>&#8358;{{ number_format($amount_payable, 0) }}</td>
-                                            <input type="hidden" value="{{ $amount_payable }}" name="full_payment_payable[]" />
-
                                             <td>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio"
@@ -614,12 +611,11 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" id="submitFormBtn" class="btn btn-primary ml-2">Add Payment</button>
-                        
                     </div>
                 </form>
             </div>
         </div>
-    </div>
+    </div> 
 
     <div class="modal fade depositModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
         aria-hidden="true">
@@ -712,16 +708,6 @@
                 const form = document.getElementById('addPaymentForm');
                 const totalAmountToPayElement = document.getElementById('totalAmountToPay');
             
-                if (!form) {
-                    console.error('Form with id "addPaymentForm" not found');
-                    return;
-                }
-            
-                if (!totalAmountToPayElement) {
-                    console.error('Element with id "totalAmountToPay" not found');
-                    return;
-                }
-            
                 form.addEventListener('change', calculateTotal);
                 form.addEventListener('input', calculateTotal);
             
@@ -730,35 +716,28 @@
                     const rows = form.querySelectorAll('tbody tr');
             
                     rows.forEach((row, index) => {
+                        const amountElement = row.cells[2];
                         const fullPaymentRadio = row.querySelector(`input[name="payment_option[]${index}"][value="Full Payment"]`);
                         const partialPaymentRadio = row.querySelector(`input[name="payment_option[]${index}"][value="Partial Payment"]`);
                         const partialAmountInput = row.querySelector('.partial-amount-input');
-                        const fullPaymentPayable = row.querySelector('input[name="full_payment_payable[]"]');
             
-                        if (!fullPaymentPayable) {
-                            console.error(`Full payment payable input not found in row ${index + 1}`);
-                            return;
-                        }
+                        const fullAmount = parseFloat(amountElement.textContent.replace('₦', '').replace(',', ''));
             
-                        const fullPaymentAmount = parseFloat(fullPaymentPayable.value);
-            
-                        if (fullPaymentRadio && fullPaymentRadio.checked) {
-                            total += fullPaymentAmount;
-                        } else if (partialPaymentRadio && partialPaymentRadio.checked && partialAmountInput && partialAmountInput.value) {
+                        if (fullPaymentRadio.checked) {
+                            total += fullAmount;
+                        } else if (partialPaymentRadio.checked && partialAmountInput.value) {
                             total += parseFloat(partialAmountInput.value);
                         }
             
                         // Show/hide partial amount input
                         const partialAmountCell = row.querySelector('.partial-amount');
-                        if (partialAmountCell && partialPaymentRadio) {
-                            partialAmountCell.classList.toggle('d-none', !partialPaymentRadio.checked);
-                        }
+                        partialAmountCell.classList.toggle('d-none', !partialPaymentRadio.checked);
                     });
             
                     totalAmountToPayElement.textContent = '₦' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                 }
             });
-        </script>
+            </script>
 
     <script>
         $(document).ready(function() {

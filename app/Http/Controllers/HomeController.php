@@ -778,12 +778,11 @@ class HomeController extends Controller
         $data['posExpenses'] = $todayExpenses->where('payment_method', 'pos')->sum('amount');
         $data['transferExpenses'] = $todayExpenses->where('payment_method', 'transfer')->sum('amount');
         //credit Payments
-        $data['totalCreditPayments'] = $creditPayments->where('payment_type','credit')->sum('payment_amount');
+        $data['totalCreditPayments'] = $creditPayments->where('payment_type','credit')->where('payment_method','!=','deposit')->sum('payment_amount');
         $data['cashCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'cash')->sum('payment_amount');
         $data['posCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'POS')->sum('payment_amount');
         $data['transferCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'transfer')->sum('payment_amount');
         $data['depositCreditPayments'] = $creditPayments->where('payment_type', 'credit')->where('payment_method', 'deposit')->sum('payment_amount');
-
         
         //deposits
         $data['totalDepositPayments'] = $creditPayments->where('payment_type', 'deposit')->sum('payment_amount');

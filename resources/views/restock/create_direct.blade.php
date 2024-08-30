@@ -164,7 +164,7 @@ $(document).ready(function() {
 
     function displayStockSuggestions(stocks) {
         const suggestions = stocks.map(stock => `
-            <div class="stock-suggestion" data-stock='${JSON.stringify(stock)}'>
+            <div class="stock-suggestion" data-stock='${JSON.stringify(stock).replace(/'/g, "&apos;")}'>
                 ${stock.name} (Quantity: ${stock.quantity})
             </div>
         `).join('');
@@ -172,12 +172,15 @@ $(document).ready(function() {
         $('#stockSuggestions').html(suggestions);
     }
 
+
     $(document).on('click', '.stock-suggestion', function() {
-        const stock = $(this).data('stock');
+        const stockData = $(this).attr('data-stock');
+        const stock = JSON.parse(stockData);
         addStockToTable(stock);
         $('#stockSearch').val('');
         $('#stockSuggestions').empty();
     });
+
 
     function addStockToTable(stock) {
         const row = `

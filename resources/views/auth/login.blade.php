@@ -1,182 +1,123 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.108.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signin · El-Habib Plumbing Material and Services Ltd</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <link href="/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <meta name="theme-color" content="#712cf9">
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            width: 300px;
-            margin: 0 auto;
-            margin-top: 100px;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-        }
-
-        .card h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .card form {
-            margin-bottom: 20px;
-        }
-
-        .card .form-floating {
-            margin-bottom: 10px;
-        }
-
-        .card .checkbox {
-            margin-bottom: 10px;
-        }
-
-        .card .btn-primary {
-            background-color: #712cf9;
-            border-color: #712cf9;
-        }
-
-        .card .btn-primary:hover {
-            background-color: #5d23d4;
-            border-color: #5d23d4;
-        }
-
-        .card .btn-primary:focus {
-            box-shadow: none;
-        }
-
-        .card .mt-5 {
-            margin-top: 20px;
-        }
-
-        .card input[type="email"],
-        .card input[type="password"] {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #f1f3f5;
-        }
-
-        .card input[type="email"]:focus,
-        .card input[type="password"]:focus {
-            outline: none;
-            box-shadow: none;
-            background-color: #e9ecef;
-        }
-
-        .card label {
-            margin-bottom: 5px;
-        }
-
-        .card .alert {
-            margin-bottom: 10px;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-
-<body>
-
-    <div class="card">
-        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-        <ul id="error_list"></ul>
+<body class="bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Login</h2>
         <form id="loginForm">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="email" placeholder="name@example.com">
-                <label for="email">Email address</label>
+            @csrf
+            <div class="mb-6 relative">
+                <label for="identifier" class="block mb-2 text-sm font-medium text-gray-600">Email or Phone Number</label>
+                <div class="flex items-center border rounded-md">
+                    <span class="px-3 text-gray-500"><i class="fas fa-envelope"></i></span>
+                    <input type="text" id="identifier" name="identifier" class="w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your email or phone number">
+                </div>
             </div>
-            <div class="form-floating">
-                <input type="password" class="form-control" id="password" placeholder="Password">
-                <label for="password">Password</label>
+            <div class="mb-6 relative">
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-600">Password</label>
+                <div class="flex items-center border rounded-md">
+                    <span class="px-3 text-gray-500"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="password" name="password" class="w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password">
+                    <button type="button" class="px-3 text-gray-500 focus:outline-none" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
             </div>
-
-            <div class="checkbox mb-3">
-                <label>
-                    <input type="checkbox" id="remember"> Remember me
-                </label>
+            <div class="flex items-center mb-6">
+                <input type="checkbox" id="remember" name="remember" class="mr-2">
+                <label for="remember" class="text-sm text-gray-600">Keep me logged in</label>
             </div>
-            <button class="w-100 btn btn-lg btn-primary" type="submit" id="submit_btn">Sign in</button>
+            <button type="submit" id="loginBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                <span id="loginBtnText">Login</span>
+                <span id="loginBtnSpinner" class="hidden">
+                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                </span>
+            </button>
         </form>
-        <p class="mt-5 mb-3 text-muted">&copy; El-habib Plumbing Services and Materials</p>
+        <div class="mt-4 text-center">
+            <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+        </div>
     </div>
+    <footer class="absolute bottom-4 text-center w-full text-white text-sm">
+        &copy; 2024 El-Habib Plumbing Material and Services Ltd. All rights reserved.
+    </footer>
 
-    <script src="/jquery-3.6.3.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $(document).on('submit', '#loginForm', function(e) {
-                e.preventDefault();
-                var data = {
-                    'email': $('#email').val(),
-                    'password': $('#password').val(),
-                    'remember': $('#remember').val(),
-                }
-                spinner =
-                    '<span class="indicator-pro4gress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span> </span>';
-                $('#submit_btn').html(spinner);
-                $('#submit_btn').attr("disabled", true);
-
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    type: "POST",
-                    url: "/login",
-                    data: data,
-                    dataType: "json",
-                    success: function(response) {
-
-                        if (response.status == 400) {
-                            $('#error_list').html("");
-                            $('#error_list').addClass('alert alert-danger');
-                            $.each(response.errors, function(key, err) {
-                                $('#error_list').append('<li>' + err + '</li>');
-                            });
-                            $('#submit_btn').text("Login");
-                            $('#submit_btn').attr("disabled", false);
-                        }
-                        if (response.status == 401) {
-                            $('#error_list').html("");
-                            $('#error_list').addClass('alert alert-danger');
-                            $('#error_list').append('<li>' + response.message + '</li>');
-                            $('#submit_btn').text("Login");
-                            $('#submit_btn').attr("disabled", false);
-                        }
-                        if (response.status == 200) {
-                            $('#error_list').html("");
-                            $('#error_list').removeClass('alert alert-danger');
-                            $('#error_list').addClass('alert alert-success');
-                            $('#error_list').append(
-                                '<li>Login Successful. Redirecting to Dashboard. . .</li>');
-
-                            if (response.user == 'admin') {
-                                window.location.replace('{{ route('admin.home') }}');
-                            }
-                            if (response.user == 'cashier') {
-                                window.location.replace('{{ route('transactions.index') }}');
-                            }
-
-                        }
-                    }
-                });
-            });
-        });
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
     </script>
-</body>
 
+<script>
+  $(document).ready(function() {
+      $('#loginForm').on('submit', function(e) {
+          e.preventDefault();
+          
+          $('#loginBtn').prop('disabled', true);
+          $('#loginBtnText').addClass('hidden');
+          $('#loginBtnSpinner').removeClass('hidden');
+
+          $.ajax({
+              url: '/login',
+              type: 'POST',
+              data: $(this).serialize(),
+              success: function(response) {
+                  if (response.success) {
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Success!',
+                          text: 'You have been logged in successfully.',
+                          timer: 1500,
+                          showConfirmButton: false
+                      }).then(() => {
+                          window.location.href = response.redirect;
+                      });
+                  }
+              },
+              error: function(xhr) {
+                  let errorMessage = 'An error occurred. Please try again.';
+
+                  if (xhr.status === 422) {
+                      // Validation errors
+                      const errors = xhr.responseJSON.errors;
+                      errorMessage = Object.values(errors).flat().join('<br>');
+                  } else if (xhr.status === 401) {
+                      // Invalid credentials
+                      errorMessage = xhr.responseJSON.message;
+                  }
+
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error!',
+                      html: errorMessage
+                  });
+              },
+              complete: function() {
+                  $('#loginBtn').prop('disabled', false);
+                  $('#loginBtnText').removeClass('hidden');
+                  $('#loginBtnSpinner').addClass('hidden');
+              }
+          });
+      });
+  });
+</script>
+</body>
 </html>

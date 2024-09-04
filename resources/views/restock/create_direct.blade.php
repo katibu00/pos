@@ -33,7 +33,7 @@
                     </select>
                 </div>
                 <div class="col-md-8">
-                    <input type="text" class="form-control form-control-lg" id="stockSearch" placeholder="Search stocks..." style="opacity: 0.6;">
+                    <input type="text" class="form-control form-control-lg" id="stockSearch" placeholder="Search stocks..." style="opacity: 0.6;" disabled>
                 </div>
             </div>
 
@@ -128,11 +128,14 @@
 $(document).ready(function() {
     let debounceTimer;
 
+    // Enable stock search after selecting branch
     $('#branch').change(function() {
-        $('#selectedBranchId').val($(this).val());
-        $('#stockSearch').prop('disabled', !$(this).val());
+        const branchId = $(this).val();
+        $('#selectedBranchId').val(branchId);
+        $('#stockSearch').prop('disabled', !branchId);
     });
 
+    // Handle stock search with debounce
     $('#stockSearch').on('input', function() {
         clearTimeout(debounceTimer);
         const searchTerm = $(this).val();
@@ -162,6 +165,7 @@ $(document).ready(function() {
         }, 300);
     });
 
+    // Display stock suggestions
     function displayStockSuggestions(stocks) {
         const suggestions = stocks.map(stock => `
             <div class="stock-suggestion" data-stock='${JSON.stringify(stock).replace(/'/g, "&apos;")}'>
@@ -172,7 +176,7 @@ $(document).ready(function() {
         $('#stockSuggestions').html(suggestions);
     }
 
-
+    // Add stock to the table
     $(document).on('click', '.stock-suggestion', function() {
         const stockData = $(this).attr('data-stock');
         const stock = JSON.parse(stockData);
@@ -181,7 +185,7 @@ $(document).ready(function() {
         $('#stockSuggestions').empty();
     });
 
-
+    // Function to add stock to the table
     function addStockToTable(stock) {
         const row = `
             <tr data-stock-id="${stock.id}">
@@ -216,28 +220,28 @@ $(document).ready(function() {
         updateSummary();
     }
 
+    // Enable or disable price inputs based on checkbox state
     $(document).on('click', '.price-change-checkbox', function() {
         const input = $(this).closest('.input-group').find('input[type="number"]');
         input.prop('disabled', !this.checked);
-        if (this.checked) {
-            input.prop('required', true);
-        } else {
-            input.prop('required', false);
-        }
+        input.prop('required', this.checked);
         updateRowStyle($(this).closest('tr'));
         updateSummary();
     });
 
+    // Remove stock from the table
     $(document).on('click', '.remove-stock', function() {
         $(this).closest('tr').remove();
         updateSummary();
     });
 
+    // Update row styles and summaries based on input changes
     $(document).on('input', '.restock-quantity, .new-buying-price, .new-selling-price', function() {
         updateRowStyle($(this).closest('tr'));
         updateSummary();
     });
 
+    // Update the row style based on price changes
     function updateRowStyle(row) {
         const originalBuyingPrice = parseFloat(row.find('td:eq(2)').text().replace('₦', '').replace(',', ''));
         const originalSellingPrice = parseFloat(row.find('td:eq(3)').text().replace('₦', '').replace(',', ''));
@@ -251,6 +255,7 @@ $(document).ready(function() {
         }
     }
 
+    // Update the summary statistics
     function updateSummary() {
         let totalItems = $('#restockTable tbody tr').length;
         let totalQuantity = 0;
@@ -279,6 +284,7 @@ $(document).ready(function() {
         $('#totalPriceIncrease').text(formatCurrency(totalPriceIncrease));
     }
 
+    // Format currency values consistently
     function formatCurrency(amount) {
         amount = parseFloat(amount) || 0; // Ensure the amount is a number
         return '₦' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');

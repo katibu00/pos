@@ -141,10 +141,28 @@
         </ul>
     </li>
 
-    <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}"><a class="menu-link"
-            href="{{ route('stock.index') }}">
+
+
+    <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }} {{ $route == 'stocks.exportView' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
             <div>Inventory</div>
-        </a></li>
+        </a>
+        <ul class="sub-menu-container">
+           
+            <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('stock.index') }}">
+                    <div>Inventory</div>
+                </a>
+            </li>
+           
+            <li class="menu-item {{ $route == 'stocks.exportView' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('stocks.exportView') }}">
+                    <div>Export</div>
+                </a>
+            </li>
+
+        </ul>
+    </li>
 
     <li
         class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }} {{ $route == 'estimate.all.index' ? 'current' : '' }} {{ $route == 'fund_transfer.index' ? 'current' : '' }} {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">

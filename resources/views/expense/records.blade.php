@@ -35,14 +35,14 @@
                         <div class="card-body">
                             <h5 class="card-title">Available Balance</h5>
                             <h3 class="mb-0">₦{{ number_format($availableBalance, 2) }}</h3>
-                            <small>{{ auth()->user()->branch->name }}</small>
+                            <small>{{ auth()->user()->branch->name }}</small> <!-- Display the user's branch name -->
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card bg-success text-white shadow-lg rounded-lg">
                         <div class="card-body">
-                            <h5 class="card-title">Today's Expenses</h5>
+                            <h5 class="card-title">Today's Expenses ({{ auth()->user()->branch->name }})</h5> <!-- Include branch name in title -->
                             <h3 class="mb-0">₦{{ number_format($todayExpenses, 2) }}</h3>
                         </div>
                     </div>
@@ -50,12 +50,13 @@
                 <div class="col-md-4">
                     <div class="card bg-info text-white shadow-lg rounded-lg">
                         <div class="card-body">
-                            <h5 class="card-title">Last 30 Days Expenses</h5>
+                            <h5 class="card-title">Last 30 Days Expenses ({{ auth()->user()->branch->name }})</h5> <!-- Include branch name in title -->
                             <h3 class="mb-0">₦{{ number_format($last30DaysExpenses, 2) }}</h3>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             <div class="card shadow-lg rounded-lg">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">

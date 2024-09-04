@@ -47,39 +47,38 @@ use App\Http\Controllers\WarehouseController;
 |
  */
 
-Route::get('/', function () {
-
-    $products = OnlineStoreProduct::with('onlineProductImages')->get();
-    $categories = OnlineStoreCategory::all();
-
-    // Optional: Calculate discount price if not already done
-    foreach ($products as $product) {
-        if ($product->discount_applied) {
-            $product->discount_price = $product->original_price - $product->discount_price;
-            $product->selling_price = $product->discount_price;
-        }
-    }
-
-    return view('frontend.pages.home', compact('products','categories'));
-
-
-});
 // Route::get('/', function () {
 
-//     return view('frontend.pages.home');
+//     $products = OnlineStoreProduct::with('onlineProductImages')->get();
+//     $categories = OnlineStoreCategory::all();
+
+//     // Optional: Calculate discount price if not already done
+//     foreach ($products as $product) {
+//         if ($product->discount_applied) {
+//             $product->discount_price = $product->original_price - $product->discount_price;
+//             $product->selling_price = $product->discount_price;
+//         }
+//     }
+
+//     return view('frontend.pages.home', compact('products','categories'));
 
 
-//     if (auth()->check()) {
-//         if (auth()->user()->usertype == 'admin') {
-//             return redirect()->route('admin.home');
-//         }
-//         if (auth()->user()->usertype == 'cashier') {
-//             return redirect()->route('cashier.home');
-//         }
-//     };
-//     // return view('ecom.index');
-//     return view('auth.login');
 // });
+
+Route::get('/', function () {
+
+
+    if (auth()->check()) {
+        if (auth()->user()->usertype == 'admin') {
+            return redirect()->route('admin.home');
+        }
+        if (auth()->user()->usertype == 'cashier') {
+            return redirect()->route('cashier.home');
+        }
+    };
+    // return view('ecom.index');
+    return view('auth.login');
+});
 
 Route::get('/home', function () {
     if (auth()->check()) {
@@ -123,6 +122,11 @@ Route::group(['prefix' => 'inventory', 'middleware' => ['auth', 'admin']], funct
     Route::post('/copy', [StockController::class, 'copyStore'])->name('stock.copy');
     Route::post('/delete', [StockController::class, 'delete'])->name('stock.delete');
     Route::post('/fetch-stocks', [StockController::class, 'fetchStocks'])->name('fetch-stocks');
+
+
+    Route::get('/export', [StockController::class, 'exportView'])->name('stocks.exportView');
+    Route::post('/export', [StockController::class, 'export'])->name('stocks.export');
+
 });
 
 //pagination routes

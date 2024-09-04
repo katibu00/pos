@@ -14,44 +14,59 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+
+
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'email' => 'required|max:191',
-            'password' => 'required|max:191',
+            'identifier' => 'required|string',
+            'password' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => 400,
-                'errors' => $validator->messages(),
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $credentials = $request->only('identifier', 'password');
+        $remember = $request->has('remember');
+
+        $fieldType = filter_var($credentials['identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $credentials[$fieldType] = $credentials['identifier'];
+        unset($credentials['identifier']);
+
+        if (Auth::attempt($credentials, $remember)) {
+            $user = Auth::user();
+            $redirectRoute = $this->getRedirectRouteForUserType($user->usertype);
+            
+            return response()->json([
+                'success' => true,
+                'redirect' => route($redirectRoute)
             ]);
         }
 
-        if (!auth()->attempt($request->only('email', 'password'), $request->remember)) {
-            return response()->json([
-                'status' => 401,
-                'message' => 'Invalid Login Details',
-            ]);
-        }
-
-        if (Auth::user()->usertype == 'admin') {
-            return response()->json([
-                'status' => 200,
-                'user' => 'admin',
-            ]);
-        } else if (Auth::user()->usertype == 'cashier') {
-            return response()->json([
-                'status' => 200,
-                'user' => 'cashier',
-            ]);
-        } else {
-            return back()->with('status', 'You are not authorized to access this content');
-        }
-
+        return response()->json([
+            'success' => false,
+            'message' => 'The provided credentials do not match our records.'
+        ], 401);
     }
 
+
+    private function getRedirectRouteForUserType($userType)
+    {
+        switch ($userType) {
+            case 'admin':
+                return 'admin.home';
+            case 'cashier':
+                return 'cashier.home';
+            default:
+                return 'home';
+        }
+    }
+
+   
     public function logout(){
         auth()->logout();
         return redirect()->route('login');

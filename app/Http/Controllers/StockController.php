@@ -3,31 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
-use App\Models\Stock;
-use Illuminate\Http\Request;
-use Brian2694\Toastr\Facades\Toastr;
 use App\Models\Sale;
+use App\Models\Stock;
+use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+
+use App\Exports\StocksExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StockController extends Controller
 {
-    function index(){
-        $data['stocks'] = Stock::where('branch_id',0)->paginate(25);
+    public function index()
+    {
+        $data['stocks'] = Stock::where('branch_id', 0)->paginate(25);
         if (in_array(auth()->user()->id, [4, 443])) {
             $data['branches'] = Branch::all();
         } else {
             $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
-        }   
-        return view('stock.index',$data);
+        }
+        return view('stock.index', $data);
     }
-   
 
-    function store(Request $request){
-
+    public function store(Request $request)
+    {
 
         $productCount = count($request->name);
-        if($productCount != NULL){
-            for ($i=0; $i < $productCount; $i++){
+        if ($productCount != null) {
+            for ($i = 0; $i < $productCount; $i++) {
                 $data = new Stock();
                 $data->branch_id = $request->branch_id;
                 $data->name = $request->name[$i];
@@ -43,23 +46,26 @@ class StockController extends Controller
 
     }
 
-    function edit($id){
+    public function edit($id)
+    {
         $data['stock'] = Stock::find($id);
-        return view('stock.edit',$data);
+        return view('stock.edit', $data);
     }
 
-    function copyIndex($id){
+    public function copyIndex($id)
+    {
         $data['stock'] = Stock::find($id);
         if (in_array(auth()->user()->id, [4, 443])) {
             $data['branches'] = Branch::all();
         } else {
             $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
-        }   
-        return view('stock.copy',$data);
+        }
+        return view('stock.copy', $data);
     }
 
-    function update(Request $request, $id){
-       
+    public function update(Request $request, $id)
+    {
+
         $data = Stock::find($id);
         $data->name = $request->name;
         $data->buying_price = $request->buying_price;
@@ -72,8 +78,9 @@ class StockController extends Controller
         return redirect()->route('stock.index');
     }
 
-    function copyStore(Request $request){
-       
+    public function copyStore(Request $request)
+    {
+
         $data = new Stock();
         $data->branch_id = $request->branch_id;
         $data->name = $request->name;
@@ -87,12 +94,13 @@ class StockController extends Controller
         return redirect()->route('stock.index');
     }
 
-    function delete(Request $request){
-       
+    public function delete(Request $request)
+    {
+
         $data = Stock::find($request->id);
-        
+
         $data->delete();
-       
+
         return response()->json([
             'status' => 200,
             'message' => 'Product Deleted Succesffully',
@@ -103,9 +111,8 @@ class StockController extends Controller
     {
         $data['stocks'] = Stock::where('branch_id', $request->branch_id)->paginate(25);
         return view('stock.table', $data)->render();
-      
-    }
 
+    }
 
     public function paginate(Request $request)
     {
@@ -113,35 +120,29 @@ class StockController extends Controller
         return view('stock.table', $data)->render();
     }
 
-
     public function Search(Request $request)
     {
 
-        
-        $data['stocks'] = Stock::where('branch_id', $request->branch_id)->where('name', 'like','%'.$request['query'].'%')->paginate(25);
+        $data['stocks'] = Stock::where('branch_id', $request->branch_id)->where('name', 'like', '%' . $request['query'] . '%')->paginate(25);
 
-        if( $data['stocks']->count() > 0 )
-        {
+        if ($data['stocks']->count() > 0) {
             return view('stock.table', $data)->render();
-        }else
-        {
+        } else {
             return response()->json([
                 'status' => 404,
             ]);
         }
     }
 
-
-
-    function correctIndex(){
+    public function correctIndex()
+    {
         if (in_array(auth()->user()->id, [4, 443])) {
             $data['branches'] = Branch::all();
         } else {
             $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
-        }   
-        return view('correct_sales.index',$data);
+        }
+        return view('correct_sales.index', $data);
     }
-
 
     public function fetchAllStocks(Request $request)
     {
@@ -149,16 +150,14 @@ class StockController extends Controller
         return response()->json(['stocks' => $stocks]);
     }
 
-
     public function fetchSales(Request $request)
     {
         $sales = Sale::with('product')
-        ->where('stock_id', $request->stock_id)
-        ->whereDate('created_at', '>', Carbon::parse('2024-01-05'))
-        ->get();       
-         return response()->json(['sales' => $sales]);
+            ->where('stock_id', $request->stock_id)
+            ->whereDate('created_at', '>', Carbon::parse('2024-01-05'))
+            ->get();
+        return response()->json(['sales' => $sales]);
     }
-
 
     public function updateBuyingPrice(Request $request)
     {
@@ -174,5 +173,19 @@ class StockController extends Controller
 
 
 
+    public function export(Request $request)
+    {
+        $branchId = $request->input('branch_id');
+        $columns = $request->input('columns');
+
+        return Excel::download(new StocksExport($branchId, $columns), 'stocks.xlsx');
+    }
+
+    public function exportView()
+    {
+        $branches = \App\Models\Branch::select('id', 'name')->get();
+        return view('stock.export', compact('branches'));
+    }
     
+
 }

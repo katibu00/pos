@@ -192,6 +192,7 @@ $(document).ready(function() {
         updateSelectedProductsTable();
     });
 
+
     function updateSelectedProductsTable() {
         let tableHtml = '<table class="table table-sm selected-products-table"><thead><tr><th>#</th><th>Product</th><th>Qty</th><th></th></tr></thead><tbody>';
         let totalProducts = 0;
@@ -225,11 +226,32 @@ $(document).ready(function() {
         $('#totalCost').text(totalCost.toFixed(2));
     }
 
+    // Update this event handler
     $(document).on('input', '.quantity-input', function() {
         const stockId = $(this).data('stock-id');
-        selectedProducts[stockId].quantity = parseInt($(this).val()) || 0;
-        updateSelectedProductsTable();
+        const newQuantity = parseInt($(this).val()) || 0;
+        
+        if (newQuantity !== selectedProducts[stockId].quantity) {
+            selectedProducts[stockId].quantity = newQuantity;
+            updateTotals();
+        }
     });
+
+
+
+
+    function updateTotals() {
+        let totalProducts = 0;
+        let totalCost = 0;
+
+        for (const product of Object.values(selectedProducts)) {
+            totalProducts += product.quantity;
+            totalCost += product.quantity * product.price;
+        }
+
+        $('#totalProducts').text(totalProducts);
+        $('#totalCost').text(totalCost.toFixed(2));
+    }
 
     $(document).on('click', '.remove-product', function() {
         const stockId = $(this).data('stock-id');

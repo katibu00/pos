@@ -847,7 +847,108 @@
             // myReceipt.close();
         }, 8000);
     }
+    function PrintDiscountedReceiptContent(estimate_no) {
+    const data = {
+        'estimate_no': estimate_no,
+    };
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('refresh-receipt-estimate') }}",
+        data: data,
+        success: function(res) {
+            let html = '';
+            let total = 0;
+            let totalDiscount = 0;
+
+            $.each(res.items, function(key, item) {
+                const itemTotal = item.quantity * item.price;
+                const discountedTotal = itemTotal - item.discount;
+                total += itemTotal;
+                totalDiscount += item.discount;
+
+                html +=
+                    '<tr style="text-align: center">' +
+                    '<td style="text-align: left"><span style="font-size: 12px;">' + item.product.name + '</span></td>' +
+                    '<td style="font-size: 12px;">' + item.quantity + '</td>' +
+                    '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
+                    '<td style="font-size: 12px;">' + itemTotal.toLocaleString() + '</td>' +
+                    '<td style="font-size: 12px;">' + item.discount.toLocaleString() + '</td>' +
+                    '<td style="font-size: 12px;">' + discountedTotal.toLocaleString() + '</td>' +
+                    '</tr>';
+            });
+
+            html +=
+                '<tr style="text-align: center">' +
+                '<td colspan="3"><b>Total</b></td>' +
+                '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                '<td><b>&#8358;' + totalDiscount.toLocaleString() + '</b></td>' +
+                '<td><b>&#8358;' + (total - totalDiscount).toLocaleString() + '</b></td>' +
+                '</tr>';
+
+            if (res.items[0].labor_cost !== null) {
+                const laborCost = parseInt(res.items[0].labor_cost);
+                html +=
+                    '<tr style="text-align: center">' +
+                    '<td colspan="5"><b>Labor Cost</b></td>' +
+                    '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
+                    '</tr>';
+
+                html +=
+                    '<tr style="text-align: center">' +
+                    '<td colspan="5"><b>Grand Total</b></td>' +
+                    '<td><b>&#8358;' + (total - totalDiscount + laborCost).toLocaleString() + '</b></td>' +
+                    '</tr>';
+
+                html +=
+                    '<tr style="text-align: center">' +
+                    '<td colspan="6"><i>Labor cost is separate, not related to the above company.</i></td>' +
+                    '</tr>';
+            }
+
+            $('#receipt_body').html(html);
+            $('#transaction_date').html('Sale Date & Time: ' + res.transaction_date);
+
+            let accountDetailsHtml = '';
+            res.account_details.forEach(function(account) {
+                accountDetailsHtml +=
+                    'Account Number: ' + account.account_number + '<br>' +
+                    'Account Name: ' + account.account_name + '<br>' +
+                    'Bank Name: ' + account.bank_name + '<br><br>';
+            });
+
+            $('#account_details').html(accountDetailsHtml);
+
+            const data = document.getElementById('print').innerHTML;
+
+            const myReceipt = window.open("", "myWin", "left=150, top=130, width=300, height=400");
+            myReceipt.document.write(data);
+            myReceipt.document.title = "Print Discounted Estimate Certificate";
+            myReceipt.focus();
+            myReceipt.print();
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            if (xhr.status === 419) {
+                toastr["error"]("Session expired. please login again.");
+                setTimeout(() => {
+                    window.location.replace('{{ route('login') }}');
+                }, 2000);
+            }
+        }
+    });
+
+    setTimeout(() => {
+        // myReceipt.close();
+    }, 8000);
+}
 </script>
+
 
 
 

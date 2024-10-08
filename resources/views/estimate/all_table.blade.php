@@ -23,48 +23,46 @@
                     foreach ($estimated as $estimate) {
                         $total_amount += ($estimate->price*$estimate->quantity);
                         $total_discount+= $estimate->discount;
-                    }         
-                @endphp 
-            <tr>
-
-              @if ($estimates instanceof Illuminate\Pagination\LengthAwarePaginator)
-                    <td class="text-center">{{ $key + $estimates->firstItem() }}</td>
-                @else
-                    <td class="text-center">{{ $key + 1 }}</td>
-                @endif
-
-              <td>{{ $estimated[0]->created_at->format('l, d F') }}</td>
-              <td>
-                @if ($estimated[0]->customer == 0)
-                    Walk-in Customer
-                @elseif (is_numeric($estimated[0]->customer))
-                    {{ @$estimated[0]->buyer->first_name }}
-                @endif
-            </td>
-            <td>{{ $estimated[0]->note }}</td>
-              <td class="text-center">{{ number_format($total_amount,0) }}</td>
-              <td class="text-center">{{ number_format($total_discount,0) }}</td>
-              <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
-              <td>
-                <button type="button" onclick="PrintReceiptContent('{{ $row->estimate_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print"></i></button>
-                <button type="button" class="btn btn-success btn-sm saleItem" data-note="{{ $estimate->note }}" data-name="{{ $estimate->customer }}" data-estimate_no="{{ $estimate->estimate_no  }}" data-payable="{{ $total_amount-$total_discount }}"><i class="fas fa-shopping-cart" data-bs-toggle="modal" data-bs-target=".addModal"></i></button>
-                <button type="button" class="btn btn-primary btn-sm editEstimate" data-estimate_no="{{ $estimate->estimate_no }}">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#sendWhatsAppModal" data-estimate_no="{{ $estimate->estimate_no }}">
-                    <i class="fab fa-whatsapp"></i>
-                </button>
-              </td>
-            </tr>
+                    }
+                @endphp
+                <tr>
+                    @if ($estimates instanceof Illuminate\Pagination\LengthAwarePaginator)
+                        <td class="text-center">{{ $key + $estimates->firstItem() }}</td>
+                    @else
+                        <td class="text-center">{{ $key + 1 }}</td>
+                    @endif
+                    <td>{{ $estimated[0]->created_at->format('l, d F') }}</td>
+                    <td>
+                        @if ($estimated[0]->customer == 0)
+                            Walk-in Customer
+                        @elseif (is_numeric($estimated[0]->customer))
+                            {{ @$estimated[0]->buyer->first_name }}
+                        @endif
+                    </td>
+                    <td>{{ $estimated[0]->note }}</td>
+                    <td class="text-center">{{ number_format($total_amount,0) }}</td>
+                    <td class="text-center">{{ number_format($total_discount,0) }}</td>
+                    <td class="text-center">{{ number_format($total_amount-$total_discount,0) }}</td>
+                    <td>
+                        <button type="button" onclick="PrintReceiptContent('{{ $row->estimate_no}}')" class="btn btn-secondary btn-sm"><i class="fa fa-print"></i></button>
+                        <button type="button" onclick="PrintDiscountedReceiptContent('{{ $row->estimate_no}}')" class="btn btn-info btn-sm"><i class="fa fa-print"></i> Discounted</button>
+                        <button type="button" class="btn btn-success btn-sm saleItem" data-note="{{ $estimate->note }}" data-name="{{ $estimate->customer }}" data-estimate_no="{{ $estimate->estimate_no  }}" data-payable="{{ $total_amount-$total_discount }}"><i class="fas fa-shopping-cart" data-bs-toggle="modal" data-bs-target=".addModal"></i></button>
+                        <button type="button" class="btn btn-primary btn-sm editEstimate" data-estimate_no="{{ $estimate->estimate_no }}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#sendWhatsAppModal" data-estimate_no="{{ $estimate->estimate_no }}">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                    </td>
+                </tr>
             @endforeach
         </tbody>
     </table>
-    </div>
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            @if ($estimates instanceof Illuminate\Pagination\LengthAwarePaginator && $estimates->hasPages())
-                {{ $estimates->links() }}
-            @endif
-        </ul>
-    </nav>
-    
+</div>
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        @if ($estimates instanceof Illuminate\Pagination\LengthAwarePaginator && $estimates->hasPages())
+            {{ $estimates->links() }}
+        @endif
+    </ul>
+</nav>

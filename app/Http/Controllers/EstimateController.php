@@ -84,7 +84,12 @@ class EstimateController extends Controller
                 'bank_name' => 'Moniepoint'
             ]
         ];
-
+    
+        $items = $items->map(function ($item) {
+            $item->discounted_total = ($item->price * $item->quantity) - $item->discount;
+            return $item;
+        });
+    
         return response()->json([
             'status' => 200,
             'items' => $items,

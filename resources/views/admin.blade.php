@@ -254,6 +254,83 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-info text-white">
+                            <div class="card-body">
+                                <i class="fas fa-credit-card card-icon"></i>
+                                <h5 class="card-title">Credit Payments</h5>
+                                <?php
+                                $formattedCreditPayments = number_format($totalCreditPayments);
+                                ?>
+                                <p class="card-text h3">&#8358;{{ $formattedCreditPayments }}</p>
+                                <p class="card-subtitle mb-2 small">
+                                    {{ 'Cash: ' . number_format($cashCreditPayments, 0) . ', POS: ' . number_format($posCreditPayments, 0) . ', Transfer: ' . number_format($transferCreditPayments, 0) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-warning text-dark">
+                            <div class="card-body">
+                                <i class="fas fa-money-check-alt card-icon"></i>
+                                <h5 class="card-title">Credit Payments by Deposit</h5>
+                                <p class="card-text h3">&#8358;{{ number_format($depositCreditPayments, 0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-danger text-white">
+                            <div class="card-body">
+                                <i class="fas fa-hand-holding-usd card-icon"></i>
+                                <h5 class="card-title">Deposit Sales</h5>
+                                <p class="card-text h3">&#8358;{{ number_format($depositSales, 0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-danger text-white">
+                            <div class="card-body">
+                                <i class="fas fa-cash-register card-icon"></i>
+                                <h5 class="card-title">Cash Sales</h5>
+                                <p class="card-text h3">&#8358;{{ number_format($cashSales - $cashReturns, 0) }}</p>
+                                <p class="card-subtitle mb-2 small">
+                                    {{ 'Sales: ' . number_format($cashSales, 0) . ', Returns: ' . number_format($cashReturns, 0) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-danger text-white">
+                            <div class="card-body">
+                                <i class="fas fa-exchange-alt card-icon"></i>
+                                <h5 class="card-title">Transfer Sales</h5>
+                                <p class="card-text h3">&#8358;{{ number_format($transferSales - $transferReturns, 0) }}</p>
+                                <p class="card-subtitle mb-2 small">
+                                    {{ 'Sales: ' . number_format($transferSales, 0) . ', Returns: ' . number_format($transferReturns, 0) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-danger text-white">
+                            <div class="card-body">
+                                <i class="fas fa-credit-card card-icon"></i>
+                                <h5 class="card-title">POS Sales</h5>
+                                <p class="card-text h3">&#8358;{{ number_format($posSales - $posReturns, 0) }}</p>
+                                <p class="card-subtitle mb-2 small">
+                                    {{ 'Sales: ' . number_format($posSales, 0) . ', Returns: ' . number_format($posReturns, 0) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
                 </div>
             </div>
             

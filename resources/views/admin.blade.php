@@ -140,21 +140,28 @@
                                 <h3 class="stat-card-value">&#8358;{{ number_format($totalDiscounts - $returnDiscounts, 0) }}</h3>
                             </div>
                         </div>
-                        <div class="stat-card bg-info text-white mb-3">
+                        {{-- <div class="stat-card bg-info text-white mb-3">
                             <div class="stat-card-body">
                                 <h5 class="stat-card-title">Expenses</h5>
                                 <p class="stat-card-text">Cash: {{ number_format($cashExpenses, 0) }}, POS: {{ number_format($posExpenses, 0) }}, Transfer: {{ number_format($transferExpenses, 0) }}</p>
                                 <h3 class="stat-card-value">&#8358;{{ number_format($totalExpenses, 0) }}</h3>
                             </div>
-                        </div>
-                        <div class="stat-card bg-secondary text-white mb-3">
+                        </div> --}}
+                        {{-- <div class="stat-card bg-secondary text-white mb-3">
                             <div class="stat-card-body">
                                 <h5 class="stat-card-title">Purchases</h5>
                                 <p class="stat-card-text">Total purchases made</p>
                                 <h3 class="stat-card-value">&#8358;{{ number_format($totalPurchases, 0) }}</h3>
                             </div>
+                        </div> --}}
+                        <div class="stat-card bg-danger text-white mb-3">
+                            <div class="stat-card-body">
+                                <h5 class="stat-card-title">Awaiting Pickup</h5>
+                                <p class="stat-card-text">Number of uncollected sales</p>
+                                <h3 class="stat-card-value">{{ number_format(@$uncollectedSales->count(), 0) }}</h3>
+                            </div>
                         </div>
-                        <div class="stat-card bg-light text-dark mb-3">
+                        <div class="stat-card bg-info text-dark mb-3">
                             <div class="stat-card-body">
                                 <h5 class="stat-card-title">Estimates</h5>
                                 <p class="stat-card-text">Total estimated sales</p>
@@ -217,18 +224,12 @@
                                 <h3 class="stat-card-value">{{ number_format($uniqueSalesCount, 0) }}</h3>
                             </div>
                         </div>
-                        <div class="stat-card bg-danger text-white mb-3">
-                            <div class="stat-card-body">
-                                <h5 class="stat-card-title">Awaiting Pickup</h5>
-                                <p class="stat-card-text">Number of uncollected sales</p>
-                                <h3 class="stat-card-value">{{ number_format(@$uncollectedSales->count(), 0) }}</h3>
-                            </div>
-                        </div>
+                       
                     </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-md-4">
-                        <div class="stat-card bg-light text-dark mb-3">
+                        <div class="stat-card bg-primary text-dark mb-3">
                             <div class="stat-card-body">
                                 <h5 class="stat-card-title">Total Cash Credit Balance Remaining</h5>
                                 <p class="stat-card-text">Outstanding cash credit</p>

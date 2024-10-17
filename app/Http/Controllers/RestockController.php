@@ -79,21 +79,20 @@ class RestockController extends Controller
             'stock_id.*' => 'exists:stocks,id',
             'restock_quantity' => 'required|array',
             'restock_quantity.*' => 'required|integer|min:1',
-            'new_buying_price' => 'nullable|array',
-            'new_buying_price.*' => 'nullable|numeric|min:0',
-            'new_selling_price' => 'nullable|array',
-            'new_selling_price.*' => 'nullable|numeric|min:0',
+            'new_buying_price' => 'required|array',
+            'new_buying_price.*' => 'required|numeric|min:0',
+            'new_selling_price' => 'required|array',
+            'new_selling_price.*' => 'required|numeric|min:0',
         ]);
-
+    
         DB::beginTransaction();
-
         try {
             // Generate restock number
-            $prefix = 'DR'; // Direct Restock
-            $date = now()->format('ymd'); // YYMMDD format
-            $sequence = str_pad(Restock::whereDate('created_at', now()->toDateString())->count() + 1, 3, '0', STR_PAD_LEFT); // 001, 002, 003, ...
+            $prefix = 'DR';
+            $date = now()->format('ymd');
+            $sequence = str_pad(Restock::whereDate('created_at', now()->toDateString())->count() + 1, 3, '0', STR_PAD_LEFT);
             $restockNumber = $prefix . '-' . $date . '-' . $sequence;
-
+    
             // Create restock entry
             $restock = Restock::create([
                 'restock_number' => $restockNumber,
@@ -101,17 +100,16 @@ class RestockController extends Controller
                 'status' => 'completed',
                 'total_cost' => 0,
             ]);
-
+    
             $totalCost = 0;
-
-            // Process each stock item in the request
+    
+            // Process each stock item
             foreach ($validatedData['stock_id'] as $index => $stockId) {
-                $stock = Stock::findOrFail($stockId); // Ensure stock exists
-
+                $stock = Stock::findOrFail($stockId);
                 $quantity = $validatedData['restock_quantity'][$index];
-                $newBuyingPrice = $validatedData['new_buying_price'][$index] ?? $stock->buying_price;
-                $newSellingPrice = $validatedData['new_selling_price'][$index] ?? $stock->selling_price;
-
+                $newBuyingPrice = $validatedData['new_buying_price'][$index];
+                $newSellingPrice = $validatedData['new_selling_price'][$index];
+    
                 // Create restock item
                 RestockItem::create([
                     'restock_id' => $restock->id,
@@ -125,28 +123,23 @@ class RestockController extends Controller
                     'price_changed' => ($newBuyingPrice != $stock->buying_price || $newSellingPrice != $stock->selling_price),
                     'old_quantity' => $stock->quantity,
                 ]);
-
-                // Update stock with new quantity and prices
+    
+                // Update stock
                 $stock->update([
                     'quantity' => $stock->quantity + $quantity,
                     'buying_price' => $newBuyingPrice,
                     'selling_price' => $newSellingPrice,
                 ]);
-
-                // Accumulate the total cost
+    
                 $totalCost += $quantity * $newBuyingPrice;
             }
-
-            // Update restock total cost
+    
             $restock->update(['total_cost' => $totalCost]);
-
+            
             DB::commit();
-
-            // Redirect with success message
             return redirect()->route('restock.index')->with('success', 'Direct restock created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            // Redirect back with error message
             return back()->with('error', 'An error occurred while creating the restock. ' . $e->getMessage());
         }
     }

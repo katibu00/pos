@@ -185,40 +185,116 @@ $(document).ready(function() {
         $('#stockSuggestions').empty();
     });
 
-    // Function to add stock to the table
-    function addStockToTable(stock) {
-        const row = `
-            <tr data-stock-id="${stock.id}">
-                <td>${stock.name}</td>
-                <td>${stock.quantity}</td>
-                <td>${formatCurrency(stock.buying_price)}</td>
-                <td>${formatCurrency(stock.selling_price)}</td>
-                <td><input type="number" name="restock_quantity[]" class="form-control restock-quantity" min="1" required></td>
-                <td>
-                    <div class="input-group">
-                        <div class="input-group-text">
-                            <input type="checkbox" class="price-change-checkbox">
-                        </div>
-                        <input type="number" name="new_buying_price[]" class="form-control new-buying-price" step="0.01" value="${stock.buying_price}" disabled>
-                    </div>
-                </td>
-                <td>
-                    <div class="input-group">
-                        <div class="input-group-text">
-                            <input type="checkbox" class="price-change-checkbox">
-                        </div>
-                        <input type="number" name="new_selling_price[]" class="form-control new-selling-price" step="0.01" value="${stock.selling_price}" disabled>
-                    </div>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm remove-stock">Remove</button>
-                    <input type="hidden" name="stock_id[]" value="${stock.id}">
-                </td>
-            </tr>
-        `;
-        $('#restockTable tbody').append(row);
-        updateSummary();
+   // Modify the addStockToTable function
+   function addStockToTable(stock) {
+    const row = `
+        <tr data-stock-id="${stock.id}">
+            <td>${stock.name}</td>
+            <td>${stock.quantity}</td>
+            <td class="original-buying-price">${formatCurrency(stock.buying_price)}</td>
+            <td class="original-selling-price">${formatCurrency(stock.selling_price)}</td>
+            <td>
+                <input type="number" name="restock_quantity[]" 
+                       class="form-control restock-quantity" 
+                       min="1" required>
+            </td>
+            <td>
+                <input type="number" 
+                       name="new_buying_price[]" 
+                       class="form-control new-buying-price" 
+                       step="0.01" 
+                       value="${stock.buying_price}" 
+                       data-original="${stock.buying_price}"
+                       required>
+            </td>
+            <td>
+                <input type="number" 
+                       name="new_selling_price[]" 
+                       class="form-control new-selling-price" 
+                       step="0.01" 
+                       value="${stock.selling_price}" 
+                       data-original="${stock.selling_price}"
+                       required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm remove-stock">Remove</button>
+                <input type="hidden" name="stock_id[]" value="${stock.id}">
+            </td>
+        </tr>
+    `;
+    $('#restockTable tbody').append(row);
+    updateSummary();
+}
+
+// Update the input change handler
+$(document).on('input', '.new-buying-price, .new-selling-price', function() {
+    const row = $(this).closest('tr');
+    updateRowStyle(row);
+    updateSummary();
+});
+
+// Update row style based on price changes
+function updateRowStyle(row) {
+    const originalBuyingPrice = parseFloat(row.find('.original-buying-price').text().replace('₦', '').replace(',', ''));
+    const originalSellingPrice = parseFloat(row.find('.original-selling-price').text().replace('₦', '').replace(',', ''));
+    const newBuyingPrice = parseFloat(row.find('.new-buying-price').val());
+    const newSellingPrice = parseFloat(row.find('.new-selling-price').val());
+
+    if (newBuyingPrice !== originalBuyingPrice || newSellingPrice !== originalSellingPrice) {
+        row.addClass('price-changed');
+    } else {
+        row.removeClass('price-changed');
     }
+}
+
+// Update summary statistics
+function updateSummary() {
+    let totalItems = $('#restockTable tbody tr').length;
+    let totalQuantity = 0;
+    let totalCost = 0;
+    let priceChangedItems = 0;
+    let totalPriceIncrease = 0;
+
+    $('#restockTable tbody tr').each(function() {
+        const quantity = parseInt($(this).find('.restock-quantity').val()) || 0;
+        const originalBuyingPrice = parseFloat($(this).find('.original-buying-price').text().replace('₦', '').replace(',', ''));
+        const newBuyingPrice = parseFloat($(this).find('.new-buying-price').val());
+        
+        totalQuantity += quantity;
+        totalCost += quantity * newBuyingPrice;
+
+        if (newBuyingPrice !== originalBuyingPrice) {
+            priceChangedItems++;
+            totalPriceIncrease += (newBuyingPrice - originalBuyingPrice) * quantity;
+        }
+    });
+
+    $('#totalItems').text(totalItems);
+    $('#totalQuantity').text(totalQuantity);
+    $('#totalCost').text(formatCurrency(totalCost));
+    $('#priceChangedItems').text(priceChangedItems);
+    $('#totalPriceIncrease').text(formatCurrency(totalPriceIncrease));
+}
+
+// Add this new function to handle checkbox changes
+function updatePriceChangeStatus(checkbox, type) {
+    const row = $(checkbox).closest('tr');
+    const priceInput = row.find(type === 'buying' ? '.new-buying-price' : '.new-selling-price');
+    const hiddenInput = row.find(`input[name="price_change_${type}[]"]`);
+    
+    hiddenInput.val(checkbox.checked ? '1' : '0');
+    priceInput.prop('readonly', !checkbox.checked);
+    
+    if (!checkbox.checked) {
+        const originalPrice = parseFloat(row.find(
+            type === 'buying' ? 'td:eq(2)' : 'td:eq(3)'
+        ).text().replace('₦', '').replace(',', ''));
+        priceInput.val(originalPrice);
+    }
+    
+    updateRowStyle(row);
+    updateSummary();
+}
 
     // Enable or disable price inputs based on checkbox state
     $(document).on('click', '.price-change-checkbox', function() {
@@ -241,48 +317,9 @@ $(document).ready(function() {
         updateSummary();
     });
 
-    // Update the row style based on price changes
-    function updateRowStyle(row) {
-        const originalBuyingPrice = parseFloat(row.find('td:eq(2)').text().replace('₦', '').replace(',', ''));
-        const originalSellingPrice = parseFloat(row.find('td:eq(3)').text().replace('₦', '').replace(',', ''));
-        const newBuyingPrice = parseFloat(row.find('.new-buying-price').val()) || originalBuyingPrice;
-        const newSellingPrice = parseFloat(row.find('.new-selling-price').val()) || originalSellingPrice;
+  
 
-        if (newBuyingPrice !== originalBuyingPrice || newSellingPrice !== originalSellingPrice) {
-            row.addClass('price-changed');
-        } else {
-            row.removeClass('price-changed');
-        }
-    }
-
-    // Update the summary statistics
-    function updateSummary() {
-        let totalItems = $('#restockTable tbody tr').length;
-        let totalQuantity = 0;
-        let totalCost = 0;
-        let priceChangedItems = 0;
-        let totalPriceIncrease = 0;
-
-        $('#restockTable tbody tr').each(function() {
-            const quantity = parseInt($(this).find('.restock-quantity').val()) || 0;
-            const originalBuyingPrice = parseFloat($(this).find('td:eq(2)').text().replace('₦', '').replace(',', ''));
-            const newBuyingPrice = parseFloat($(this).find('.new-buying-price').val()) || originalBuyingPrice;
-            
-            totalQuantity += quantity;
-            totalCost += quantity * newBuyingPrice;
-
-            if ($(this).hasClass('price-changed')) {
-                priceChangedItems++;
-                totalPriceIncrease += (newBuyingPrice - originalBuyingPrice) * quantity;
-            }
-        });
-
-        $('#totalItems').text(totalItems);
-        $('#totalQuantity').text(totalQuantity);
-        $('#totalCost').text(formatCurrency(totalCost));
-        $('#priceChangedItems').text(priceChangedItems);
-        $('#totalPriceIncrease').text(formatCurrency(totalPriceIncrease));
-    }
+    
 
     // Format currency values consistently
     function formatCurrency(amount) {

@@ -625,7 +625,7 @@
                     <h4 class="modal-title" id="myModalLabel">Add New Deposit</h4>
                     <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-hidden="true"></button>
                 </div>
-                <form action="{{ route('customers.save.deposit') }}" method="POST">
+                <form id="depositForm" action="{{ route('customers.save.deposit') }}" method="POST">                    
                     @csrf
                     <div class="modal-body">
 
@@ -703,6 +703,8 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
+
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('addPaymentForm');
@@ -741,6 +743,29 @@
 
     <script>
         $(document).ready(function() {
+
+
+            $("#depositForm").on('submit', function(e) {
+                e.preventDefault();
+                $.LoadingOverlay("show");
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        $.LoadingOverlay("hide");
+                        $('.depositModal').modal('hide');
+                        toastr.success('Deposit has been Recorded successfully', 'Done');
+                        // Optionally refresh the page or update specific elements
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        $.LoadingOverlay("hide");
+                        toastr.error('Something went wrong', 'Error');
+                    }
+                });
+            });
 
             $('#submitFormBtn').click(function(event) {
                 // Prevent default form submission

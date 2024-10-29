@@ -352,7 +352,6 @@ class UsersController extends Controller
 
     }
 
-
     public function saveDeposit(Request $request)
     {
         $record = new Payment();
@@ -363,14 +362,12 @@ class UsersController extends Controller
         $record->user_id = auth()->user()->id;
         $record->payment_type = 'deposit';
         $record->save();
-
+    
         $user = User::find($request->customer_id);
         $user->deposit += $request->amount;
         $user->save();
-
-        Toastr::success('Deposit has been Recorded sucessfully', 'Done');
-        return redirect()->back();
-
+    
+        return response()->json(['success' => true]);
     }
 
     public function updateDeposit(Request $request)

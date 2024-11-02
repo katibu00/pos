@@ -159,10 +159,182 @@
             </div>
         </div>
     </div>
+
+
+
+    <!-- Add this modal to your table.blade.php -->
+    <div class="modal fade" id="updatePricesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Prices</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updatePricesForm">
+                        <input type="hidden" id="stockId">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" readonly>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Current Buying Price (₦)</label>
+                                <input type="number" class="form-control" id="oldBuyingPrice" readonly>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">New Buying Price (₦)</label>
+                                <input type="number" class="form-control" id="newBuyingPrice" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Current Selling Price (₦)</label>
+                                <input type="number" class="form-control" id="oldSellingPrice" readonly>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">New Selling Price (₦)</label>
+                                <input type="number" class="form-control" id="newSellingPrice" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveChanges">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
    
 @endsection
 
 @section('js')
+
+
+<script>
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+$(document).ready(function() {
+    // Open modal with current prices - using event delegation
+    $(document).on('click', '.update-prices', function() {
+        const btn = $(this);
+        const stockId = btn.data('id');
+        const name = btn.data('name');
+        const buyingPrice = btn.data('buying-price');
+        const sellingPrice = btn.data('selling-price');
+
+        $('#stockId').val(stockId);
+        $('#productName').val(name);
+        $('#oldBuyingPrice').val(buyingPrice);
+        $('#oldSellingPrice').val(sellingPrice);
+        $('#newBuyingPrice').val('');
+        $('#newSellingPrice').val('');
+
+        $('#updatePricesModal').modal('show');
+    });
+
+    // Handle form submission - no need for event delegation since modal is always present
+    $(document).on('click', '#saveChanges', function() {
+        const btn = $(this);
+        const spinner = btn.find('.spinner-border');
+        const stockId = $('#stockId').val();
+        const oldBuyingPrice = $('#oldBuyingPrice').val();
+        const oldSellingPrice = $('#oldSellingPrice').val();
+        const newBuyingPrice = $('#newBuyingPrice').val();
+        const newSellingPrice = $('#newSellingPrice').val();
+
+        // Validate inputs
+        if (!newBuyingPrice || !newSellingPrice) {
+            alert('Please fill in all price fields');
+            return;
+        }
+
+        // Additional validation for positive numbers
+        if (newBuyingPrice <= 0 || newSellingPrice <= 0) {
+            alert('Prices must be greater than zero');
+            return;
+        }
+
+        // Validate selling price is greater than buying price
+        if (parseFloat(newSellingPrice) <= parseFloat(newBuyingPrice)) {
+            alert('Selling price must be greater than buying price');
+            return;
+        }
+
+        // Disable button and show spinner
+        btn.prop('disabled', true);
+        spinner.removeClass('d-none');
+
+        $.ajax({
+            url: `/inventory/update-prices/${stockId}`,
+            method: 'POST',
+            data: {
+                old_buying_price: oldBuyingPrice,
+                old_selling_price: oldSellingPrice,
+                new_buying_price: newBuyingPrice,
+                new_selling_price: newSellingPrice
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update the data attributes on the button
+                    const updateBtn = $(`.update-prices[data-id="${stockId}"]`);
+                    updateBtn.data('buying-price', newBuyingPrice);
+                    updateBtn.data('selling-price', newSellingPrice);
+
+                    // Close modal
+                    $('#updatePricesModal').modal('hide');
+
+                    // Show success message
+                    alert('Prices updated successfully');
+
+                    location.reload();
+                    
+                }
+            },
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON?.message || 'Error updating prices. Please try again.';
+                alert(errorMsg);
+            },
+            complete: function() {
+                // Re-enable button and hide spinner
+                btn.prop('disabled', false);
+                spinner.addClass('d-none');
+            }
+        });
+    });
+
+    // Optional: Handle Enter key in the modal
+    $(document).on('keypress', '#updatePricesForm input', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            $('#saveChanges').click();
+        }
+    });
+
+    // Optional: Clear form on modal close
+    $(document).on('hidden.bs.modal', '#updatePricesModal', function() {
+        $('#updatePricesForm')[0].reset();
+        $('#saveChanges').prop('disabled', false)
+            .find('.spinner-border').addClass('d-none');
+    });
+});
+
+</script>
+
+
+
+
+
+
+
 
     <script type="text/javascript">
         $(document).ready(function() {

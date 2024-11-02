@@ -127,6 +127,10 @@ Route::group(['prefix' => 'inventory', 'middleware' => ['auth', 'admin']], funct
     Route::get('/export', [StockController::class, 'exportView'])->name('stocks.exportView');
     Route::post('/export', [StockController::class, 'export'])->name('stocks.export');
 
+
+    Route::post('/update-prices/{stock}', [StockController::class, 'updatePrices'])->name('stock.update-prices');
+
+
 });
 
 //pagination routes

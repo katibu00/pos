@@ -549,7 +549,6 @@ class HomeController extends Controller
                 ->get();
         
             $todayReturns = Returns::where('branch_id', $branch_id)
-                ->whereNull('channel')
                 ->whereDate('created_at', today())
                 ->get();
         

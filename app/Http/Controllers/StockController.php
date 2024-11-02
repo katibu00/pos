@@ -10,6 +10,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Exports\StocksExport;
+use App\Models\Restock;
+use App\Models\RestockItem;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class StockController extends Controller
@@ -186,6 +189,56 @@ class StockController extends Controller
         $branches = \App\Models\Branch::select('id', 'name')->get();
         return view('stock.export', compact('branches'));
     }
+
+
+
+
+    public function updatePrices(Request $request, Stock $stock)
+{
+    $request->validate([
+        'old_buying_price' => 'required|numeric',
+        'old_selling_price' => 'required|numeric',
+        'new_buying_price' => 'required|numeric',
+        'new_selling_price' => 'required|numeric',
+    ]);
+
+    DB::beginTransaction();
+    try {
+        // Create a new direct restock
+        $restock = Restock::create([
+            'restock_number' => 'PR' . time(), // PR for Price Review
+            'type' => 'direct',
+            'status' => 'completed',
+            'total_cost' => 0,
+        ]);
+
+        // Create restock item for price change record
+        RestockItem::create([
+            'restock_id' => $restock->id,
+            'stock_id' => $stock->id,
+            'ordered_quantity' => 0,
+            'received_quantity' => 0,
+            'old_quantity' => $stock->quantity,
+            'old_buying_price' => $request->old_buying_price,
+            'new_buying_price' => $request->new_buying_price,
+            'old_selling_price' => $request->old_selling_price,
+            'new_selling_price' => $request->new_selling_price,
+            'price_changed' => true,
+        ]);
+
+        // Update stock prices
+        $stock->update([
+            'buying_price' => $request->new_buying_price,
+            'selling_price' => $request->new_selling_price,
+        ]);
+
+        DB::commit();
+        return response()->json(['success' => true, 'message' => 'Prices updated successfully']);
+    } catch (\Exception $e) {
+        DB::rollback();
+        return response()->json(['success' => false, 'message' => 'Error updating prices'], 500);
+    }
+}
     
 
 }

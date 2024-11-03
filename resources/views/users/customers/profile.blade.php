@@ -100,7 +100,7 @@
                                                                     'discount',
                                                                     'payment_method',
                                                                 )
-                                                                    ->where('return_no', $date->receipt_no)
+                                                                    ->where('return_no', 'R'.$date->receipt_no)
                                                                     ->get();
                                                             @endphp
                                                             <tr>
@@ -529,7 +529,7 @@
                                                 'discount',
                                                 'payment_method',
                                             )
-                                                ->where('return_no', $date->receipt_no)
+                                                ->where('return_no','R'. $date->receipt_no)
                                                 ->get();
 
                                             foreach ($sales as $sale) {

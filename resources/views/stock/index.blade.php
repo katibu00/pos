@@ -273,6 +273,8 @@ $(document).ready(function() {
         btn.prop('disabled', true);
         spinner.removeClass('d-none');
 
+        $.LoadingOverlay("show");
+
         $.ajax({
             url: `/inventory/update-prices/${stockId}`,
             method: 'POST',
@@ -288,12 +290,6 @@ $(document).ready(function() {
                     const updateBtn = $(`.update-prices[data-id="${stockId}"]`);
                     updateBtn.data('buying-price', newBuyingPrice);
                     updateBtn.data('selling-price', newSellingPrice);
-
-                    // Close modal
-                    $('#updatePricesModal').modal('hide');
-
-                    // Show success message
-                    alert('Prices updated successfully');
 
                     location.reload();
                     

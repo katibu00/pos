@@ -40,8 +40,8 @@
     <p><strong>Restock Number:</strong> {{ $restock->restock_number }}</p>
     <p><strong>Type:</strong> {{ ucfirst($restock->type) }}</p>
     <p><strong>Status:</strong> {{ ucfirst($restock->status) }}</p>
-    <p><strong>Supplier:</strong> {{ $restock->supplier->name ?? 'N/A' }}</p>
-    <p><strong>Total Cost:</strong> ${{ number_format($restock->total_cost, 2) }}</p>
+    <p><strong>Supplier:</strong> {{ $restock->supplier->first_name ?? 'N/A' }}</p>
+    {{-- <p><strong>Total Cost:</strong> ${{ number_format($restock->total_cost, 2) }}</p> --}}
 
     <h3>Restock Items</h3>
     <table>

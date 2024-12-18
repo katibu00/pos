@@ -69,11 +69,10 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Branch</th>
                                     <th>Category</th>
                                     <th>Amount</th>
                                     <th>Note</th>
-                                    <th>Admin</th>
+                                    <th>Recorded By</th>
                                 </tr>
                             </thead>
                             <tbody id="recentExpensesBody">

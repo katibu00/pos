@@ -249,7 +249,7 @@ class EstimateController extends Controller
         $request->validate([
             'product.*' => 'required|exists:stocks,id',
             'price.*' => 'required|numeric|min:0',
-            'quantity.*' => 'required|integer|min:1',
+            'quantity.*' => 'required|numeric|min:0.1',
             'discount.*' => 'nullable|numeric', // Added discount validation
             'estimate_no' => 'required',
             'labor_cost' => 'nullable|numeric|min:0',

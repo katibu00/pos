@@ -9,28 +9,6 @@ use Illuminate\Http\Request;
 
 class ExpenseRecordController extends Controller
 {
-    public function inadex()
-    {
-        $user = auth()->user();
-        $branches = $user->usertype === 'cashier' ? [$user->branch] : Branch::all();
-        $categories = ExpenseCategory::all();
-    
-        $query = ExpenseRecord::with('branch', 'category', 'user');
-    
-        if ($user->usertype === 'cashier') {
-            $query->where('user_id', $user->id);
-        }
-    
-        $recentExpenses = $query->latest()->paginate(10);
-    
-        $availableBalance = $user->branch->expense_balance;
-        $todayExpenses = $query->whereDate('created_at', today())->sum('amount');
-        $last30DaysExpenses = $query->whereDate('created_at', '>=', now()->subDays(30))->sum('amount');
-    
-        return view('expense.records', compact('branches', 'categories', 'recentExpenses', 'availableBalance', 'todayExpenses', 'last30DaysExpenses'));
-    }
-
-
 
 
     public function index()

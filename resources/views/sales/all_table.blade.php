@@ -62,7 +62,7 @@
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="#"
-                                    onclick="PrintReceiptContent('{{ $row->receipt_no }}')"><i class="fa fa-print"></i>
+                                    onclick="PrintReceiptContent('{{ $row->receipt_no,'Sales' }}')"><i class="fa fa-print"></i>
                                     Receipt</a>
                                 @if ($saled[0]->collected == 1)
                                     <a class="dropdown-item" href="#"

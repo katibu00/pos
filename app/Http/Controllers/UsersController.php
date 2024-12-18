@@ -462,13 +462,7 @@ class UsersController extends Controller
                 $returned_amount += ($sale->price * $sale->quantity - $sale->discount);
             }
         }
-        //   dd($remaining_balance);
-        //   if($returned_amount > $remaining_balance)
-        //   {
-        //     Toastr::error('Returned Amount Cannot Exceed Remaining Balance');
-        //     return redirect()->back();
-
-        //   }
+      
 
         $productCount = count($request->sale_id);
         if ($productCount != null) {
@@ -518,8 +512,8 @@ class UsersController extends Controller
                 }
             }
         }
-        Toastr::success('Credit Sales was Updated Successfully');
-        return redirect()->route('customers.profile', $fistRow->customer);
+        return response()->json(['message' => 'Credit Sales updated successfully']);
+
 
     }
 

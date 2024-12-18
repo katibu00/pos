@@ -28,17 +28,43 @@
     </li>
 
 
+
+
     <li
-        class="menu-item {{ $route == 'report.index' ? 'current' : '' }} {{ $route == 'report.generate' ? 'current' : '' }}">
-        <a class="menu-link" href="{{ route('report.index') }}">
-            <div>Report</div>
+    class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }} {{ $route == 'estimate.all.index' ? 'current' : '' }} {{ $route == 'fund_transfer.index' ? 'current' : '' }} {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
+    <a class="menu-link" href="#">
+        <div>Transactions</div>
+    </a>
+    <ul class="sub-menu-container">
+        <li class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('transactions.index') }}">
+                <div>Record Transactions</div>
+            </a>
+        </li>
+       
+        <li class="menu-item {{ $route == 'sales.all.index' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('sales.all.index') }}">
+                <div>View Sales</div>
+            </a>
+        </li>
+        <li class="menu-item {{ $route == 'estimate.all.index' ? 'current' : '' }}">
+            <a class="menu-link" href="{{ route('estimate.all.index') }}">
+                <div>View Estimates</div>
+            </a>
+        </li>
+    <li class="menu-item {{ $route == 'returns.all' ? 'current' : '' }}">
+        <a class="menu-link" href="{{ route('returns.all') }}">
+            <div>View Returns</div>
         </a>
     </li>
-    {{-- <li class="menu-item {{ $route == 'expense.index' ? 'current' : '' }} "><a class="menu-link"
-            href="{{ route('expense.index') }}">
-            <div>Expense</div>
-        </a></li> --}}
+    <li class="menu-item {{ $route == 'fund_transfer.index' ? 'current' : '' }}">
+        <a class="menu-link" href="{{ route('fund_transfer.index') }}">
+            <div>Funds Transfer</div>
+        </a>
+    </li>
 
+    </ul>
+</li>
 
     <li class="menu-item {{ request()->is('expenses*') ? 'current' : '' }}">
         <a class="menu-link" href="#">
@@ -61,6 +87,111 @@
                 </a>
             </li>
         </ul>
+    </li>
+
+
+
+
+    <li
+        class="menu-item {{ $route == 'customers.index' || $route == 'admin.salary_advance.index' || $route == 'customers.profile' || $route == 'suppliers.index' || $route == 'debtors.index' || $route == 'users.index' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Users</div>
+        </a>
+        <ul class="sub-menu-container">
+
+            <li
+                class="menu-item {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('customers.index') }}">
+                    <div>Customers</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('users.index') }}">
+                    <div>Staff</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ $route == 'suppliers.index' ? 'current' : '' }} {{ $route == 'suppliers.edit' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('suppliers.index') }}">
+                    <div>Suppliers</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ $route == 'cash_credits.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('cash_credits.index') }}">
+                    <div>Cash Credits</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'admin.salary_advance.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('admin.salary_advance.index') }}">
+                    <div>Salary Advance</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'debtors.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('debtors.index') }}">
+                    <div>Debtors</div>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }} {{ $route == 'stocks.exportView' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Inventory</div>
+        </a>
+        <ul class="sub-menu-container">
+           
+            <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('stock.index') }}">
+                    <div>Inventory</div>
+                </a>
+            </li>
+           
+            <li class="menu-item {{ $route == 'stocks.exportView' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('stocks.exportView') }}">
+                    <div>Export</div>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+
+    <li class="menu-item {{ $prefix == '/restock' ? 'current' : '' }}">
+        <a class="menu-link" href="#">
+            <div>Restock</div>
+        </a>
+        <ul class="sub-menu-container">
+            <li class="menu-item {{ $route == 'restock.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.index') }}">
+                    <div>Restock by Reorder</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'restock.create.planned' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.create.planned') }}">
+                    <div>Restock From Warehouse</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'stock-transfers.index' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('stock-transfers.index') }}">
+                    <div>Inter-Branch Transfer</div>
+                </a>
+            </li>
+            <li class="menu-item {{ $route == 'restock.create.direct' ? 'current' : '' }}">
+                <a class="menu-link" href="{{ route('restock.create.direct') }}">
+                    <div>Report</div>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    
+    <li
+        class="menu-item {{ $route == 'report.index' ? 'current' : '' }} {{ $route == 'report.generate' ? 'current' : '' }}">
+        <a class="menu-link" href="{{ route('report.index') }}">
+            <div>Report</div>
+        </a>
     </li>
 
     <li
@@ -111,140 +242,6 @@
 
         </ul>
     </li> --}}
-
-
-    <li class="menu-item {{ $prefix == '/restock' ? 'current' : '' }}">
-        <a class="menu-link" href="#">
-            <div>Restock</div>
-        </a>
-        <ul class="sub-menu-container">
-            <li class="menu-item {{ $route == 'restock.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('restock.index') }}">
-                    <div>Restock by Reorder</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'restock.create.planned' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('restock.create.planned') }}">
-                    <div>Restock From Warehouse</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'stock-transfers.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('stock-transfers.index') }}">
-                    <div>Inter-Branch Transfer</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'restock.create.direct' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('restock.create.direct') }}">
-                    <div>Report</div>
-                </a>
-            </li>
-        </ul>
-    </li>
-
-
-
-    <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }} {{ $route == 'stocks.exportView' ? 'current' : '' }}">
-        <a class="menu-link" href="#">
-            <div>Inventory</div>
-        </a>
-        <ul class="sub-menu-container">
-           
-            <li class="menu-item {{ $route == 'stock.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('stock.index') }}">
-                    <div>Inventory</div>
-                </a>
-            </li>
-           
-            <li class="menu-item {{ $route == 'stocks.exportView' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('stocks.exportView') }}">
-                    <div>Export</div>
-                </a>
-            </li>
-
-        </ul>
-    </li>
-
-    <li
-        class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }} {{ $route == 'estimate.all.index' ? 'current' : '' }} {{ $route == 'fund_transfer.index' ? 'current' : '' }} {{ $route == 'sales.all.index' ? 'current' : '' }} {{ $route == 'credit.index' ? 'current' : '' }}">
-        <a class="menu-link" href="#">
-            <div>Transactions</div>
-        </a>
-        <ul class="sub-menu-container">
-            <li class="menu-item {{ $route == 'transactions.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('transactions.index') }}">
-                    <div>Record Transactions</div>
-                </a>
-            </li>
-           
-            <li class="menu-item {{ $route == 'sales.all.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('sales.all.index') }}">
-                    <div>View Sales</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'estimate.all.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('estimate.all.index') }}">
-                    <div>View Estimates</div>
-                </a>
-            </li>
-        <li class="menu-item {{ $route == 'returns.all' ? 'current' : '' }}">
-            <a class="menu-link" href="{{ route('returns.all') }}">
-                <div>View Returns</div>
-            </a>
-        </li>
-        <li class="menu-item {{ $route == 'fund_transfer.index' ? 'current' : '' }}">
-            <a class="menu-link" href="{{ route('fund_transfer.index') }}">
-                <div>Funds Transfer</div>
-            </a>
-        </li>
-
-        </ul>
-    </li>
-
-
-    <li
-        class="menu-item {{ $route == 'customers.index' || $route == 'admin.salary_advance.index' || $route == 'customers.profile' || $route == 'suppliers.index' || $route == 'debtors.index' || $route == 'users.index' ? 'current' : '' }}">
-        <a class="menu-link" href="#">
-            <div>Users</div>
-        </a>
-        <ul class="sub-menu-container">
-
-            <li
-                class="menu-item {{ $route == 'customers.index' ? 'current' : '' }} {{ $route == 'customers.profile' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('customers.index') }}">
-                    <div>Customers</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ $route == 'users.index' ? 'current' : '' }} {{ $route == 'users.edit' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('users.index') }}">
-                    <div>Staff</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ $route == 'suppliers.index' ? 'current' : '' }} {{ $route == 'suppliers.edit' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('suppliers.index') }}">
-                    <div>Suppliers</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ $route == 'cash_credits.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('cash_credits.index') }}">
-                    <div>Cash Credits</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'admin.salary_advance.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('admin.salary_advance.index') }}">
-                    <div>Salary Advance</div>
-                </a>
-            </li>
-            <li class="menu-item {{ $route == 'debtors.index' ? 'current' : '' }}">
-                <a class="menu-link" href="{{ route('debtors.index') }}">
-                    <div>Debtors</div>
-                </a>
-            </li>
-        </ul>
-    </li>
-
 
 
     <li class="menu-item {{ $prefix == '/warehouse' ? 'current' : '' }}">

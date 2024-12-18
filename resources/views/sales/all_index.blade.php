@@ -72,10 +72,12 @@
 
 
     <script>
-        function PrintReceiptContent(receipt_no) {
-            data = {
+              
+              function PrintReceiptContent(receipt_no, transaction_type) {
+            var data = {
                 'receipt_no': receipt_no,
-            }
+                'transaction_type': transaction_type,
+            };
 
             $.ajaxSetup({
                 headers: {
@@ -90,92 +92,85 @@
                 success: function(res) {
                     var html = '';
                     var total = 0;
+                    var paidAmount = res.paid_amount || 0;
 
                     $.each(res.items, function(key, item) {
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td style="text-align: left"><span style="font-size: 12px;">' + item
-                            .product.name + '</span></td>' +
-                            '<td style="font-size: 12px;">' + item.quantity + '</td>' +
-                            '<td style="font-size: 12px;">' + item.price.toLocaleString() + '</td>' +
-                            '<td style="font-size: 12px;">' + (item.quantity * item.price)
-                            .toLocaleString() + '</td>' +
+                        var productName = item.product.name;
+                        var quantity = item.quantity;
+                        var price = item.price;
+                        var totalPrice = quantity * price;
+
+                        html += '<tr style="text-align: center">' +
+                            '<td style="text-align: left"><span style="font-size: 12px;">' +
+                            productName + '</span></td>' +
+                            '<td style="font-size: 12px;">' + quantity + '</td>' +
+                            '<td style="font-size: 12px;">' + price.toLocaleString() + '</td>' +
+                            '<td style="font-size: 12px;">' + totalPrice.toLocaleString() + '</td>' +
                             '</tr>';
-                        total += item.quantity * item.price;
+                        total += totalPrice;
                     });
 
-                    if (res.items[0].labor_cost !== null) {
-                        var laborCost = parseInt(res.items[0]
-                        .labor_cost); // Convert labor cost from string to integer
+                    var laborCost = res.items[0].labor_cost ? parseInt(res.items[0].labor_cost) : 0;
+                    if (laborCost) {
+                        var subTotal = total;
+                        total += laborCost;
 
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Sub-total</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '<td><b>&#8358;' + subTotal.toLocaleString() + '</b></td>' +
                             '</tr>';
 
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
                             '<td colspan="2"><b>Labor Cost</b></td>' +
                             '<td><b>&#8358;' + laborCost.toLocaleString() + '</b></td>' +
                             '</tr>';
+                    }
 
-                        total += laborCost; // Add labor cost to the total
+                    html += '<tr style="text-align: center">' +
+                        '<td></td>' +
+                        '<td colspan="2"><b>Total Amount</b></td>' +
+                        '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                        '</tr>';
 
-                        html +=
-                            '<tr style="text-align: center">' +
+                    if (paidAmount > 0) {
+                        var balance = total - paidAmount;
+
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
-                            '<td colspan="2"><b>Total</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '<td colspan="2"><b>Amount Paid</b></td>' +
+                            '<td><b>&#8358;' + paidAmount.toLocaleString() + '</b></td>' +
                             '</tr>';
 
-                        html +=
-                            '<tr style="text-align: center">' +
-                            '<td colspan="4"><i>Labor cost is separate, not related to the above company.</i></td>' +
-                            '</tr>';
-                    } else {
-                        html +=
-                            '<tr style="text-align: center">' +
+                        html += '<tr style="text-align: center">' +
                             '<td></td>' +
-                            '<td colspan="2"><b>Total Amount</b></td>' +
-                            '<td><b>&#8358;' + total.toLocaleString() + '</b></td>' +
+                            '<td colspan="2"><b>Balance</b></td>' +
+                            '<td><b>&#8358;' + balance.toLocaleString() + '</b></td>' +
                             '</tr>';
                     }
 
                     $('#receipt_body').html(html);
-                    $('.tran_id').html('S' + res.items[0].receipt_no);
+                    $('#transaction_type_span').html('<u>' + transaction_type + ' Receipt</u>');
+                    $('#transaction_date_span').text(res.transaction_date);
 
-                    var data = document.getElementById('print').innerHTML;
+                    var printableContent = document.getElementById('print').innerHTML;
 
-                    var myReceipt = window.open("", "myWin", "left=150, top=130,width=300, height=400");
-
-                    myReceipt.screenX = 0;
-                    myReceipt.screenY = 0;
-                    myReceipt.document.write(data);
-                    myReceipt.document.title = "Print Estimate Certificate";
-                    myReceipt.focus();
-                    myReceipt.print();
+                    var printWindow = window.open("", "myWin", "left=150, top=130, width=300, height=400");
+                    printWindow.document.write(printableContent);
+                    printWindow.document.title = "Print Estimate Certificate";
+                    printWindow.focus();
+                    printWindow.print();
                 },
-
                 error: function(xhr, ajaxOptions, thrownError) {
                     if (xhr.status === 419) {
-                        Command: toastr["error"](
-                            "Session expired. please login again."
-                        );
-                        
-                        setTimeout(() => {
+                        toastr.error("Session expired. Please login again.");
+                        setTimeout(function() {
                             window.location.replace('{{ route('login') }}');
                         }, 2000);
                     }
                 },
             });
-
-
-            setTimeout(() => {
-                // myReceipt.close();
-            }, 8000);
         }
     </script>
 

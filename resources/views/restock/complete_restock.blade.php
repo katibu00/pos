@@ -15,14 +15,14 @@
                     <div class="row">
                         <div class="form-group col-md-6 mb-3">
                             <label for="storage_location">Storage Location:</label>
-                            <select name="storage_location" id="storage_location" class="form-control" required>
+                            <select name="storage_location" id="storage_location" class="form-select" required>
                                 <option value="shop">Shop</option>
                                 <option value="warehouse">Warehouse</option>
                             </select>
                         </div>
                         <div class="form-group col-md-6 mb-3">
                             <label for="branch_id">Branch:</label>
-                            <select name="branch_id" id="branch_id" class="form-control" required>
+                            <select name="branch_id" id="branch_id" class="form-select" required>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                                 @endforeach

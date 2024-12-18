@@ -125,8 +125,8 @@
                 <th>Qty</th>
                 <th>Price</th>
                 <th>Total</th>
-                <th>Discount</th>
-                <th>Discounted Total</th>
+                {{-- <th>Discount</th> --}}
+                {{-- <th>Discounted Total</th> --}}
             </tr>
         </thead>
         <tbody id="receipt_body"></tbody>

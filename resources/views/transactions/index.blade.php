@@ -647,6 +647,37 @@
             }
 
 
+            // Listen for changes in the transaction type
+            $("input[name='transaction_type']").change(function() {
+                transactionType = $(this).val();
+            });
+
+            // Function to check if the entered quantity exceeds available stock
+            function checkAvailableQuantity($row) {
+                var enteredQuantity = parseFloat($row.find('.quantity').val()) || 0;
+                var availableQuantity = parseFloat($row.find('input[name="remaining_quantity[]"]').val()) || 0;
+                
+                if (enteredQuantity > availableQuantity) {
+                    // Alert the user and reset the entered quantity
+                    alert('Entered quantity exceeds available stock. Available quantity: ' + availableQuantity);
+                    $row.find('.quantity').val(availableQuantity); // Reset to available quantity
+                }
+            }
+
+            // Event listener for quantity input fields
+            $productTable.on('input', '.quantity', function() {
+                var $row = $(this).closest('tr');
+
+                if (transactionType === "sales" || !transactionType) {
+                        checkAvailableQuantity($row); // Perform the check
+                    }
+
+                var rowTotal = calculateRowTotal($row);
+                $row.find('.total').text(rowTotal);
+                updateTotalAmount();
+            });
+
+
 
             function updateSerialNumbers() {
                 $productTable.find('.sn-column').each(function(index) {

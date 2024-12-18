@@ -529,6 +529,25 @@
         });
 
         function addProductToTable(productId) {
+        // Check if the product already exists in the table
+        var productExists = false;
+        $('.modaltbody tr').each(function() {
+            var existingProductId = $(this).find('input[name="product[]"]').val();
+            if (existingProductId == productId) {
+                productExists = true;
+                return false;  // Exit the loop early if the product is found
+            }
+        });
+
+        if (productExists) {
+            // Show a SweetAlert warning if the product already exists
+            Swal.fire({
+                icon: 'warning',
+                title: 'Product Already Added',
+                text: 'This product is already in the estimate table.',
+            });
+        } else {
+            // If the product doesn't exist, add it to the table
             var selectedProduct = products.find(product => product.id == productId);
 
             var newRow = '<tr>';
@@ -548,6 +567,7 @@
 
             $('.modaltbody').prepend(newRow);
 
+            // Attach events to remove row and update total price
             $('.removeRow').on('click', function() {
                 $(this).closest('tr').remove();
                 updateTotalPrice();
@@ -559,6 +579,8 @@
 
             updateTotalPrice();
         }
+    }
+
 
      
 
@@ -591,6 +613,9 @@
             var modal = $('#editEstimateModal');
             var formData = modal.find('form').serialize();
 
+            $.LoadingOverlay("show");
+
+
             // Use AJAX to send updated data to the server
             $.ajax({
                 url: '/estimate/update',
@@ -600,7 +625,13 @@
                     // Handle success response
                     modal.modal('hide');
                     $('.maintable').load(location.href + ' .maintable');
-                    toastr.success('Estimates updated successfully');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Estimates updated successfully',
+                    });                    
+                    $.LoadingOverlay("hide");
+
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);

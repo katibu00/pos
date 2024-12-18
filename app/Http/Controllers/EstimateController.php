@@ -134,7 +134,7 @@ class EstimateController extends Controller
                 } else {
                     $data->customer = $estimate->customer;
                 }
-                $data->note = null;
+                $data->note = $estimate->note;
                 $data->save();
 
                 $product->quantity -= $estimate->quantity;

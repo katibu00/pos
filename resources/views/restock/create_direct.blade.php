@@ -187,6 +187,13 @@ $(document).ready(function() {
 
    // Modify the addStockToTable function
    function addStockToTable(stock) {
+
+   // Check if the stock already exists in the table
+   if ($(`#restockTable tbody tr[data-stock-id="${stock.id}"]`).length > 0) {
+        alert('This stock has already been added!');
+        return;
+    }
+
     const row = `
         <tr data-stock-id="${stock.id}">
             <td>${stock.name}</td>
@@ -229,6 +236,15 @@ $(document).ready(function() {
 // Update the input change handler
 $(document).on('input', '.new-buying-price, .new-selling-price', function() {
     const row = $(this).closest('tr');
+    const newBuyingPrice = parseFloat(row.find('.new-buying-price').val());
+    const newSellingPrice = parseFloat(row.find('.new-selling-price').val());
+
+    // Check if selling price is below buying price
+    if (newSellingPrice < newBuyingPrice) {
+        alert('Selling price cannot be lower than buying price!');
+        $(this).val(''); // Clear the input
+    }
+
     updateRowStyle(row);
     updateSummary();
 });

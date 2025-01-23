@@ -412,6 +412,9 @@ Route::prefix('restock')->group(function () {
     Route::get('/planned/create', [RestockController::class, 'createPlanned'])->name('restock.create.planned');
     Route::post('/planned', [RestockController::class, 'storePlanned'])->name('restock.store.planned');
     Route::get('/fetch-stocks', [RestockController::class, 'fetchStocks'])->name('restock.fetch.stocks');
+
+    Route::get('/planned/{restock}/edit', [RestockController::class, 'editPlanned'])->name('restock.edit.planned');
+    Route::put('/planned/{restock}', [RestockController::class, 'updatePlanned'])->name('restock.update.planned');
     
     Route::get('/planned/{restock}/complete', [RestockController::class, 'showCompleteForm'])->name('restock.complete.form');
     Route::post('/planned/{restock}/complete', [RestockController::class, 'completeRestock'])->name('restock.complete');

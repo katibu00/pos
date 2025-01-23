@@ -26,12 +26,12 @@ class ExpenseDepositController extends Controller
 
     public function store(Request $request)
     {
+       
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:1000',
             'note' => 'nullable|string',
         ]);
-
         $deposit = ExpenseDeposit::create([
             'branch_id' => $validated['branch_id'],
             'amount' => $validated['amount'],

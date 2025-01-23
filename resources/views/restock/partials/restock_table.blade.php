@@ -40,6 +40,13 @@
                         <li><a class="dropdown-item download-pdf" href="#" data-restock-id="{{ $restock->id }}">
                             <i class="fas fa-file-pdf"></i> Download PDF
                         </a></li>
+                        @if($restock->status == 'pending' && $restock->type == 'planned')
+                        <li>
+                            <a class="dropdown-item" href="{{ route('restock.edit.planned', $restock->id) }}">
+                                <i class="fas fa-edit"></i> Edit Restock
+                            </a>
+                        </li>
+                        @endif
                     </ul>
                     
                 </div>

@@ -439,4 +439,87 @@ class RestockController extends Controller
 
 
 
+
+    public function editPlanned(Restock $restock)
+    {
+        $suppliers = User::where('usertype', 'supplier')->get();
+        $restockItems = $restock->items()->with('stock')->get();
+    
+        return view('restock.edit_planned', compact('restock', 'suppliers', 'restockItems'));
+    }
+
+    public function updatePlanned(Request $request, Restock $restock)
+    {
+        // Validate base request
+        $request->validate([
+            'supplier_id' => 'nullable|exists:users,id',
+            'stocks' => 'required|array|min:1',
+            'stocks.*.id' => 'required|exists:stocks,id',
+            'stocks.*.quantity' => 'required|integer|min:1',
+        ]);
+    
+        DB::beginTransaction();
+    
+        try {
+            // Update supplier if changed
+            $restock->update([
+                'supplier_id' => $request->supplier_id,
+            ]);
+    
+            // Track current restock items
+            $currentItemIds = $restock->items->pluck('stock_id')->toArray();
+            $incomingStockIds = array_column($request->stocks, 'id');
+    
+            // Identify items to delete (in current items but not in incoming)
+            $itemsToDelete = array_diff($currentItemIds, $incomingStockIds);
+            
+            // Remove items not in new selection
+            if (!empty($itemsToDelete)) {
+                RestockItem::where('restock_id', $restock->id)
+                    ->whereIn('stock_id', $itemsToDelete)
+                    ->delete();
+            }
+    
+            $totalCost = 0;
+    
+            // Process incoming stocks
+            foreach ($request->stocks as $stockData) {
+                $stock = Stock::findOrFail($stockData['id']);
+                $quantity = $stockData['quantity'];
+    
+                // Update or create restock item
+                $restockItem = RestockItem::updateOrCreate(
+                    [
+                        'restock_id' => $restock->id,
+                        'stock_id' => $stock->id
+                    ],
+                    [
+                        'ordered_quantity' => $quantity,
+                        'old_buying_price' => $stock->buying_price,
+                        'new_buying_price' => $stock->buying_price,
+                        'old_selling_price' => $stock->selling_price,
+                        'new_selling_price' => $stock->selling_price,
+                    ]
+                );
+    
+                $totalCost += $quantity * $stock->buying_price;
+            }
+    
+            // Update total cost
+            $restock->update(['total_cost' => $totalCost]);
+    
+            DB::commit();
+    
+            return redirect()->route('restock.index')
+                ->with('success', 'Planned restock updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return back()->with('error', 'Error updating restock: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+
+
 }

@@ -4,12 +4,13 @@
             <tr>
                 <th scope="col" class="text-center">#</th>
                 <th scope="col">Date</th>
-                <th scope="col">Name</th>
+                <th scope="col">Customer</th>
                 <th scope="col" class="text-center">Amount (&#8358;)</th>
                 <th scope="col" class="text-center">Discount (&#8358;)</th>
                 <th scope="col" class="text-center">Discounted Amount (&#8358;)</th>
                 <th scope="col">Note</th>
                 <th scope="col">Collected?</th>
+                <th scope="col">Cashier</th>
                 <th scope="col" class="text-center">Action</th>
             </tr>
         </thead>
@@ -18,7 +19,7 @@
                 @php
                     $total_amount = 0;
                     $total_discount = 0;
-                    $saled = App\Models\Sale::select('price', 'quantity', 'discount', 'customer', 'created_at', 'receipt_no', 'note', 'collected')
+                    $saled = App\Models\Sale::select('price', 'quantity', 'discount', 'customer','user_id', 'created_at', 'receipt_no', 'note', 'collected')
                         ->where('receipt_no', $row->receipt_no)
                         ->with('buyer')
                         ->get();
@@ -52,6 +53,7 @@
                                 class="badge bg-danger">Awaiting</span>
                         @endif
                     </td>
+                    <td>{{ $saled[0]->user->first_name.' '.$saled[0]->user->last_name }}</td>
                     <td class="text-center">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"

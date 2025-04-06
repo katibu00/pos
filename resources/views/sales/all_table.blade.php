@@ -11,6 +11,7 @@
                 <th scope="col">Note</th>
                 <th scope="col">Collected?</th>
                 <th scope="col">Cashier</th>
+                <th scope="col" class="text-center">Awaiting Pickup</th>
                 <th scope="col" class="text-center">Action</th>
             </tr>
         </thead>
@@ -55,6 +56,13 @@
                     </td>
                     <td>{{ $saled[0]->user->first_name.' '.$saled[0]->user->last_name }}</td>
                     <td class="text-center">
+                        @if(isset($awaitingPickups[$row->receipt_no]) && $awaitingPickups[$row->receipt_no] > 0)
+                            <span class="badge bg-warning">{{ $awaitingPickups[$row->receipt_no] }} items</span>
+                        @else
+                            <span class="badge bg-success">None</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -67,16 +75,22 @@
                                     onclick="PrintReceiptContent('{{ $row->receipt_no,'Sales' }}')"><i class="fa fa-print"></i>
                                     Receipt</a>
                                 @if ($saled[0]->collected == 1)
-                                    <a class="dropdown-item" href="#"
+                                    {{-- <a class="dropdown-item" href="#"
                                         onclick="confirmPickup('{{ $row->receipt_no }}')">
                                         <i class="fa fa-truck"></i> Awaiting Pickup
-                                    </a>
+                                    </a> --}}
                                 @else
                                     <a class="dropdown-item" href="#"
                                         onclick="confirmDeliver('{{ $row->receipt_no }}')">
-                                        <i class="fas fa-shipping-fast"></i> Deliver
+                                        <i class="fas fa-shipping-fast"></i> Deliver (old)
                                     </a>
                                 @endif
+                                <a class="dropdown-item" href="#" onclick="markAsAwaitingPickup('{{ $row->receipt_no }}')">
+                                    <i class="fa fa-box"></i> Mark for Pickup
+                                </a>
+                                <a class="dropdown-item" href="#" onclick="deliverItems('{{ $row->receipt_no }}')">
+                                    <i class="fa fa-truck"></i> Deliver Items
+                                </a>
                             </div>
                         </div>
                     </td>

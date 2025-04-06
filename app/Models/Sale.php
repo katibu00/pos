@@ -12,6 +12,9 @@ class Sale extends Model
     public function product(){
         return $this->belongsTo(Stock::class, 'stock_id','id');
     }
+    public function stock(){
+        return $this->belongsTo(Stock::class, 'stock_id','id');
+    }
     public function user(){
         return $this->belongsTo(User::class, 'user_id','id');
     }

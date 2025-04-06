@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AwaitingPickup;
 use App\Models\CashCredit;
 use App\Models\CashCreditPayment;
 use App\Models\Estimate;
@@ -647,11 +648,37 @@ class SalesController extends Controller
         ]);
     }
 
+    // public function allIndex()
+    // {
+    //     $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id', auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
+    //     $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
+
+    //     return view('sales.all_index', $data);
+    // }
+
+
     public function allIndex()
     {
-        $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id', auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
-        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
-
+        $data['sales'] = Sale::select('stock_id', 'receipt_no')
+            ->where('branch_id', auth()->user()->branch_id)
+            ->groupBy('receipt_no')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        
+        // Get all awaiting pickups for these receipt numbers
+        $receiptNumbers = $data['sales']->pluck('receipt_no')->toArray();
+        $awaitingPickups = AwaitingPickup::whereIn('receipt_no', $receiptNumbers)
+            ->where('status', 'awaiting')
+            ->selectRaw('receipt_no, COUNT(*) as count, SUM(quantity) as total_quantity')
+            ->groupBy('receipt_no')
+            ->pluck('total_quantity', 'receipt_no')
+            ->toArray();
+        
+        $data['awaitingPickups'] = $awaitingPickups;
+        $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])
+            ->where('branch_id', auth()->user()->branch_id)
+            ->get();
+        
         return view('sales.all_index', $data);
     }
 
@@ -708,45 +735,79 @@ class SalesController extends Controller
     public function markAwaitingPickup(Request $request)
     {
         $receiptNo = $request->receiptNo;
-
+        
         $sales = Sale::where('receipt_no', $receiptNo)->get();
-
+        
         foreach ($sales as $sale) {
             $sale->collected = 0;
             $sale->save();
-
+            
             $stock = Stock::find($sale->stock_id);
             $stock->pending_pickups += $sale->quantity;
             $stock->save();
         }
-
+        
         return response()->json([
             'status' => 200,
             'message' => 'Items marked as awaiting pickup successfully.',
         ]);
     }
-
+    
     public function markDeliver(Request $request)
     {
         $receiptNo = $request->receiptNo;
-
-        $sales = Sale::where('receipt_no', $receiptNo)
-            ->where('collected', 0)
-            ->get();
-
-        foreach ($sales as $sale) {
-            $sale->collected = 1;
-            $sale->update();
-
-            $stock = Stock::find($sale->stock_id);
-            $stock->pending_pickups -= $sale->quantity;
-            $stock->update();
+        
+        // Begin transaction
+        DB::beginTransaction();
+        
+        try {
+            $sales = Sale::where('receipt_no', $receiptNo)
+                ->where('collected', 0)
+                ->get();
+            
+            // First, check if there's enough inventory for all items
+            foreach ($sales as $sale) {
+                $stock = Stock::find($sale->stock_id);
+                
+                if ($stock->quantity < $sale->quantity) {
+                    // Not enough inventory, rollback and return error
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 400,
+                        'message' => "Insufficient inventory for {$stock->name}. Available: {$stock->quantity}, Required: {$sale->quantity}",
+                    ]);
+                }
+            }
+            
+            // If we get here, we have enough inventory for all items
+            foreach ($sales as $sale) {
+                $stock = Stock::find($sale->stock_id);
+                
+                // Update sale status
+                $sale->collected = 1;
+                $sale->save();
+                
+                // Reduce inventory and pending pickups
+                $stock->quantity -= $sale->quantity;
+                $stock->pending_pickups -= $sale->quantity;
+                $stock->save();
+            }
+            
+            // Commit the transaction
+            DB::commit();
+            
+            return response()->json([
+                'status' => 200,
+                'message' => 'Sales marked as delivered successfully',
+            ]);
+        } catch (\Exception $e) {
+            // Something went wrong, rollback
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ]);
         }
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Sales marked as delivered successfully',
-        ]);
     }
 
 }

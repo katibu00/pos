@@ -17,16 +17,82 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class StockController extends Controller
 {
+    // public function index()
+    // {
+    //     $data['stocks'] = Stock::where('branch_id', 0)->paginate(25);
+    //     if (in_array(auth()->user()->id, [4, 443])) {
+    //         $data['branches'] = Branch::all();
+    //     } else {
+    //         $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
+    //     }
+    //     return view('stock.index', $data);
+    // }
+
     public function index()
-    {
-        $data['stocks'] = Stock::where('branch_id', 0)->paginate(25);
-        if (in_array(auth()->user()->id, [4, 443])) {
-            $data['branches'] = Branch::all();
-        } else {
-            $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
-        }
-        return view('stock.index', $data);
+{
+    $data['stocks'] = $this->getStocksWithAwaitingDelivery(Stock::where('branch_id', 0));
+    
+    if (in_array(auth()->user()->id, [4, 443])) {
+        $data['branches'] = Branch::all();
+    } else {
+        $data['branches'] = Branch::where('id', auth()->user()->branch_id)->get();
     }
+    return view('stock.index', $data);
+}
+
+public function fetchStocks(Request $request)
+{
+    $data['stocks'] = $this->getStocksWithAwaitingDelivery(Stock::where('branch_id', $request->branch_id));
+    return view('stock.table', $data)->render();
+}
+
+public function paginate(Request $request)
+{
+    $data['stocks'] = $this->getStocksWithAwaitingDelivery(Stock::where('branch_id', $request->branch_id));
+    return view('stock.table', $data)->render();
+}
+
+public function Search(Request $request)
+{
+    $query = Stock::where('branch_id', $request->branch_id)
+                  ->where('name', 'like', '%' . $request['query'] . '%');
+    
+    $data['stocks'] = $this->getStocksWithAwaitingDelivery($query);
+    
+    if ($data['stocks']->count() > 0) {
+        return view('stock.table', $data)->render();
+    } else {
+        return response()->json([
+            'status' => 404,
+        ]);
+    }
+}
+
+// Helper method to add awaiting delivery data to stocks
+private function getStocksWithAwaitingDelivery($query)
+{
+    // Get stocks with pagination
+    $stocks = $query->paginate(25);
+    
+    // Get all stock IDs from the current page
+    $stockIds = $stocks->pluck('id')->toArray();
+    
+    // Get awaiting delivery quantities for these stocks
+    $awaitingDeliveries = \DB::table('awaiting_pickups')
+        ->whereIn('stock_id', $stockIds)
+        ->where('status', 'awaiting')  
+        ->selectRaw('stock_id, SUM(quantity) as awaiting_delivery')
+        ->groupBy('stock_id')
+        ->pluck('awaiting_delivery', 'stock_id')
+        ->toArray();
+    
+    // Add the awaiting delivery data to each stock
+    foreach ($stocks as $stock) {
+        $stock->awaiting_delivery = $awaitingDeliveries[$stock->id] ?? 0;
+    }
+    
+    return $stocks;
+}
 
     public function store(Request $request)
     {
@@ -110,32 +176,32 @@ class StockController extends Controller
         ]);
     }
 
-    public function fetchStocks(Request $request)
-    {
-        $data['stocks'] = Stock::where('branch_id', $request->branch_id)->paginate(25);
-        return view('stock.table', $data)->render();
+    // public function fetchStocks(Request $request)
+    // {
+    //     $data['stocks'] = Stock::where('branch_id', $request->branch_id)->paginate(25);
+    //     return view('stock.table', $data)->render();
 
-    }
+    // }
 
-    public function paginate(Request $request)
-    {
-        $data['stocks'] = Stock::where('branch_id', $request->branch_id)->paginate(25);
-        return view('stock.table', $data)->render();
-    }
+    // public function paginate(Request $request)
+    // {
+    //     $data['stocks'] = Stock::where('branch_id', $request->branch_id)->paginate(25);
+    //     return view('stock.table', $data)->render();
+    // }
 
-    public function Search(Request $request)
-    {
+    // public function Search(Request $request)
+    // {
 
-        $data['stocks'] = Stock::where('branch_id', $request->branch_id)->where('name', 'like', '%' . $request['query'] . '%')->paginate(25);
+    //     $data['stocks'] = Stock::where('branch_id', $request->branch_id)->where('name', 'like', '%' . $request['query'] . '%')->paginate(25);
 
-        if ($data['stocks']->count() > 0) {
-            return view('stock.table', $data)->render();
-        } else {
-            return response()->json([
-                'status' => 404,
-            ]);
-        }
-    }
+    //     if ($data['stocks']->count() > 0) {
+    //         return view('stock.table', $data)->render();
+    //     } else {
+    //         return response()->json([
+    //             'status' => 404,
+    //         ]);
+    //     }
+    // }
 
     public function correctIndex()
     {

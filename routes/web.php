@@ -185,6 +185,26 @@ Route::group(['prefix' => 'transactions', 'middleware' => ['auth', 'staff']], fu
 
 });
 
+
+
+// Route to get sale details for the modal
+Route::get('/get-sale-details/{receipt_no}', [App\Http\Controllers\PickupController::class, 'getSaleDetails'])->name('get-sale-details');
+
+// Route to mark items as awaiting pickup
+Route::post('/mark-awaiting-pickup', [App\Http\Controllers\PickupController::class, 'markAsAwaitingPickup'])->name('mark-awaiting-pickup');
+
+// Route to deliver items
+Route::post('/deliver-items', [App\Http\Controllers\PickupController::class, 'deliverItems'])->name('deliver-items');
+
+// Route to view awaiting pickup items
+Route::get('/awaiting-pickups', [App\Http\Controllers\PickupController::class, 'index'])->name('awaiting-pickups.index');
+
+// Route to get specific awaiting pickup details
+Route::get('/get-awaiting-pickup/{receipt_no}', [App\Http\Controllers\PickupController::class, 'getAwaitingPickup'])->name('get-awaiting-pickup');
+
+
+
+
 Route::group(['prefix' => 'estimate', 'middleware' => ['auth', 'staff']], function () {
     Route::get('/index', [EstimateController::class, 'index'])->name('estimate.index');
     Route::post('/store', [EstimateController::class, 'store'])->name('estimate.store');

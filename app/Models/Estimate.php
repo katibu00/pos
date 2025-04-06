@@ -28,4 +28,7 @@ class Estimate extends Model
     public function buyer(){
         return $this->belongsTo(User::class, 'customer','id');
     }
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id','id');
+    }
 }

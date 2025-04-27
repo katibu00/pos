@@ -97,18 +97,17 @@
         </svg>
         </div>
         <div class="business-name">EL-Habib Plumbing Materials and Services - {{ auth()->user()->branch->name }} Branch</div>
-        @if (auth()->user()->branch->name == 'Azare')
-        <div class="contact-details">
-            Address: Along Ali Kwara Hospital, Azare.<br>
-            Phone: 0916-844-3058<br>
-            Email: support@elhabibplumbing.com<br>
-            Website: www.elhabibplumbing.com
-        </div>
-        @endif
         @if (auth()->user()->branch->name == 'Misau')
         <div class="contact-details">
             Address: Kofar Yamma, Misau, Bauchi State<br>
             Phone: 0901-782-0678<br>
+            Email: support@elhabibplumbing.com<br>
+            Website: www.elhabibplumbing.com
+        </div>
+        @else
+        <div class="contact-details">
+            Address: Along Ali Kwara Hospital, Azare.<br>
+            Phone: 0916-844-3058<br>
             Email: support@elhabibplumbing.com<br>
             Website: www.elhabibplumbing.com
         </div>

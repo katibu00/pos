@@ -277,13 +277,13 @@
                                                             <div class="form-group">
                                                                 <label for="customer_id">Customer Name</label>
                                                                 <div class="input-group">
-                                                                    <select class="form-control select2" name="customer_id" id="customer_id">
+                                                                    <select class="form-control select2" name="customer" id="customer">
                                                                         <option value="0">Walk-in Customer</option>
                                                                         @foreach ($customers as $customer)
-                                                                        <option value="{{ $customer->id }}">
-                                                                            {{ $customer->first_name . ' ' . $customer->last_name }}
-                                                                        </option>
-                                                                    @endforeach
+                                                                            <option value="{{ $customer->id }}">
+                                                                                {{ $customer->first_name . ' ' . $customer->last_name }}
+                                                                            </option>
+                                                                        @endforeach
                                                                     </select>
                                                                     <button type="button" class="btn btn-primary" id="addCustomerBtn" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                                                         <i class="fas fa-plus"></i>

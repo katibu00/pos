@@ -943,7 +943,7 @@ $(document).ready(function() {
                                 "<i class='fas fa-minus'></i>" +
                             "</button>" +
                             "<input type='number' class='form-control quantity text-center mx-2' " +
-                                "step='any' name='quantity[]' max='" + product.quantity + "' " +
+                                "step='any' name='quantity[]' " +
                                 "style='width: 70px;'>" +
                             "<button type='button' class='btn quantity-btn plus-btn'>" +
                                 "<i class='fas fa-plus'></i>" +
@@ -974,63 +974,51 @@ $(document).ready(function() {
                 transactionType = $(this).val();
             });
 
-              // Quantity button click handler
-              $productTable.on('click', '.quantity-btn', function() {
-                var $input = $(this).closest('.quantity-control').find('.quantity');
-                var currentVal = parseFloat($input.val()) || 0;
-                var max = parseFloat($input.attr('max'));
-                var step = parseFloat($input.attr('step')) || 1;
+             // Quantity button click handler
+                $productTable.on('click', '.quantity-btn', function() {
+                    var $input = $(this).closest('.quantity-control').find('.quantity');
+                    var currentVal = parseFloat($input.val()) || 0;
+                    var step = parseFloat($input.attr('step')) || 1;
 
-                // Add temporary highlight effect
-                $(this).addClass('active');
-                setTimeout(() => {
-                    $(this).removeClass('active');
-                }, 200);
+                    // Add temporary highlight effect
+                    $(this).addClass('active');
+                    setTimeout(() => {
+                        $(this).removeClass('active');
+                    }, 200);
 
-                if ($(this).hasClass('plus-btn')) {
-                    if (currentVal < max) {
-                        $input.val(Math.min(currentVal + step, max)).trigger('input');
-                    } else {
-                        // Visual feedback for max quantity
-                        $input.addClass('shake');
-                        setTimeout(() => {
-                            $input.removeClass('shake');
-                        }, 500);
-                        toastr.warning('Maximum quantity reached');
+                    if ($(this).hasClass('plus-btn')) {
+                        // Always increase without checking max
+                        $input.val(currentVal + step).trigger('input');
+                    } else if ($(this).hasClass('minus-btn')) {
+                        if (currentVal > 0) {
+                            $input.val(Math.max(currentVal - step, 0)).trigger('input');
+                        }
                     }
-                } else if ($(this).hasClass('minus-btn')) {
-                    if (currentVal > 0) {
-                        $input.val(Math.max(currentVal - step, 0)).trigger('input');
-                    }
-                }
-            });
-
+                });
             // Function to check if the entered quantity exceeds available stock
             function checkAvailableQuantity($row) {
-                var enteredQuantity = parseFloat($row.find('.quantity').val()) || 0;
-                var availableQuantity = parseFloat($row.find('input[name="remaining_quantity[]"]').val()) || 0;
-                
-                if (enteredQuantity > availableQuantity) {
-                    // Alert the user and reset the entered quantity
-                    alert('Entered quantity exceeds available stock. Available quantity: ' + availableQuantity);
-                    $row.find('.quantity').val(availableQuantity); // Reset to available quantity
-                }
-            }
+    var enteredQuantity = parseFloat($row.find('.quantity').val()) || 0;
+    var availableQuantity = parseFloat($row.find('input[name="remaining_quantity[]"]').val()) || 0;
+    
+    if (enteredQuantity > availableQuantity) {
+        // Just show a warning without resetting the quantity
+        toastr.warning('Entered quantity exceeds available stock. Available: ' + availableQuantity);
+        // No longer resetting the value - allow the higher quantity
+    }
+}
 
-            // Event listener for quantity input fields
-            $productTable.on('input', '.quantity', function() {
-                var $row = $(this).closest('tr');
+// Event listener for quantity input fields
+$productTable.on('input', '.quantity', function() {
+    var $row = $(this).closest('tr');
 
-                if (transactionType === "sales" || !transactionType) {
-                        checkAvailableQuantity($row); // Perform the check
-                    }
+    if (transactionType === "sales" || !transactionType) {
+        checkAvailableQuantity($row); // Show warning but don't reset
+    }
 
-                var rowTotal = calculateRowTotal($row);
-                $row.find('.total').text(rowTotal);
-                updateTotalAmount();
-            });
-
-
+    var rowTotal = calculateRowTotal($row);
+    $row.find('.total').text(rowTotal);
+    updateTotalAmount();
+});
 
             function updateSerialNumbers() {
                 $productTable.find('.sn-column').each(function(index) {

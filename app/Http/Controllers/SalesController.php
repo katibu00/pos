@@ -665,11 +665,13 @@ class SalesController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         
-        // Get all awaiting pickups for these receipt numbers
+        // Get receipt numbers from paginated sales
         $receiptNumbers = $data['sales']->pluck('receipt_no')->toArray();
+        
+        // Get all awaiting pickups for these receipt numbers from the new table
         $awaitingPickups = AwaitingPickup::whereIn('receipt_no', $receiptNumbers)
             ->where('status', 'awaiting')
-            ->selectRaw('receipt_no, COUNT(*) as count, SUM(quantity) as total_quantity')
+            ->selectRaw('receipt_no, SUM(quantity) as total_quantity')
             ->groupBy('receipt_no')
             ->pluck('total_quantity', 'receipt_no')
             ->toArray();
@@ -686,9 +688,9 @@ class SalesController extends Controller
     public function allSearch(Request $request)
     {
         $searchQuery = $request->input('query');
-
+    
         $data['sales'] = Sale::select('sales.stock_id', 'sales.receipt_no')
-            ->join('users', 'sales.customer', '=', 'users.id')
+            ->leftJoin('users', 'sales.customer', '=', 'users.id')
             ->where('sales.branch_id', auth()->user()->branch_id)
             ->where(function($query) use ($searchQuery) {
                 $query->where('users.first_name', 'like', "%$searchQuery%")
@@ -699,7 +701,20 @@ class SalesController extends Controller
             ->orderBy('sales.created_at', 'desc')
             ->take(100)
             ->get();
-
+    
+        // Get receipt numbers from the search results
+        $receiptNumbers = $data['sales']->pluck('receipt_no')->toArray();
+        
+        // Get all awaiting pickups for these receipt numbers from the new table
+        $awaitingPickups = AwaitingPickup::whereIn('receipt_no', $receiptNumbers)
+            ->where('status', 'awaiting')
+            ->selectRaw('receipt_no, SUM(quantity) as total_quantity')
+            ->groupBy('receipt_no')
+            ->pluck('total_quantity', 'receipt_no')
+            ->toArray();
+        
+        $data['awaitingPickups'] = $awaitingPickups;
+    
         return view('sales.all_table', $data)->render();
     }
 
@@ -708,27 +723,50 @@ class SalesController extends Controller
     {
         $cashierId = $request->input('cashier_id');
         $transactionType = $request->input('transaction_type');
-
+    
         $query = Sale::select('stock_id', 'receipt_no')
             ->where('branch_id', auth()->user()->branch_id);
-
+    
         if ($cashierId && $cashierId != 'all') {
             $query->where('user_id', $cashierId);
         }
-
+    
+        // Handle the transaction type filter
         if ($transactionType && $transactionType != 'all') {
-            if ($transactionType === 'awaiting_pickup') {
+            if ($transactionType === 'awaiting_pickup_old') {
+                // Old awaiting pickup filtering logic
                 $query->where('collected', 0);
+            } elseif ($transactionType === 'awaiting_pickup_new') {
+                // New awaiting pickup filtering logic
+                // Get receipt numbers with awaiting pickups from the new table
+                $receiptNumbers = AwaitingPickup::where('status', 'awaiting')
+                                    ->pluck('receipt_no')
+                                    ->unique()
+                                    ->toArray();
+                
+                $query->whereIn('receipt_no', $receiptNumbers);
             } else {
+                // Standard payment method filtering
                 $query->where('payment_method', $transactionType);
             }
         }
-
+    
         $data['sales'] = $query->groupBy('receipt_no')
             ->orderBy('created_at', 'desc')
             ->take(100)
             ->get();
-
+        
+        // Get awaiting pickups data for the view
+        $receiptNumbers = $data['sales']->pluck('receipt_no')->toArray();
+        $awaitingPickups = AwaitingPickup::whereIn('receipt_no', $receiptNumbers)
+            ->where('status', 'awaiting')
+            ->selectRaw('receipt_no, SUM(quantity) as total_quantity')
+            ->groupBy('receipt_no')
+            ->pluck('total_quantity', 'receipt_no')
+            ->toArray();
+        
+        $data['awaitingPickups'] = $awaitingPickups;
+    
         return view('sales.all_table', $data)->render();
     }
 

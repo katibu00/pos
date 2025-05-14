@@ -37,7 +37,8 @@
                                     <option value="transfer">Transfer</option>
                                     <option value="pos">POS</option>
                                     <option value="credit">Credit</option>
-                                    <option value="awaiting_pickup">Awaiting Pickup</option>
+                                    <option value="awaiting_pickup_old">Awaiting Pickup (Old)</option>
+                                    <option value="awaiting_pickup_new">Awaiting Pickup (New)</option>
                                 </select>
                             </div>
                         </div>
@@ -821,14 +822,14 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     // Empty the table
-                    $('.table').empty();
+                    $('.table-data').empty();
 
                     // Check if the response is empty
                     if ($(response).find('tbody tr').length > 0) {
-                        $('.table').html(response);
+                        $('.table-data').html(response);
                     } else {
                         // Display a message if no rows are found
-                        $('.table tbody').empty().append(
+                        $('.table-data tbody').empty().append(
                             '<tr><td colspan="9" class="text-center">No results found.</td></tr>');
                         toastr.warning('No results found.');
                     }
@@ -867,9 +868,9 @@ $(document).ready(function() {
                         transaction_type: transactionType
                     },
                     success: function(response) {
-                        $('.table').empty();
+                        $('.table-data').empty();
                         $.LoadingOverlay("hide")
-                        $('.table').html(response);
+                        $('.table-data').html(response);
                     },
                     error: function(xhr) {
                         console.log(xhr.responseText);

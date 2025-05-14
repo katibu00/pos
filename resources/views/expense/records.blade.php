@@ -102,6 +102,7 @@
                     <div class="mb-3">
                         <label for="branch_id" class="form-label">Branch</label>
                         <select class="form-select" id="branch_id" name="branch_id" required>
+                            <option value=""></option>
                             @foreach($branches as $branch)
                             <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                             @endforeach
@@ -110,6 +111,7 @@
                     <div class="mb-3">
                         <label for="category_id" class="form-label">Category</label>
                         <select class="form-select" id="category_id" name="category_id" required>
+                            <option value=""></option>
                             @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach

@@ -104,6 +104,7 @@
                                         <th>Item</th>
                                         <th class="text-center">Price (&#8358;)</th>
                                         <th class="text-center">Sold Qty</th>
+                                        <th class="text-center">Previously Marked</th>
                                         <th class="text-center">Awaiting Pickup</th>
                                         <th class="text-center">Select</th>
                                     </tr>
@@ -314,117 +315,8 @@
 
         // Add this to your script section in index.blade.php
 
-// Function to open awaiting pickup modal
-function markAsAwaitingPickup(receiptNo) {
-    // Reset the modal
-    $('#saleDetailsContent').hide();
-    $('#noSaleFound').hide();
-    $('#loadingSpinner').show();
-    $('#awaitingPickupForm')[0].reset();
-    $('#saleItemsTableBody').empty();
-    
-    // Show the modal
-    $('#awaitingPickupModal').modal('show');
-    
-    // Fetch sale details
-    $.ajax({
-        url: `/get-sale-details/${receiptNo}`,
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            $('#loadingSpinner').hide();
-            
-            if (response.status === 200) {
-                $('#saleDetailsContent').show();
-                
-                // Set receipt info
-                $('#receipt_no').text(receiptNo);
-                $('#form_receipt_no').val(receiptNo);
-                
-                // Set customer and date info
-                const firstSale = response.sales[0];
-                $('#sale_date').text(moment(firstSale.created_at).format('MMMM Do YYYY, h:mm:ss a'));
-                
-                if (firstSale.customer === null) {
-                    $('#customer_name').text('Walk-in Customer');
-                } else if (firstSale.buyer) {
-                    $('#customer_name').text(firstSale.buyer.first_name + ' ' + (firstSale.buyer.last_name || ''));
-                }
-                
-                $('#cashier_name').text(firstSale.user.first_name + ' ' + firstSale.user.last_name);
-                
-                // Create a map of existing pickups for reference
-                const existingPickups = {};
-                if (response.existingPickups) {
-                    response.existingPickups.forEach(pickup => {
-                        if (!existingPickups[pickup.sale_id]) {
-                            existingPickups[pickup.sale_id] = 0;
-                        }
-                        existingPickups[pickup.sale_id] += parseFloat(pickup.quantity);
-                    });
-                }
-                
-                // Populate the items table
-                response.sales.forEach(sale => {
-                    const stockItem = sale.stock;
-                    const alreadyAwaitingPickup = existingPickups[sale.id] || 0;
-                    const remainingQuantity = sale.quantity - alreadyAwaitingPickup;
-                    
-                    if (remainingQuantity > 0) {
-                        const row = `
-                            <tr>
-                                <td>${stockItem.name}</td>
-                                <td class="text-center">${formatNumber(sale.price)}</td>
-                                <td class="text-center">${sale.quantity}</td>
-                                <td class="text-center">
-                                    <input type="number" class="form-control quantity-input" 
-                                        name="items[${sale.id}][quantity]" 
-                                        min="0" max="${remainingQuantity}" step="0.01" 
-                                        value="0" 
-                                        data-max="${remainingQuantity}"
-                                        data-sale-id="${sale.id}">
-                                    <input type="hidden" name="items[${sale.id}][sale_id]" value="${sale.id}">
-                                    <input type="hidden" name="items[${sale.id}][stock_id]" value="${sale.stock_id}">
-                                    <input type="hidden" name="items[${sale.id}][price]" value="${sale.price}">
-                                </td>
-                                <td class="text-center">
-                                    <div class="form-check">
-                                        <input class="form-check-input item-checkbox" type="checkbox" value="" 
-                                            data-sale-id="${sale.id}" 
-                                            data-quantity="${remainingQuantity}">
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        $('#saleItemsTableBody').append(row);
-                    }
-                });
-                
-                // If no items left to mark for pickup
-                if ($('#saleItemsTableBody').children().length === 0) {
-                    $('#saleItemsTableBody').html(`
-                        <tr>
-                            <td colspan="5" class="text-center">
-                                All items from this sale are already marked as awaiting pickup.
-                            </td>
-                        </tr>
-                    `);
-                    $('#saveAwaitingPickup').prop('disabled', true);
-                    $('#selectAllItems').prop('disabled', true);
-                } else {
-                    $('#saveAwaitingPickup').prop('disabled', false);
-                    $('#selectAllItems').prop('disabled', false);
-                }
-            } else {
-                $('#noSaleFound').show();
-            }
-        },
-        error: function() {
-            $('#loadingSpinner').hide();
-            $('#noSaleFound').show();
-        }
-    });
-}
+
+
 
 // Function to open delivery modal
 function deliverItems(receiptNo) {
@@ -511,6 +403,128 @@ function deliverItems(receiptNo) {
         }
     });
 }
+
+
+// Function to open awaiting pickup modal
+function markAsAwaitingPickup(receiptNo) {
+    // Reset the modal
+    $('#saleDetailsContent').hide();
+    $('#noSaleFound').hide();
+    $('#loadingSpinner').show();
+    $('#awaitingPickupForm')[0].reset();
+    $('#saleItemsTableBody').empty();
+    
+    // Show the modal
+    $('#awaitingPickupModal').modal('show');
+    
+    // Fetch sale details
+    $.ajax({
+        url: `/get-sale-details/${receiptNo}`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            $('#loadingSpinner').hide();
+            
+            if (response.status === 200) {
+                $('#saleDetailsContent').show();
+                
+                // Set receipt info
+                $('#receipt_no').text(receiptNo);
+                $('#form_receipt_no').val(receiptNo);
+                
+                // Set customer and date info
+                const firstSale = response.sales[0];
+                $('#sale_date').text(moment(firstSale.created_at).format('MMMM Do YYYY, h:mm:ss a'));
+                
+                if (firstSale.customer === null) {
+                    $('#customer_name').text('Walk-in Customer');
+                } else if (firstSale.buyer) {
+                    $('#customer_name').text(firstSale.buyer.first_name + ' ' + (firstSale.buyer.last_name || ''));
+                }
+                
+                $('#cashier_name').text(firstSale.user.first_name + ' ' + firstSale.user.last_name);
+                
+                // Create a map of existing pickups for reference
+                const existingPickups = {};
+                if (response.existingPickups) {
+                    response.existingPickups.forEach(pickup => {
+                        if (!existingPickups[pickup.sale_id]) {
+                            existingPickups[pickup.sale_id] = 0;
+                        }
+                        existingPickups[pickup.sale_id] += parseFloat(pickup.quantity);
+                    });
+                }
+                
+                // Populate the items table
+                response.sales.forEach(sale => {
+                    const stockItem = sale.stock;
+                    const alreadyAwaitingPickup = existingPickups[sale.id] || 0;
+                    const remainingQuantity = sale.quantity - alreadyAwaitingPickup;
+                    
+                    if (remainingQuantity > 0) {
+                        // Display previously marked quantity
+                        const previouslyMarkedDisplay = alreadyAwaitingPickup > 0 ? 
+                            formatNumber(alreadyAwaitingPickup) : 
+                            '';
+                        
+                        const row = `
+                            <tr>
+                                <td>${stockItem.name}</td>
+                                <td class="text-center">${formatNumber(sale.price)}</td>
+                                <td class="text-center">${sale.quantity}</td>
+                                <td class="text-center">${previouslyMarkedDisplay}</td>
+                                <td class="text-center">
+                                    <input type="number" class="form-control quantity-input" 
+                                        name="items[${sale.id}][quantity]" 
+                                        min="0" max="${remainingQuantity}" step="0.01" 
+                                        value="0" 
+                                        data-max="${remainingQuantity}"
+                                        data-previously-marked="${alreadyAwaitingPickup}"
+                                        data-total-quantity="${sale.quantity}"
+                                        data-sale-id="${sale.id}">
+                                    <input type="hidden" name="items[${sale.id}][sale_id]" value="${sale.id}">
+                                    <input type="hidden" name="items[${sale.id}][stock_id]" value="${sale.stock_id}">
+                                    <input type="hidden" name="items[${sale.id}][price]" value="${sale.price}">
+                                </td>
+                                <td class="text-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input item-checkbox" type="checkbox" value="" 
+                                            data-sale-id="${sale.id}" 
+                                            data-quantity="${remainingQuantity}">
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        $('#saleItemsTableBody').append(row);
+                    }
+                });
+                
+                // If no items left to mark for pickup
+                if ($('#saleItemsTableBody').children().length === 0) {
+                    $('#saleItemsTableBody').html(`
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                All items from this sale are already marked as awaiting pickup.
+                            </td>
+                        </tr>
+                    `);
+                    $('#saveAwaitingPickup').prop('disabled', true);
+                    $('#selectAllItems').prop('disabled', true);
+                } else {
+                    $('#saveAwaitingPickup').prop('disabled', false);
+                    $('#selectAllItems').prop('disabled', false);
+                }
+            } else {
+                $('#noSaleFound').show();
+            }
+        },
+        error: function() {
+            $('#loadingSpinner').hide();
+            $('#noSaleFound').show();
+        }
+    });
+}
+
 
 // Helper function to format number with commas
 function formatNumber(num) {
@@ -616,6 +630,7 @@ $(document).ready(function() {
         const pickupId = $(this).data('pickup-id');
         const maxQuantity = $(this).data('quantity');
         const stockQuantity = $(this).data('stock');
+        
         // Check if there's enough stock
         if (isChecked && stockQuantity < maxQuantity) {
             alert(`Not enough stock (${stockQuantity}) to deliver the requested quantity (${maxQuantity}). Please adjust manually.`);
@@ -773,13 +788,25 @@ $(document).ready(function() {
         });
     });
     
-    // Input validation for quantities
+    // Input validation for quantities with enhanced validation
     $(document).on('input', '.quantity-input', function() {
         const max = parseFloat($(this).data('max'));
-        const val = parseFloat($(this).val());
+        const totalQuantity = parseFloat($(this).data('total-quantity'));
+        const previouslyMarked = parseFloat($(this).data('previously-marked')) || 0;
+        let val = parseFloat($(this).val()) || 0;
         
+        // Ensure the value doesn't exceed the remaining quantity
         if (val > max) {
+            val = max;
             $(this).val(max);
+            alert(`You can only mark up to ${max} more items as awaiting pickup. ${previouslyMarked} items are already marked.`);
+        }
+        
+        // Ensure the total marked items don't exceed the total sold quantity
+        if (val + previouslyMarked > totalQuantity) {
+            val = totalQuantity - previouslyMarked;
+            $(this).val(val);
+            alert(`Total marked items cannot exceed the sold quantity (${totalQuantity}). Adjusted to ${val}.`);
         }
     });
     

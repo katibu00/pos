@@ -96,6 +96,123 @@
             border-color: #80bdff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
+
+
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .quantity-control .btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .quantity-control .minus-btn {
+            background: linear-gradient(145deg, #ff6b6b, #f03e3e);
+            color: white;
+        }
+
+        .quantity-control .plus-btn {
+            background: linear-gradient(145deg, #37b24d, #2f9e44);
+            color: white;
+        }
+
+        .quantity-control .minus-btn:hover {
+            background: linear-gradient(145deg, #f03e3e, #e03131);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .quantity-control .plus-btn:hover {
+            background: linear-gradient(145deg, #2f9e44, #2b8a3e);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .quantity-control .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .quantity-control .btn i {
+            font-size: 0.875rem;
+            line-height: 1;
+        }
+
+        .quantity-control .quantity {
+            width: 70px !important;
+            height: 32px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-weight: 500;
+            background-color: #fff;
+            -moz-appearance: textfield;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+        }
+
+        .quantity-control .quantity:focus {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.25);
+            outline: none;
+        }
+
+        .quantity-control .quantity::-webkit-outer-spin-button,
+        .quantity-control .quantity::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Hover effect for the entire control group */
+        .quantity-control:hover .quantity {
+            border-color: #adb5bd;
+        }
+         /* Animation for button clicks */
+         @keyframes buttonPress {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .quantity-control .btn:active {
+            animation: buttonPress 0.2s ease;
+        }
+
+        /* Make buttons more prominent on mobile */
+        @media (max-width: 768px) {
+            .quantity-control .btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .quantity-control .btn i {
+                font-size: 1rem;
+            }
+
+            .quantity-control .quantity {
+                height: 36px;
+            }
+        }
     </style>
 @endsection
 
@@ -158,16 +275,20 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label for="customer">Customer Name</label>
-                                                                <select class="form-control select2" name="customer"
-                                                                    id="customer">
-                                                                    <option value="0">Walk-in Customer</option>
-                                                                    @foreach ($customers as $customer)
-                                                                        <option value="{{ $customer->id }}">
-                                                                            {{ $customer->first_name . ' ' . $customer->last_name }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
+                                                                <label for="customer_id">Customer Name</label>
+                                                                <div class="input-group">
+                                                                    <select class="form-control select2" name="customer" id="customer">
+                                                                        <option value="0">Walk-in Customer</option>
+                                                                        @foreach ($customers as $customer)
+                                                                            <option value="{{ $customer->id }}">
+                                                                                {{ $customer->first_name . ' ' . $customer->last_name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <button type="button" class="btn btn-primary" id="addCustomerBtn" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                                                        <i class="fas fa-plus"></i>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
@@ -357,16 +478,205 @@
 </div>
 
 
+    <!-- Add Customer Modal -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCustomerModalLabel">Add New Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCustomerForm">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCustomerBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="customerSpinner"></span>
+                        Save Customer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Ensure the select2 container takes full width */
+        .select2-container {
+            width: 100% !important;
+        }
+        
+        /* Fix for mobile view */
+        @media (max-width: 767.98px) {
+            .input-group .select2-container {
+                width: calc(100% - 38px) !important;
+            }
+        }
+        
+        /* Make sure the button stays with the select field */
+        #addCustomerBtn {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+        }
+        
+        /* Fix for Select2 container in Bootstrap 5 */
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Ensure the input group maintains proper display */
+        .input-group {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+        </style>
+
 @endsection
 
 @section('js')
-    <script>
-        $(document).ready(function() {
-            $('#customer').select2({
-                theme: 'classic'
-            });
+<script>
+    $(document).ready(function() {
+        $('#customer_id').select2({
+            theme: 'classic'
         });
-    </script>
+    });
+</script>
+
+
+
+
+<!-- Scripts for Customer Management -->
+<script>
+$(document).ready(function() {
+    // Initialize Select2
+    if($.fn.select2) {
+    $('.select2').select2({
+        width: '100%',
+        dropdownAutoWidth: true,
+        dropdownParent: $('body') // This helps with modal compatibility
+    }).on('select2:open', function() {
+        // Fix dropdown width on open
+        $('.select2-dropdown').css('width', $(this).parent().width());
+    });
+}
+    
+    // Open the modal when the add button is clicked
+    $('#addCustomerBtn').click(function() {
+        $('#addCustomerForm')[0].reset();
+        $('#addCustomerModal').modal('show');
+    });
+    
+    // Save customer when the save button is clicked
+    $('#saveCustomerBtn').click(function() {
+        // Validate form
+        if (!$('#addCustomerForm')[0].checkValidity()) {
+            $('#addCustomerForm')[0].reportValidity();
+            return;
+        }
+        
+        // Disable button and show spinner
+        const btn = $(this);
+        btn.prop('disabled', true);
+        $('#customerSpinner').removeClass('d-none');
+        
+        // Prepare form data
+        const formData = {
+            name: $('#name').val(),
+            phone: $('#phone').val(),
+            email: $('#email').val() || null,
+            address: $('#address').val() || null,
+            _token: $('input[name="_token"]').val()
+        };
+        
+        // Submit via AJAX
+        $.ajax({
+            url: "",
+            type: "POST",
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    // Update the customer dropdown
+                    const customerSelect = $('#customer_id');
+                    customerSelect.empty();
+                    
+                    // Add walk-in customer option
+                    customerSelect.append(new Option('Walk-in Customer', '0'));
+                    
+                    // Add all customers with the new one at the top
+                    const newOption = new Option(response.newCustomer.name, response.newCustomer.id, true, true);
+                    $(newOption).addClass('new-customer-highlight');
+                    customerSelect.append(newOption);
+                    
+                    // Add other customers
+                    response.customers.forEach(function(customer) {
+                        if (customer.id !== response.newCustomer.id) {
+                            customerSelect.append(new Option(customer.name, customer.id));
+                        }
+                    });
+                    
+                    // If using Select2, refresh it
+                    if($.fn.select2) {
+                        customerSelect.trigger('change');
+                    }
+                    
+                    // Show success message
+                    const toast = new bootstrap.Toast(document.getElementById('customerSuccessToast'));
+                    toast.show();
+                    
+                    // Close modal
+                    $('#addCustomerModal').modal('hide');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'An error occurred while saving the customer.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = '';
+                    for (const key in xhr.responseJSON.errors) {
+                        errorMessage += xhr.responseJSON.errors[key][0] + '\n';
+                    }
+                }
+                
+                alert(errorMessage);
+            },
+            complete: function() {
+                // Re-enable button and hide spinner
+                btn.prop('disabled', false);
+                $('#customerSpinner').addClass('d-none');
+            }
+        });
+    });
+});
+</script>
     <script>
         $(document).ready(function() {
             updateSections();
@@ -627,7 +937,19 @@
                     "<td class='sn-column'></td>" +
                     "<td>" + product.name + "</td>" +
                     "<td class='price'>" + product.selling_price + "</td>" +
-                    "<td><input type='number' class='form-control quantity' step='any' name='quantity[]'></td>" +
+                    "<td>" +
+                        "<div class='quantity-control d-flex align-items-center'>" +
+                            "<button type='button' class='btn quantity-btn minus-btn'>" +
+                                "<i class='fas fa-minus'></i>" +
+                            "</button>" +
+                            "<input type='number' class='form-control quantity text-center mx-2' " +
+                                "step='any' name='quantity[]' " +
+                                "style='width: 70px;'>" +
+                            "<button type='button' class='btn quantity-btn plus-btn'>" +
+                                "<i class='fas fa-plus'></i>" +
+                            "</button>" +
+                        "</div>" +
+                    "</td>" +
                     "<td><input type='number' class='form-control discount' name='discount[]'></td>" +
                     "<td class='total'>0</td>" +
                     "<td>" +
@@ -652,32 +974,51 @@
                 transactionType = $(this).val();
             });
 
+             // Quantity button click handler
+                $productTable.on('click', '.quantity-btn', function() {
+                    var $input = $(this).closest('.quantity-control').find('.quantity');
+                    var currentVal = parseFloat($input.val()) || 0;
+                    var step = parseFloat($input.attr('step')) || 1;
+
+                    // Add temporary highlight effect
+                    $(this).addClass('active');
+                    setTimeout(() => {
+                        $(this).removeClass('active');
+                    }, 200);
+
+                    if ($(this).hasClass('plus-btn')) {
+                        // Always increase without checking max
+                        $input.val(currentVal + step).trigger('input');
+                    } else if ($(this).hasClass('minus-btn')) {
+                        if (currentVal > 0) {
+                            $input.val(Math.max(currentVal - step, 0)).trigger('input');
+                        }
+                    }
+                });
             // Function to check if the entered quantity exceeds available stock
             function checkAvailableQuantity($row) {
-                var enteredQuantity = parseFloat($row.find('.quantity').val()) || 0;
-                var availableQuantity = parseFloat($row.find('input[name="remaining_quantity[]"]').val()) || 0;
-                
-                if (enteredQuantity > availableQuantity) {
-                    // Alert the user and reset the entered quantity
-                    alert('Entered quantity exceeds available stock. Available quantity: ' + availableQuantity);
-                    $row.find('.quantity').val(availableQuantity); // Reset to available quantity
-                }
-            }
+    var enteredQuantity = parseFloat($row.find('.quantity').val()) || 0;
+    var availableQuantity = parseFloat($row.find('input[name="remaining_quantity[]"]').val()) || 0;
+    
+    if (enteredQuantity > availableQuantity) {
+        // Just show a warning without resetting the quantity
+        toastr.warning('Entered quantity exceeds available stock. Available: ' + availableQuantity);
+        // No longer resetting the value - allow the higher quantity
+    }
+}
 
-            // Event listener for quantity input fields
-            $productTable.on('input', '.quantity', function() {
-                var $row = $(this).closest('tr');
+// Event listener for quantity input fields
+$productTable.on('input', '.quantity', function() {
+    var $row = $(this).closest('tr');
 
-                if (transactionType === "sales" || !transactionType) {
-                        checkAvailableQuantity($row); // Perform the check
-                    }
+    if (transactionType === "sales" || !transactionType) {
+        checkAvailableQuantity($row); // Show warning but don't reset
+    }
 
-                var rowTotal = calculateRowTotal($row);
-                $row.find('.total').text(rowTotal);
-                updateTotalAmount();
-            });
-
-
+    var rowTotal = calculateRowTotal($row);
+    $row.find('.total').text(rowTotal);
+    updateTotalAmount();
+});
 
             function updateSerialNumbers() {
                 $productTable.find('.sn-column').each(function(index) {
@@ -896,127 +1237,89 @@
                 }
             });
         });
-
-
-
-
-        function updateTable() {
-
-            data = {}
-            $(".recent-table").LoadingOverlay("show");
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('refresh-table') }}",
-                data: data,
-                success: function(res) {
-
-                    $('.recent').load(location.href + ' .recent');
-                    $(".recent-table").LoadingOverlay("hide");
-
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    if (xhr.status === 419) {
-                        Command: toastr["error"](
-                            "Session expired. please login again."
-                        );
-
-                        setTimeout(() => {
-                            window.location.replace('{{ route('login') }}');
-                        }, 2000);
-                    }
-                },
-            });
-        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        $(document).ready(function() {
-            $('#salesForm').submit(function(event) {
-                event.preventDefault();
+      $(document).ready(function() {
+    $('#salesForm').submit(function(event) {
+        event.preventDefault();
 
-                var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
+        var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
 
-                if (selectedPaymentMethod === 'multiple') {
-                    var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(
-                        ',', ''));
-                    var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace(
-                        '₦', '').replace(',', ''));
+        if (selectedPaymentMethod === 'multiple') {
+            var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(',', ''));
+            var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace('₦', '').replace(',', ''));
 
-                    if (totalAmountEntered !== totalAmountDisplayed) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Total amount entered does not match the displayed total. Please check the amounts again.'
-                        });
-                        return;
-                    }
-                }
-
-                var formData = $(this).serialize();
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
+            if (totalAmountEntered !== totalAmountDisplayed) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Total amount entered does not match the displayed total. Please check the amounts again.'
                 });
-                $.LoadingOverlay("show");
+                return;
+            }
+        }
 
-                $.ajax({
-                    url: '{{ route('transactions.store') }}',
-                    type: 'POST',
-                    data: formData,
-                    success: function(response) {
-
-                        if (response.status === 201) {
-                            toastr.success(response.message, 'Success');
-                            updateTable();
-                            $('#productTable').empty();
-                            $('#customer').val('0').change();
-                            $('#balanceContainer').hide();
-                            $('#totalAmount').text('₦0');
-                            $('input[name="payment_method"]').prop('checked', false);
-                            $("#salesForm")[0].reset();
-                            $("input[name='transaction_type']").prop("checked", false);
-                            $("#changeField").hide();
-                            $("#laborCostField").hide();
-                            $("#partialAmountField").hide();
-                            $("#paid_amount_span").text('Cash Amount Paid');
-
-                        } else if (response.status === 400) {
-                            toastr.error(response.message, 'Error');
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.message,
-                            });
-                        }
-                        $.LoadingOverlay("hide");
-
-                    },
-                    error: function(error) {
-                        if (error.responseJSON && error.responseJSON.status === 400 && error
-                            .responseJSON.message) {
-                            // Display validation error using Swal
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validation Error',
-                                text: error.responseJSON.message,
-                            });
-                        } else {
-                            toastr.error('An error occurred while processing the request.',
-                                'Error');
-                        }
-
-                        $.LoadingOverlay("hide");
-                    }
-                });
-            });
+        var formData = $(this).serialize();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
         });
+        $.LoadingOverlay("show");
+
+        $.ajax({
+            url: '{{ route('transactions.store') }}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status === 201) {
+                    toastr.success(response.message, 'Success');
+                    
+                    // Update the recent transactions table with the returned HTML
+                    if (response.recentTransactionsHtml) {
+                        $('.recent-table').html(response.recentTransactionsHtml);
+                    }
+                    
+                    // Reset form
+                    $('#productTable').empty();
+                    $('#customer').val('0').change();
+                    $('#balanceContainer').hide();
+                    $('#totalAmount').text('₦0');
+                    $('input[name="payment_method"]').prop('checked', false);
+                    $("#salesForm")[0].reset();
+                    $("input[name='transaction_type']").prop("checked", false);
+                    $("#changeField").hide();
+                    $("#laborCostField").hide();
+                    $("#partialAmountField").hide();
+                    $("#paid_amount_span").text('Cash Amount Paid');
+
+                } else if (response.status === 400) {
+                    toastr.error(response.message, 'Error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                    });
+                }
+                $.LoadingOverlay("hide");
+            },
+            error: function(error) {
+                if (error.responseJSON && error.responseJSON.status === 400 && error.responseJSON.message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: error.responseJSON.message,
+                    });
+                } else {
+                    toastr.error('An error occurred while processing the request.', 'Error');
+                }
+                $.LoadingOverlay("hide");
+            }
+        });
+    });
+});
+
     </script>
 @endsection

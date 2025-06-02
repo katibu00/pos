@@ -47,7 +47,7 @@ class SalesController extends Controller
         $latestTransactions = $latestTransactions
             ->orderBy('created_at', 'desc')
             ->groupBy('transaction_no')
-            ->take(3)
+            ->take(5)
             ->get();
 
         $transactionData = [];
@@ -318,6 +318,7 @@ class SalesController extends Controller
             return response()->json([
                 'status' => 201,
                 'message' => 'Sale has been recorded successfully',
+                'recentTransactionsHtml' => $this->getRecentTransactionsHtml(),
             ]);
         }
 
@@ -364,6 +365,7 @@ class SalesController extends Controller
             return response()->json([
                 'status' => 201,
                 'message' => 'Estimate has been Saved sucessfully',
+                'recentTransactionsHtml' => $this->getRecentTransactionsHtml(),
             ]);
         }
 
@@ -444,6 +446,7 @@ class SalesController extends Controller
             return response()->json([
                 'status' => 201,
                 'message' => 'Return has been saved sucessfully',
+                'recentTransactionsHtml' => $this->getRecentTransactionsHtml(),
             ]);
 
         }
@@ -602,6 +605,71 @@ class SalesController extends Controller
         return view('transactions.recent_sales_table', compact('transactionData'))->render();
     }
 
+
+    private function getRecentTransactionsHtml()
+    {
+        $user = auth()->user();
+
+        $latestTransactions = DB::table('sales')
+            ->select('receipt_no as transaction_no', 'created_at', DB::raw("'Sales' as type"))
+            ->where('branch_id', $user->branch_id);
+
+        $latestTransactions->union(
+            DB::table('estimates')
+                ->select('estimate_no as transaction_no', 'created_at', DB::raw("'Estimates' as type"))
+                ->where('branch_id', $user->branch_id)
+        );
+
+        $latestTransactions->union(
+            DB::table('returns')
+                ->select('return_no as transaction_no', 'created_at', DB::raw("'Returns' as type"))
+                ->where('branch_id', $user->branch_id)
+        );
+
+        $latestTransactions = $latestTransactions
+            ->orderBy('created_at', 'desc')
+            ->groupBy('transaction_no')
+            ->take(5)
+            ->get();
+
+        $transactionData = [];
+
+        foreach ($latestTransactions as $transaction) {
+            $table = $transaction->type == 'Sales' ? 'sales' : 
+                    ($transaction->type == 'Returns' ? 'returns' : 'estimates');
+
+            $rows = DB::table($table)
+                ->where('branch_id', $user->branch_id)
+                ->where($transaction->type == 'Sales' ? 'receipt_no' : 
+                    ($transaction->type == 'Returns' ? 'return_no' : 'estimate_no'), 
+                    $transaction->transaction_no)
+                ->get();
+
+            $totalAmount = 0;
+            foreach ($rows as $row) {
+                $totalAmount += ($row->price * $row->quantity) - $row->discount;
+            }
+
+            $customer = null;
+            if ($transaction->type == 'Sales') {
+                $sale = DB::table('sales')->where('receipt_no', $transaction->transaction_no)->first();
+                if (!is_null($sale) && is_numeric($sale->customer)) {
+                    $customer = User::find($sale->customer);
+                }
+            }
+
+            $transactionData[] = [
+                'transaction_no' => $transaction->transaction_no,
+                'type' => $transaction->type,
+                'created_at' => $transaction->created_at,
+                'totalAmount' => $totalAmount,
+                'customer' => $customer,
+            ];
+        }
+
+        return view('transactions.recent_sales_table', compact('transactionData'))->render();
+    }
+
     public function loadReceipt(Request $request)
     {
         $transactionType = $request->transaction_type;
@@ -647,14 +715,6 @@ class SalesController extends Controller
             'transaction_date' => $transactionDate ? $transactionDate->format('F j, Y h:i A') : null,
         ]);
     }
-
-    // public function allIndex()
-    // {
-    //     $data['sales'] = Sale::select('stock_id', 'receipt_no')->where('branch_id', auth()->user()->branch_id)->groupBy('receipt_no')->orderBy('created_at', 'desc')->paginate(10);
-    //     $data['staffs'] = User::whereIn('usertype', ['admin', 'cashier'])->where('branch_id', auth()->user()->branch_id)->get();
-
-    //     return view('sales.all_index', $data);
-    // }
 
 
     public function allIndex()

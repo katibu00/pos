@@ -1241,85 +1241,150 @@ $productTable.on('input', '.quantity', function() {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-      $(document).ready(function() {
-    $('#salesForm').submit(function(event) {
-        event.preventDefault();
-
-        var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
-
-        if (selectedPaymentMethod === 'multiple') {
-            var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(',', ''));
-            var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace('₦', '').replace(',', ''));
-
-            if (totalAmountEntered !== totalAmountDisplayed) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Total amount entered does not match the displayed total. Please check the amounts again.'
-                });
-                return;
-            }
+    $(document).ready(function() {
+        let isSubmitting = false;
+        let currentTransactionId = null;
+        
+        // Generate a unique transaction ID when form is loaded/reset
+        function generateTransactionId() {
+            return 'txn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
-
-        var formData = $(this).serialize();
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        
+        // Initialize transaction ID
+        currentTransactionId = generateTransactionId();
+        
+        $('#salesForm').submit(function(event) {
+            event.preventDefault();
+            
+            // Prevent multiple submissions
+            if (isSubmitting) {
+                console.log('Form submission already in progress');
+                return false;
             }
-        });
-        $.LoadingOverlay("show");
-
-        $.ajax({
-            url: '{{ route('transactions.store') }}',
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response.status === 201) {
-                    toastr.success(response.message, 'Success');
-                    
-                    // Update the recent transactions table with the returned HTML
-                    if (response.recentTransactionsHtml) {
-                        $('.recent-table').html(response.recentTransactionsHtml);
-                    }
-                    
-                    // Reset form
-                    $('#productTable').empty();
-                    $('#customer').val('0').change();
-                    $('#balanceContainer').hide();
-                    $('#totalAmount').text('₦0');
-                    $('input[name="payment_method"]').prop('checked', false);
-                    $("#salesForm")[0].reset();
-                    $("input[name='transaction_type']").prop("checked", false);
-                    $("#changeField").hide();
-                    $("#laborCostField").hide();
-                    $("#partialAmountField").hide();
-                    $("#paid_amount_span").text('Cash Amount Paid');
-
-                } else if (response.status === 400) {
-                    toastr.error(response.message, 'Error');
+            
+            var selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
+            
+            if (selectedPaymentMethod === 'multiple') {
+                var totalAmountDisplayed = parseFloat($('#totalAmount').text().replace('₦', '').replace(',', ''));
+                var totalAmountEntered = parseFloat($('#totalAmountMultiplePayments').text().replace('₦', '').replace(',', ''));
+                
+                if (totalAmountEntered !== totalAmountDisplayed) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: response.message,
+                        text: 'Total amount entered does not match the displayed total. Please check the amounts again.'
                     });
+                    return;
                 }
-                $.LoadingOverlay("hide");
-            },
-            error: function(error) {
-                if (error.responseJSON && error.responseJSON.status === 400 && error.responseJSON.message) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: error.responseJSON.message,
-                    });
-                } else {
-                    toastr.error('An error occurred while processing the request.', 'Error');
+            }
+            
+            // Set submission flag and disable submit button
+            isSubmitting = true;
+            const submitButton = $('button[type="submit"]');
+            const originalButtonText = submitButton.html();
+            submitButton.prop('disabled', true).html('Processing...');
+            
+            var formData = $(this).serialize();
+            
+            // Add transaction ID to form data
+            formData += '&transaction_id=' + encodeURIComponent(currentTransactionId);
+            
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-                $.LoadingOverlay("hide");
+            });
+            
+            $.LoadingOverlay("show");
+            
+            $.ajax({
+                url: '{{ route('transactions.store') }}',
+                type: 'POST',
+                data: formData,
+                timeout: 30000, // 30 second timeout
+                success: function(response) {
+                    if (response.status === 201) {
+                        toastr.success(response.message, 'Success');
+                        
+                        // Update the recent transactions table with the returned HTML
+                        if (response.recentTransactionsHtml) {
+                            $('.recent-table').html(response.recentTransactionsHtml);
+                        }
+                        
+                        // Reset form and generate new transaction ID
+                        resetForm();
+                        currentTransactionId = generateTransactionId();
+                        
+                    } else if (response.status === 400) {
+                        toastr.error(response.message, 'Error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', {xhr, status, error});
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.status === 400 && xhr.responseJSON.message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: xhr.responseJSON.message,
+                        });
+                    } else if (status === 'timeout') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Timeout Error',
+                            text: 'The request took too long to complete. Please try again.',
+                        });
+                    } else {
+                        toastr.error('An error occurred while processing the request.', 'Error');
+                    }
+                },
+                complete: function() {
+                    // Always reset submission state and re-enable button
+                    isSubmitting = false;
+                    submitButton.prop('disabled', false).html(originalButtonText);
+                    $.LoadingOverlay("hide");
+                }
+            });
+        });
+        
+        function resetForm() {
+            $('#productTable').empty();
+            $('#customer').val('0').change();
+            $('#balanceContainer').hide();
+            $('#totalAmount').text('₦0');
+            $('input[name="payment_method"]').prop('checked', false);
+            $("#salesForm")[0].reset();
+            $("input[name='transaction_type']").prop("checked", false);
+            $("#changeField").hide();
+            $("#laborCostField").hide();
+            $("#partialAmountField").hide();
+            $("#paid_amount_span").text('Cash Amount Paid');
+        }
+        
+        // Reset transaction ID when form is manually reset
+        $('#salesForm').on('reset', function() {
+            currentTransactionId = generateTransactionId();
+            isSubmitting = false;
+        });
+        
+        // Prevent browser back/forward button during submission
+        $(window).on('beforeunload', function() {
+            if (isSubmitting) {
+                return 'A transaction is being processed. Are you sure you want to leave?';
+            }
+        });
+        
+        // Handle page visibility changes (user switches tabs during submission)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isSubmitting) {
+                console.warn('User switched away during transaction processing');
             }
         });
     });
-});
-
     </script>
 @endsection

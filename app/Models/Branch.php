@@ -20,4 +20,9 @@ class Branch extends Model
     {
         return $this->hasMany(ExpenseRecord::class);
     }
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class, 'branch_id');
+    }
 }

@@ -251,17 +251,17 @@
         <ul class="sub-menu-container">
             <li class="menu-item {{ $route == 'admin.warehouse.index' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('admin.warehouse.index') }}">
-                    <div>Warehouse Store</div>
+                    <div>Inventories</div>
                 </a>
             </li>
             <li class="menu-item {{ $route == 'admin.warehouse.transactions' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('admin.warehouse.transactions') }}">
-                    <div>Transactions</div>
+                    <div>Transaction History</div>
                 </a>
             </li>
             <li class="menu-item {{ $route == 'admin.warehouse.transfer' ? 'current' : '' }}">
                 <a class="menu-link" href="{{ route('admin.warehouse.transfer') }}">
-                    <div>Transfer from Store</div>
+                    <div>Inventory Transfer</div>
                 </a>
             </li>
         </ul>

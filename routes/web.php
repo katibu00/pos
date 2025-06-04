@@ -471,8 +471,11 @@ Route::prefix('warehouse')->group(function () {
     Route::post('/transfer-to-store', [WarehouseController::class, 'transferToStore'])->name('admin.warehouse.transfer-to-store');
     Route::get('/transaction-details/{batchNumber}', [WarehouseController::class, 'transactionDetails'])->name('admin.warehouse.transaction-details');
 
+    // New routes for enhanced functionality
+    Route::get('/transfer-form', [WarehouseController::class, 'transferForm'])->name('admin.warehouse.transfer-form');
+    Route::get('/search-items', [WarehouseController::class, 'searchItems'])->name('admin.warehouse.search-items');
 
-
+    Route::get('/transactions/export', [WarehouseController::class, 'exportTransactions'])->name('warehouse.transactions.export');
 
 });
 

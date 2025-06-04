@@ -20,4 +20,9 @@ class Stock extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
 }

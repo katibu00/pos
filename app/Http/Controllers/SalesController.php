@@ -89,6 +89,109 @@ class SalesController extends Controller
 
 
 
+    // public function index()
+    // {
+    //     $user = auth()->user();
+    //     $branchId = $user->branch_id;
+        
+    //     // Products query removed as it's not needed
+        
+    //     // Optimize customers query - only select needed columns
+    //     $customers = User::select('id', 'first_name')
+    //         ->where('usertype', 'customer')
+    //         ->where('branch_id', $branchId)
+    //         ->orderBy('first_name')
+    //         ->get();
+        
+    //     // Optimized single query to get latest transactions with totals
+    //     $latestTransactions = collect();
+        
+    //     // Get sales with calculated totals and customer info in one query
+    //     $salesData = DB::table('sales as s')
+    //         ->leftJoin('users as u', function($join) {
+    //             $join->on('s.customer', '=', 'u.id')
+    //                 ->where('u.usertype', '=', 'customer');
+    //         })
+    //         ->select(
+    //             's.receipt_no as transaction_no',
+    //             's.created_at',
+    //             DB::raw("'Sales' as type"),
+    //             DB::raw('SUM((s.price * s.quantity) - s.discount) as total_amount'),
+    //             DB::raw('MAX(u.first_name) as customer_name'),
+    //             DB::raw('MAX(u.id) as customer_id')
+    //         )
+    //         ->where('s.branch_id', $branchId)
+    //         ->groupBy('s.receipt_no', 's.created_at')
+    //         ->orderBy('s.created_at', 'desc')
+    //         ->limit(5)
+    //         ->get();
+        
+    //     // Get estimates with calculated totals
+    //     $estimatesData = DB::table('estimates')
+    //         ->select(
+    //             'estimate_no as transaction_no',
+    //             'created_at',
+    //             DB::raw("'Estimates' as type"),
+    //             DB::raw('SUM((price * quantity) - discount) as total_amount'),
+    //             DB::raw('NULL as customer_name'),
+    //             DB::raw('NULL as customer_id')
+    //         )
+    //         ->where('branch_id', $branchId)
+    //         ->groupBy('estimate_no', 'created_at')
+    //         ->orderBy('created_at', 'desc')
+    //         ->limit(5)
+    //         ->get();
+        
+    //     // Get returns with calculated totals
+    //     $returnsData = DB::table('returns')
+    //         ->select(
+    //             'return_no as transaction_no',
+    //             'created_at',
+    //             DB::raw("'Returns' as type"),
+    //             DB::raw('SUM((price * quantity) - discount) as total_amount'),
+    //             DB::raw('NULL as customer_name'),
+    //             DB::raw('NULL as customer_id')
+    //         )
+    //         ->where('branch_id', $branchId)
+    //         ->groupBy('return_no', 'created_at')
+    //         ->orderBy('created_at', 'desc')
+    //         ->limit(5)
+    //         ->get();
+        
+    //     // Merge and sort all transactions
+    //     $allTransactions = $salesData->concat($estimatesData)->concat($returnsData);
+        
+    //     // Sort by created_at and take top 5
+    //     $latestTransactions = $allTransactions
+    //         ->sortByDesc('created_at')
+    //         ->take(5)
+    //         ->values();
+        
+    //     // Format the data for the view
+    //     $transactionData = $latestTransactions->map(function ($transaction) {
+    //         $customer = null;
+            
+    //         if ($transaction->type === 'Sales' && $transaction->customer_id) {
+    //             $customer = (object) [
+    //                 'id' => $transaction->customer_id,
+    //                 'first_name' => $transaction->customer_name
+    //             ];
+    //         }
+            
+    //         return [
+    //             'transaction_no' => $transaction->transaction_no,
+    //             'type' => $transaction->type,
+    //             'created_at' => $transaction->created_at,
+    //             'totalAmount' => (float) $transaction->total_amount,
+    //             'customer' => $customer,
+    //         ];
+    //     })->toArray();
+        
+    //     return view('transactions.index', compact('transactionData', 'customers'));
+    // }
+
+
+
     public function index()
 {
     $user = auth()->user();
@@ -103,11 +206,8 @@ class SalesController extends Controller
         ->orderBy('first_name')
         ->get();
     
-    // Optimized single query to get latest transactions with totals
-    $latestTransactions = collect();
-    
-    // Get sales with calculated totals and customer info in one query
-    $salesData = DB::table('sales as s')
+    // Get latest sales with calculated totals and customer info in one query
+    $latestTransactions = DB::table('sales as s')
         ->leftJoin('users as u', function($join) {
             $join->on('s.customer', '=', 'u.id')
                  ->where('u.usertype', '=', 'customer');
@@ -125,47 +225,6 @@ class SalesController extends Controller
         ->orderBy('s.created_at', 'desc')
         ->limit(5)
         ->get();
-    
-    // Get estimates with calculated totals
-    $estimatesData = DB::table('estimates')
-        ->select(
-            'estimate_no as transaction_no',
-            'created_at',
-            DB::raw("'Estimates' as type"),
-            DB::raw('SUM((price * quantity) - discount) as total_amount'),
-            DB::raw('NULL as customer_name'),
-            DB::raw('NULL as customer_id')
-        )
-        ->where('branch_id', $branchId)
-        ->groupBy('estimate_no', 'created_at')
-        ->orderBy('created_at', 'desc')
-        ->limit(5)
-        ->get();
-    
-    // Get returns with calculated totals
-    $returnsData = DB::table('returns')
-        ->select(
-            'return_no as transaction_no',
-            'created_at',
-            DB::raw("'Returns' as type"),
-            DB::raw('SUM((price * quantity) - discount) as total_amount'),
-            DB::raw('NULL as customer_name'),
-            DB::raw('NULL as customer_id')
-        )
-        ->where('branch_id', $branchId)
-        ->groupBy('return_no', 'created_at')
-        ->orderBy('created_at', 'desc')
-        ->limit(5)
-        ->get();
-    
-    // Merge and sort all transactions
-    $allTransactions = $salesData->concat($estimatesData)->concat($returnsData);
-    
-    // Sort by created_at and take top 5
-    $latestTransactions = $allTransactions
-        ->sortByDesc('created_at')
-        ->take(5)
-        ->values();
     
     // Format the data for the view
     $transactionData = $latestTransactions->map(function ($transaction) {

@@ -89,7 +89,7 @@ class SalesController extends Controller
 
 
 
-public function index()
+public function index11()
 {
     $user = auth()->user();
     
@@ -195,7 +195,7 @@ public function index()
 }
 
 // Alternative approach using Raw SQL for even better performance
-public function indexOptimized()
+public function index()
 {
     $user = auth()->user();
     $branchId = $user->branch_id;

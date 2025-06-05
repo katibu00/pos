@@ -18,73 +18,180 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Notifications\SalesNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class SalesController extends Controller
 {
 
+    // public function index()
+    // {
+    //     $user = auth()->user();
+    //     $products = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
+    //     $customers = User::select('id', 'first_name')->where('usertype', 'customer')->where('branch_id', auth()->user()->branch_id)->orderBy('first_name')->get();
+
+    //     $latestTransactions = DB::table('sales')
+    //         ->select('receipt_no as transaction_no', 'created_at', DB::raw("'Sales' as type"))
+    //         ->where('branch_id', $user->branch_id);
+
+    //     $latestTransactions->union(
+    //         DB::table('estimates')
+    //             ->select('estimate_no as transaction_no', 'created_at', DB::raw("'Estimates' as type"))
+    //             ->where('branch_id', $user->branch_id)
+    //     );
+
+    //     $latestTransactions->union(
+    //         DB::table('returns')
+    //             ->select('return_no as transaction_no', 'created_at', DB::raw("'Returns' as type"))
+    //             ->where('branch_id', $user->branch_id)
+    //     );
+
+    //     $latestTransactions = $latestTransactions
+    //         ->orderBy('created_at', 'desc')
+    //         ->groupBy('transaction_no')
+    //         ->take(5)
+    //         ->get();
+
+    //     $transactionData = [];
+
+    //     foreach ($latestTransactions as $transaction) {
+    //         $table = $transaction->type == 'Sales' ? 'sales' : ($transaction->type == 'Returns' ? 'returns' : 'estimates');
+
+    //         $rows = DB::table($table)
+    //             ->where('branch_id', $user->branch_id)
+    //             ->where($transaction->type == 'Sales' ? 'receipt_no' : ($transaction->type == 'Returns' ? 'return_no' : 'estimate_no'), $transaction->transaction_no)
+    //             ->get();
+
+    //         $totalAmount = 0;
+    //         foreach ($rows as $row) {
+    //             $totalAmount += ($row->price * $row->quantity) - $row->discount;
+    //         }
+
+    //         // Fetch the customer information for this transaction
+    //         $customer = null;
+    //         if ($transaction->type == 'Sales') {
+    //             $sale = DB::table('sales')->where('receipt_no', $transaction->transaction_no)->first();
+    //             if (!is_null($sale) && is_numeric($sale->customer)) {
+    //                 $customer = User::find($sale->customer);
+    //             }
+    //         }
+
+    //         $transactionData[] = [
+    //             'transaction_no' => $transaction->transaction_no,
+    //             'type' => $transaction->type,
+    //             'created_at' => $transaction->created_at,
+    //             'totalAmount' => $totalAmount,
+    //             'customer' => $customer,
+    //         ];
+    //     }
+
+    //     return view('transactions.index', compact('transactionData', 'products', 'customers'));
+    // }
+
+
+
     public function index()
-    {
-        $user = auth()->user();
-        $products = Stock::where('branch_id', $user->branch_id)->orderBy('name')->get();
-        $customers = User::select('id', 'first_name')->where('usertype', 'customer')->where('branch_id', auth()->user()->branch_id)->orderBy('first_name')->get();
-
-        $latestTransactions = DB::table('sales')
-            ->select('receipt_no as transaction_no', 'created_at', DB::raw("'Sales' as type"))
-            ->where('branch_id', $user->branch_id);
-
-        $latestTransactions->union(
-            DB::table('estimates')
-                ->select('estimate_no as transaction_no', 'created_at', DB::raw("'Estimates' as type"))
-                ->where('branch_id', $user->branch_id)
-        );
-
-        $latestTransactions->union(
-            DB::table('returns')
-                ->select('return_no as transaction_no', 'created_at', DB::raw("'Returns' as type"))
-                ->where('branch_id', $user->branch_id)
-        );
-
-        $latestTransactions = $latestTransactions
-            ->orderBy('created_at', 'desc')
-            ->groupBy('transaction_no')
-            ->take(5)
-            ->get();
-
-        $transactionData = [];
-
-        foreach ($latestTransactions as $transaction) {
-            $table = $transaction->type == 'Sales' ? 'sales' : ($transaction->type == 'Returns' ? 'returns' : 'estimates');
-
-            $rows = DB::table($table)
-                ->where('branch_id', $user->branch_id)
-                ->where($transaction->type == 'Sales' ? 'receipt_no' : ($transaction->type == 'Returns' ? 'return_no' : 'estimate_no'), $transaction->transaction_no)
-                ->get();
-
-            $totalAmount = 0;
-            foreach ($rows as $row) {
-                $totalAmount += ($row->price * $row->quantity) - $row->discount;
-            }
-
-            // Fetch the customer information for this transaction
-            $customer = null;
-            if ($transaction->type == 'Sales') {
-                $sale = DB::table('sales')->where('receipt_no', $transaction->transaction_no)->first();
-                if (!is_null($sale) && is_numeric($sale->customer)) {
-                    $customer = User::find($sale->customer);
-                }
-            }
-
-            $transactionData[] = [
-                'transaction_no' => $transaction->transaction_no,
-                'type' => $transaction->type,
-                'created_at' => $transaction->created_at,
-                'totalAmount' => $totalAmount,
-                'customer' => $customer,
+{
+    $user = auth()->user();
+    $branchId = $user->branch_id;
+    
+    // Products query removed as it's not needed
+    
+    // Optimize customers query - only select needed columns
+    $customers = User::select('id', 'first_name')
+        ->where('usertype', 'customer')
+        ->where('branch_id', $branchId)
+        ->orderBy('first_name')
+        ->get();
+    
+    // Optimized single query to get latest transactions with totals
+    $latestTransactions = collect();
+    
+    // Get sales with calculated totals and customer info in one query
+    $salesData = DB::table('sales as s')
+        ->leftJoin('users as u', function($join) {
+            $join->on('s.customer', '=', 'u.id')
+                 ->where('u.usertype', '=', 'customer');
+        })
+        ->select(
+            's.receipt_no as transaction_no',
+            's.created_at',
+            DB::raw("'Sales' as type"),
+            DB::raw('SUM((s.price * s.quantity) - s.discount) as total_amount'),
+            DB::raw('MAX(u.first_name) as customer_name'),
+            DB::raw('MAX(u.id) as customer_id')
+        )
+        ->where('s.branch_id', $branchId)
+        ->groupBy('s.receipt_no', 's.created_at')
+        ->orderBy('s.created_at', 'desc')
+        ->limit(5)
+        ->get();
+    
+    // Get estimates with calculated totals
+    $estimatesData = DB::table('estimates')
+        ->select(
+            'estimate_no as transaction_no',
+            'created_at',
+            DB::raw("'Estimates' as type"),
+            DB::raw('SUM((price * quantity) - discount) as total_amount'),
+            DB::raw('NULL as customer_name'),
+            DB::raw('NULL as customer_id')
+        )
+        ->where('branch_id', $branchId)
+        ->groupBy('estimate_no', 'created_at')
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+    
+    // Get returns with calculated totals
+    $returnsData = DB::table('returns')
+        ->select(
+            'return_no as transaction_no',
+            'created_at',
+            DB::raw("'Returns' as type"),
+            DB::raw('SUM((price * quantity) - discount) as total_amount'),
+            DB::raw('NULL as customer_name'),
+            DB::raw('NULL as customer_id')
+        )
+        ->where('branch_id', $branchId)
+        ->groupBy('return_no', 'created_at')
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+    
+    // Merge and sort all transactions
+    $allTransactions = $salesData->concat($estimatesData)->concat($returnsData);
+    
+    // Sort by created_at and take top 5
+    $latestTransactions = $allTransactions
+        ->sortByDesc('created_at')
+        ->take(5)
+        ->values();
+    
+    // Format the data for the view
+    $transactionData = $latestTransactions->map(function ($transaction) {
+        $customer = null;
+        
+        if ($transaction->type === 'Sales' && $transaction->customer_id) {
+            $customer = (object) [
+                'id' => $transaction->customer_id,
+                'first_name' => $transaction->customer_name
             ];
         }
+        
+        return [
+            'transaction_no' => $transaction->transaction_no,
+            'type' => $transaction->type,
+            'created_at' => $transaction->created_at,
+            'totalAmount' => (float) $transaction->total_amount,
+            'customer' => $customer,
+        ];
+    })->toArray();
+    
+    return view('transactions.index', compact('transactionData', 'customers'));
+}
 
-        return view('transactions.index', compact('transactionData', 'products', 'customers'));
-    }
+
+
 
     public function getProductSuggestions(Request $request)
     {
@@ -134,324 +241,6 @@ class SalesController extends Controller
             ]);
         }
     }
-
-    // public function store(Request $request)
-    // {
-
-    //     $productIds = $request->input('product_id');
-    //     $quantities = $request->input('quantity');
-    //     $remainingQuantities = $request->input('remaining_quantity');
-    //     $transaction_type = $request->input('transaction_type');
-
-    //     foreach ($productIds as $key => $productId) {
-            
-    //         if (!isset($quantities[$key]) || $quantities[$key] < 0.01) {
-    //             return response()->json([
-    //                 'status' => 400,
-    //                 'message' => "Row " . ($key + 1) . ": Quantity field is required.",
-    //             ]);
-    //         };
-
-    //         if($transaction_type == 'sales')
-    //         {
-    //             if ($remainingQuantities[$key] < 1) {
-    //                 return response()->json([
-    //                     'status' => 400,
-    //                     'message' => "Row " . ($key + 1) . ": The product has finished",
-    //                 ]);
-    //             }
-    //             if ($quantities[$key] > $remainingQuantities[$key]) {
-    //                 return response()->json([
-    //                     'status' => 400,
-    //                     'message' => "Row " . ($key + 1) . ":The entered quantity exceeds the remaining quantity.",
-    //                 ]);
-    //             }
-    //         };
-    //     }
-
-    //     $transaction_id = Str::uuid();
-
-    //     if ($transaction_type == "sales") {
-           
-    //         $paymentMethod = $request->input('payment_method');
-    //         $status = null;
-    //         $payment_amount = null;
-
-
-    //         $totalPrice = 0;
-    //         foreach ($request->product_id as $index => $productId) {
-    //             $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
-    //             $totalPrice += $productTotal;
-    //         }
-    //         if ($paymentMethod == 'deposit') {
-
-    //             $deposits = Payment::select('payment_amount')->where('customer_id', $request->customer)->where('payment_type', 'deposit')->sum('payment_amount');
-    //             if ($totalPrice > $deposits) {
-    //                 return response()->json([
-    //                     'status' => 400,
-    //                     'message' => 'Deposit Balance is low. Reduce Quantity and Try again',
-    //                 ]);
-    //             }
-
-    //             $user = User::find($request->customer);
-    //             $user->deposit -= $totalPrice;
-    //             $user->update();
-
-    //         } elseif ($paymentMethod == 'credit') {
-
-    //             if($request->paid_amount != null && $request->paid_amount > 0)
-    //             {
-    //                 if ($request->partial_payment_method == '') {
-    //                     return response()->json([
-    //                         'status' => 400,
-    //                         'message' => 'Please choose Partial Amount Payment Channel',
-    //                     ]);
-    //                 }
-
-    //                 $payment = new Payment();
-    //                 $payment->payment_method = $request->partial_payment_method;
-    //                 $payment->branch_id = auth()->user()->branch_id;
-    //                 $payment->payment_amount = $request->paid_amount;
-    //                 $payment->customer_id = $request->customer;
-    //                 $payment->receipt_nos = $transaction_id;
-    //                 $payment->user_id = auth()->user()->id;
-    //                 $payment->payment_type = 'credit';
-    //                 $payment->save();
-
-    //                 $status = 'partial';
-    //                 $payment_amount = $request->paid_amount;
-
-    //                 $user = User::find($request->customer);
-    //                 $user->balance += ($totalPrice - $payment_amount);
-    //                 $user->update();
-    //             }else
-    //             {
-    //                 $user = User::find($request->customer);
-    //                 $user->balance += $totalPrice;
-    //                 $user->update();
-    //             }
-
-    //         } 
-
-    //         foreach ($productIds as $index => $productId) {
-               
-    //             $stock = Stock::find($productId);
-    //             $stock->quantity -= $request->quantity[$index];
-
-    //             $data = new Sale();
-    //             $data->branch_id = auth()->user()->branch_id;
-    //             $data->receipt_no = $transaction_id;
-    //             $data->stock_id = $productId;
-    //             $data->price = $request->price[$index];
-    //             $data->buying_price = $stock->buying_price;
-    //             $data->quantity = $request->quantity[$index];
-    //             $data->discount = $request->discount[$index] ?? 0;
-    //             $data->payment_method = $paymentMethod;
-    //             $data->user_id = auth()->user()->id;
-    //             $data->customer = $request->customer === '0' ? null : $request->customer;
-    //             $data->note = $request->note;
-
-    //             if ($request->input('toggleLabor')) {
-    //                 $data->labor_cost = $request->input('labor_cost');
-    //             }
-    //             $data->payment_amount = $payment_amount;
-    //             $data->status = $status;
-    //             $data->save();
-               
-    //             $stock->save();
-    //         }
-
-    //         if($paymentMethod == 'multiple')
-    //         {
-    //             if($request->cashAmount != null)
-    //             {
-    //                 $payment = new Payment();
-    //                 $payment->payment_type = 'multiple';
-    //                 $payment->payment_method = 'cash';
-    //                 $payment->payment_amount = $request->cashAmount;
-    //                 $payment->user_id = auth()->user()->id;
-    //                 $payment->customer_id = 0;
-    //                 $payment->receipt_nos =  $transaction_id;
-    //                 $payment->save();
-    //             }
-    //             if($request->posAmount != null)
-    //             {
-    //                 $payment = new Payment();
-    //                 $payment->payment_type = 'multiple';
-    //                 $payment->payment_method = 'pos';
-    //                 $payment->payment_amount = $request->posAmount;
-    //                 $payment->user_id = auth()->user()->id;
-    //                 $payment->customer_id = 0;
-    //                 $payment->receipt_nos =  $transaction_id;
-    //                 $payment->save();
-    //             }
-    //             if($request->transferAmount != null)
-    //             {
-    //                 $payment = new Payment();
-    //                 $payment->payment_type = 'multiple';
-    //                 $payment->payment_method = 'transfer';
-    //                 $payment->payment_amount = $request->transferAmount;
-    //                 $payment->user_id = auth()->user()->id;
-    //                 $payment->customer_id = 0;
-    //                 $payment->receipt_nos =  $transaction_id;
-    //                 $payment->save();
-    //             }
-    //         }
-
-    //         $totalSalesAmount = 0;
-    //         foreach ($request->product_id as $index => $productId) {
-    //             $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
-    //             $totalSalesAmount += $productTotal;
-    //         }
-
-    //         // Determine customer name
-    //         $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer)->first_name;
-
-    //         $branchName = auth()->user()->branch->name;
-
-    //         $notificationMessage = "New Sale: $customerName brought goods worth ₦" . number_format($totalSalesAmount, 0) . " in $branchName Branch and paid via $paymentMethod.";
-
-    //         // Send notification to admin
-    //         $admin = User::where('usertype', 'admin')->first();
-    //         $admin->notify(new SalesNotification($notificationMessage));
-           
-    //         return response()->json([
-    //             'status' => 201,
-    //             'message' => 'Sale has been recorded successfully',
-    //             'recentTransactionsHtml' => $this->getRecentTransactionsHtml(),
-    //         ]);
-    //     }
-
-    //     if ($transaction_type == "estimate") {
-
-    //         $productCount = count($request->product_id);
-    //         if ($productCount != null) {
-    //             for ($i = 0; $i < $productCount; $i++) {
-
-    //                 $data = new Estimate();
-    //                 $data->branch_id = auth()->user()->branch_id;
-    //                 $data->estimate_no = $transaction_id;
-    //                 $data->product_id = $request->product_id[$i];
-    //                 $data->price = $request->price[$i];
-    //                 $data->quantity = $request->quantity[$i];
-    //                 $data->discount = $request->discount[$i] ?? 0;
-    //                 $data->cashier_id = auth()->user()->id;
-    //                 $data->customer = $request->customer;
-    //                 $data->note = $request->note;
-    //                 if ($request->input('toggleLabor')) {
-    //                     $data->labor_cost = $request->input('labor_cost');
-    //                 }
-    //                 $data->save();
-    //             }
-    //         }
-
-    //         $totalSalesAmount = 0;
-    //         foreach ($request->product_id as $index => $productId) {
-    //             $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
-    //             $totalSalesAmount += $productTotal;
-    //         }
-
-    //         // Determine customer name
-    //         $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer)->first_name;
-
-    //         $branchName = auth()->user()->branch->name;
-
-    //         $notificationMessage = "New Estimate: $customerName was issued quotation totalled ₦" . number_format($totalSalesAmount, 0) . " in $branchName Branch. Note: $request->note";
-
-    //         // Send notification to admin
-    //         $admin = User::where('usertype', 'admin')->first();
-    //         $admin->notify(new SalesNotification($notificationMessage));
-
-    //         return response()->json([
-    //             'status' => 201,
-    //             'message' => 'Estimate has been Saved sucessfully',
-    //             'recentTransactionsHtml' => $this->getRecentTransactionsHtml(),
-    //         ]);
-    //     }
-
-    //     if ($transaction_type == "return") {
-          
-    //         $total_price = collect($request->quantity)
-    //             ->map(function ($quantity, $index) use ($request) {
-    //                 return ($quantity * $request->price[$index]) - $request->discount[$index];
-    //             })
-    //             ->sum();
-
-    //             if($request->payment_method == 'credit' || $request->payment_method == 'deposit')
-    //             {
-    //                 return response()->json([
-    //                     'status' => 400,
-    //                     'message' => 'Wrong Payment Channel Selected.',
-    //                 ]);
-    //             }
-
-    //             $balanceInfo = $this->getTodayBalance($request->payment_method);
-    //             $currentBalance = $balanceInfo['current_balance'];
-    //             $minimumBalance = $balanceInfo['minimum_balance'];
-                
-    //             if ($currentBalance <= 0 || ($currentBalance - $total_price) < $minimumBalance) {
-    //                 return response()->json([
-    //                     'status' => 400,
-    //                     'message' => 'Insufficient funds. Please ensure you maintain a minimum balance of ' . $minimumBalance . '.',
-    //                 ]);
-    //             }
-        
-
-    //         $productCount = count($request->product_id);
-    //         if ($productCount != null) {
-    //             for ($i = 0; $i < $productCount; $i++) {
-
-    //                 $data = new Returns();
-    //                 $data->branch_id = auth()->user()->branch_id;
-    //                 $data->return_no = $transaction_id;
-    //                 $data->product_id = $request->product_id[$i];
-    //                 $data->price = $request->price[$i];
-    //                 $data->quantity = $request->quantity[$i];
-    //                 if ($request->discount[$i] == null) {
-    //                     $data->discount = 0;
-
-    //                 } else {
-    //                     $data->discount = $request->discount[$i];
-    //                 }
-    //                 $data->cashier_id = auth()->user()->id;
-    //                 $data->customer = $request->customer_name;
-    //                 $data->note = $request->note;
-    //                 $data->payment_method = $request->payment_method;
-    //                 $data->save();
-
-    //                 $data = Stock::find($request->product_id[$i]);
-    //                 $data->quantity += $request->quantity[$i];
-    //                 $data->update();
-
-    //             }
-    //         }
-
-    //         $totalSalesAmount = 0;
-    //         foreach ($request->product_id as $index => $productId) {
-    //             $productTotal = ($request->price[$index] * $request->quantity[$index]) - ($request->discount[$index] ?? 0);
-    //             $totalSalesAmount += $productTotal;
-    //         }
-
-    //         // Determine customer name
-    //         $customerName = $request->customer === '0' ? 'Walk-in Customer' : User::find($request->customer)->first_name;
-
-    //         $branchName = auth()->user()->branch->name;
-
-    //         $notificationMessage = "New Return: $customerName returned goods worth ₦" . number_format($totalSalesAmount, 0) . " in $branchName Branch.";
-
-    //         // Send notification to admin
-    //         $admin = User::where('usertype', 'admin')->first();
-    //         $admin->notify(new SalesNotification($notificationMessage));
-
-    //         return response()->json([
-    //             'status' => 201,
-    //             'message' => 'Return has been saved sucessfully',
-    //             'recentTransactionsHtml' => $this->getRecentTransactionsHtml(),
-    //         ]);
-
-    //     }
-
-    // }
 
 
     public function store(Request $request)

@@ -57,7 +57,7 @@
                         <div class="fw-bold text-success">
                             ${{ number_format($item->quantity * $item->stock->buying_price, 2) }}
                         </div>
-                        <small class="text-muted">${{ number_format($item->stock->buying_price, 2) }}/unit</small>
+                        <small class="text-muted">₦{{ number_format($item->stock->buying_price, 2) }}/unit</small>
                     </td>
                     <td>
                         @if($item->last_move_in)

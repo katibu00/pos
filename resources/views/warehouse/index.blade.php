@@ -55,7 +55,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title text-white-50 mb-2">Total Value</h6>
-                                    <h3 class="mb-0">${{ number_format($stats['total_value'], 2) }}</h3>
+                                    <h3 class="mb-0">₦{{ number_format($stats['total_value'], 2) }}</h3>
                                 </div>
                                 <div class="stat-icon">
                                     <i class="fas fa-dollar-sign fa-2x opacity-75"></i>

@@ -434,8 +434,7 @@
                                 dateTypeSelect.addEventListener('change', toggleDateFields);
                             });
                         </script>
-                        
-                        
+
 
                         <div class="col-md-4">
                             <form class="row" action="{{ route('change_branch') }}" method="POST">

@@ -24,7 +24,7 @@
                         </div>
                     </div>
 
-                    {{-- <div class="col-md-4">
+                    <div class="col-md-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Transfer Balance</h5>
@@ -58,7 +58,7 @@
                                 </h6>
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
 
 
                 </div>
@@ -165,6 +165,14 @@
                                     &#8358;{{ number_format($cashSales - $cashReturns, 0) }}</span></span>
                             <span
                                 style="margin-left: auto;">({{ 'Sales: ' . number_format($cashSales, 0) . ' Returns: ' . number_format($cashReturns, 0) }})
+                            </span>
+                        </li>
+                        <li class="border border-danger py-2 px-3 rounded mb-2"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Credit Sales: <span class="fw-bold" style="margin-left: 5px;">
+                                    &#8358;{{ number_format($creditSales-$profileReturns+$profileReturnDiscounts, 0) }}</span></span>
+                            <span
+                                style="margin-left: auto;">({{ 'Total Credit Sales: ' . number_format($creditSales, 0) . ' Returns: ' . number_format($profileReturns, 0). ' Returns Discount: ' . number_format($profileReturnDiscounts, 0) }})
                             </span>
                         </li>
 

@@ -347,15 +347,6 @@ class RestockController extends Controller
     }
 
 
-
-
-
-
-
-
-
-
-
     public function getDetails(Restock $restock)
     {
         $restockItems = $restock->items()->with('stock')->get();

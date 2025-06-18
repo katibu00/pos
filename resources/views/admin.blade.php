@@ -329,6 +329,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card dashboard-card bg-danger text-white">
+                            <div class="card-body">
+                                <i class="fas fa-credit-card card-icon"></i>
+                                <h5 class="card-title">Credit Sales</h5>
+                                <p class="card-text h3">&#8358;{{ number_format($creditSales-$profileReturns+$profileReturnDiscounts, 0) }}</p>
+                                <p class="card-subtitle mb-2 small">
+                                  {{ 'Total Credit Sales: ' . number_format($creditSales, 0) . ' Returns: ' . number_format($profileReturns, 0). ' Returns Discount: ' . number_format($profileReturnDiscounts, 0) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                     
 

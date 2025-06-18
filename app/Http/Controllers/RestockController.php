@@ -7,6 +7,9 @@ use App\Models\Restock;
 use App\Models\RestockItem;
 use App\Models\Stock;
 use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\WarehouseItem;
+use App\Models\WarehouseTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PDF;
@@ -270,41 +273,149 @@ class RestockController extends Controller
 
 
 
+    // public function showCompleteForm(Restock $restock)
+    // {
+    //     // Check if the restock type is not 'planned'
+    //     if ($restock->type !== 'planned') {
+    //         return redirect()->back()->with('error', 'Only planned restocks can be completed.');
+    //     }
+    
+    //     // Check if the restock is already completed
+    //     if ($restock->status === 'completed') {
+    //         return redirect()->back()->with('error', 'This restock has already been completed.');
+    //     }
+    
+    //     // If checks pass, proceed with loading the form
+    //     $restock->load('items.stock'); // Eager load the relationships
+    //     $branches = Branch::all();
+    //     return view('restock.complete_restock', compact('restock', 'branches'));
+    // }
+
+    // public function completeRestock(Request $request, Restock $restock)
+    // {
+    //     $validatedData = $request->validate([
+    //         'storage_location' => 'required|in:shop,warehouse',
+    //         'branch_id' => 'required|exists:branches,id',
+    //         'received_quantity' => 'required|array',
+    //         'new_buying_price' => 'required|array',
+    //         'new_selling_price' => 'required|array',
+    //         'out_of_stock' => 'array',
+    //     ]);
+
+    //     DB::transaction(function () use ($restock, $validatedData) {
+    //         foreach ($restock->items as $item) {
+    //             $receivedQuantity = $validatedData['received_quantity'][$item->id] ?? 0;
+    //             $newBuyingPrice = $validatedData['new_buying_price'][$item->id];
+    //             $newSellingPrice = $validatedData['new_selling_price'][$item->id];
+    //             $outOfStock = isset($validatedData['out_of_stock'][$item->id]);
+
+    //             $item->update([
+    //                 'received_quantity' => $receivedQuantity,
+    //                 'new_buying_price' => $newBuyingPrice,
+    //                 'new_selling_price' => $newSellingPrice,
+    //                 'price_changed' => ($newBuyingPrice != $item->old_buying_price || $newSellingPrice != $item->old_selling_price),
+    //             ]);
+
+    //             if ($validatedData['storage_location'] === 'shop') {
+    //                 $this->updateShopStock($item->stock, $receivedQuantity, $newBuyingPrice, $newSellingPrice, $validatedData['branch_id']);
+    //             } else {
+    //                 $this->updateWarehouseStock($item->stock, $receivedQuantity, $newBuyingPrice, $newSellingPrice);
+    //             }
+    //         }
+
+    //         $restock->update([
+    //             'status' => 'completed',
+    //             'total_cost' => $restock->items->sum(function ($item) {
+    //                 return $item->received_quantity * $item->new_buying_price;
+    //             }),
+    //         ]);
+    //     });
+
+    //     return redirect()->route('restock.index')->with('success', 'Restock order completed successfully.');
+    // }
+
+    private function updateShopStock($stock, $quantity, $buyingPrice, $sellingPrice, $branchId)
+    {
+        $stock->update([
+            'branch_id' => $branchId,
+            'quantity' => $stock->quantity + $quantity,
+            'buying_price' => $buyingPrice,
+            'selling_price' => $sellingPrice,
+        ]);
+    }
+
+   
+
+
+
+
+    // Updated showCompleteForm method
     public function showCompleteForm(Restock $restock)
     {
         // Check if the restock type is not 'planned'
         if ($restock->type !== 'planned') {
             return redirect()->back()->with('error', 'Only planned restocks can be completed.');
         }
-    
+
         // Check if the restock is already completed
         if ($restock->status === 'completed') {
             return redirect()->back()->with('error', 'This restock has already been completed.');
         }
-    
+
         // If checks pass, proceed with loading the form
         $restock->load('items.stock'); // Eager load the relationships
         $branches = Branch::all();
-        return view('restock.complete_restock', compact('restock', 'branches'));
+        $warehouses = Warehouse::all(); // Add warehouses
+        
+        return view('restock.complete_restock', compact('restock', 'branches', 'warehouses'));
     }
 
+    // Updated completeRestock method with proper validation
     public function completeRestock(Request $request, Restock $restock)
     {
         $validatedData = $request->validate([
             'storage_location' => 'required|in:shop,warehouse',
-            'branch_id' => 'required|exists:branches,id',
+
+            'branch_id' => [
+                'nullable',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->storage_location === 'shop') {
+                        if (!$value || !\App\Models\Branch::where('id', $value)->exists()) {
+                            $fail('The selected branch is invalid.');
+                        }
+                    }
+                },
+            ],
+
+            'warehouse_id' => [
+                'nullable',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->storage_location === 'warehouse') {
+                        if (!$value || !\App\Models\Warehouse::where('id', $value)->exists()) {
+                            $fail('The selected warehouse is invalid.');
+                        }
+                    }
+                },
+            ],
+
             'received_quantity' => 'required|array',
             'new_buying_price' => 'required|array',
             'new_selling_price' => 'required|array',
-            'out_of_stock' => 'array',
+            'not_supplied' => 'nullable|array',
         ]);
+
 
         DB::transaction(function () use ($restock, $validatedData) {
             foreach ($restock->items as $item) {
                 $receivedQuantity = $validatedData['received_quantity'][$item->id] ?? 0;
                 $newBuyingPrice = $validatedData['new_buying_price'][$item->id];
                 $newSellingPrice = $validatedData['new_selling_price'][$item->id];
-                $outOfStock = isset($validatedData['out_of_stock'][$item->id]);
+                $notSupplied = isset($validatedData['not_supplied'][$item->id]);
+
+                // If item is not supplied, set received quantity to 0
+                if ($notSupplied) {
+                    $receivedQuantity = 0;
+                }
 
                 $item->update([
                     'received_quantity' => $receivedQuantity,
@@ -313,10 +424,13 @@ class RestockController extends Controller
                     'price_changed' => ($newBuyingPrice != $item->old_buying_price || $newSellingPrice != $item->old_selling_price),
                 ]);
 
-                if ($validatedData['storage_location'] === 'shop') {
-                    $this->updateShopStock($item->stock, $receivedQuantity, $newBuyingPrice, $newSellingPrice, $validatedData['branch_id']);
-                } else {
-                    $this->updateWarehouseStock($item->stock, $receivedQuantity, $newBuyingPrice, $newSellingPrice);
+                // Only update stock if quantity was received
+                if ($receivedQuantity > 0) {
+                    if ($validatedData['storage_location'] === 'shop') {
+                        $this->updateShopStock($item->stock, $receivedQuantity, $newBuyingPrice, $newSellingPrice, $validatedData['branch_id']);
+                    } else {
+                        $this->updateWarehouseStock($item->stock, $receivedQuantity, $newBuyingPrice, $newSellingPrice, $validatedData['warehouse_id']);
+                    }
                 }
             }
 
@@ -331,20 +445,50 @@ class RestockController extends Controller
         return redirect()->route('restock.index')->with('success', 'Restock order completed successfully.');
     }
 
-    private function updateShopStock($stock, $quantity, $buyingPrice, $sellingPrice, $branchId)
+    // Updated updateWarehouseStock method
+    private function updateWarehouseStock($stock, $quantity, $buyingPrice, $sellingPrice, $warehouseId)
     {
+        // Update the stock's pricing information
         $stock->update([
-            'branch_id' => $branchId,
-            'quantity' => $stock->quantity + $quantity,
             'buying_price' => $buyingPrice,
             'selling_price' => $sellingPrice,
         ]);
+
+        // Check if the item already exists in the warehouse
+        $warehouseItem = WarehouseItem::where('warehouse_id', $warehouseId)
+                                    ->where('stock_id', $stock->id)
+                                    ->first();
+
+        if ($warehouseItem) {
+            // Update existing warehouse item
+            $warehouseItem->increment('quantity', $quantity);
+        } else {
+            // Create new warehouse item
+            WarehouseItem::create([
+                'warehouse_id' => $warehouseId,
+                'stock_id' => $stock->id,
+                'quantity' => $quantity,
+            ]);
+        }
+
+        // Record the warehouse transaction
+        WarehouseTransaction::create([
+            'warehouse_id' => $warehouseId,
+            'stock_id' => $stock->id,
+            'type' => 'in',
+            'quantity' => $quantity,
+            'source' => 'purchase',
+            'batch_number' => null, // You can add batch tracking if needed
+            'branch_id' => null,
+        ]);
     }
 
-    private function updateWarehouseStock($stock, $quantity, $buyingPrice, $sellingPrice)
-    {
-        // Implement warehouse stock update logic when warehouse functionality is added
-    }
+
+
+
+
+
+
 
 
     public function getDetails(Restock $restock)

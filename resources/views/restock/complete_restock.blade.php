@@ -10,21 +10,52 @@
                     This restock order has no items. Please add items before completing the order.
                 </div>
             @else
+
+            {{-- Display validation errors --}}
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+{{-- Display custom error message --}}
+@if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
+
                 <form action="{{ route('restock.complete', $restock->id) }}" method="POST" id="completeRestockForm">
                     @csrf
                     <div class="row">
-                        <div class="form-group col-md-6 mb-3">
+                        <div class="form-group col-md-4 mb-3">
                             <label for="storage_location">Storage Location:</label>
                             <select name="storage_location" id="storage_location" class="form-select" required>
+                                <option value="">Select Storage Type</option>
                                 <option value="shop">Shop</option>
                                 <option value="warehouse">Warehouse</option>
                             </select>
                         </div>
-                        <div class="form-group col-md-6 mb-3">
+                        <div class="form-group col-md-4 mb-3" id="branch_selection" style="display: none;">
                             <label for="branch_id">Branch:</label>
-                            <select name="branch_id" id="branch_id" class="form-select" required>
+                            <select name="branch_id" id="branch_id" class="form-select">
+                                <option value="">Select Branch</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4 mb-3" id="warehouse_selection" style="display: none;">
+                            <label for="warehouse_id">Warehouse:</label>
+                            <select name="warehouse_id" id="warehouse_id" class="form-select">
+                                <option value="">Select Warehouse</option>
+                                @foreach($warehouses as $warehouse)
+                                    <option value="{{ $warehouse->id }}">{{ $warehouse->name }} - {{ $warehouse->location }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -87,6 +118,29 @@
 @section('js')
 <script>
     $(document).ready(function() {
+        // Handle storage location change
+        $('#storage_location').on('change', function() {
+            var selectedLocation = $(this).val();
+            
+            if (selectedLocation === 'shop') {
+                $('#branch_selection').show();
+                $('#warehouse_selection').hide();
+                $('#branch_id').prop('required', true);
+                $('#warehouse_id').prop('required', false);
+            } else if (selectedLocation === 'warehouse') {
+                $('#warehouse_selection').show();
+                $('#branch_selection').hide();
+                $('#warehouse_id').prop('required', true);
+                $('#branch_id').prop('required', false);
+            } else {
+                $('#branch_selection').hide();
+                $('#warehouse_selection').hide();
+                $('#branch_id').prop('required', false);
+                $('#warehouse_id').prop('required', false);
+            }
+        });
+
+        // Existing item row functionality
         $('.restock-item-row').each(function() {
             var row = $(this);
             var itemId = row.data('item-id');
@@ -98,10 +152,8 @@
                 var receivedQuantityInput = row.find('.received-quantity');
                 if (this.checked) {
                     receivedQuantityInput.prop('readonly', false);
-                    row.addClass('bg-warning');
                 } else {
                     receivedQuantityInput.prop('readonly', true).val(orderedQuantity);
-                    row.removeClass('bg-warning');
                 }
                 updateRowColor(row);
             });
@@ -112,27 +164,28 @@
                 if (this.checked) {
                     buyingPriceInput.prop('readonly', false);
                     sellingPriceInput.prop('readonly', false);
-                    row.addClass('bg-info');
                 } else {
                     buyingPriceInput.prop('readonly', true).val(originalBuyingPrice);
                     sellingPriceInput.prop('readonly', true).val(originalSellingPrice);
-                    row.removeClass('bg-info');
                 }
                 updateRowColor(row);
             });
 
             row.find('.not-supplied-check').on('change', function() {
                 var receivedQuantityInput = row.find('.received-quantity');
+                var differentQuantityCheck = row.find('.different-quantity-check');
+                var priceChangeCheck = row.find('.price-change-check');
+                
                 if (this.checked) {
                     receivedQuantityInput.prop('readonly', true).val(0);
-                    row.addClass('bg-danger');
-                    row.find('.different-quantity-check').prop('checked', false).prop('disabled', true);
-                    row.find('.price-change-check').prop('checked', false).prop('disabled', true);
+                    differentQuantityCheck.prop('checked', false).prop('disabled', true);
+                    priceChangeCheck.prop('checked', false).prop('disabled', true);
+                    row.find('.new-buying-price').prop('readonly', true).val(originalBuyingPrice);
+                    row.find('.new-selling-price').prop('readonly', true).val(originalSellingPrice);
                 } else {
-                    receivedQuantityInput.prop('readonly', false).val(orderedQuantity);
-                    row.removeClass('bg-danger');
-                    row.find('.different-quantity-check').prop('disabled', false);
-                    row.find('.price-change-check').prop('disabled', false);
+                    receivedQuantityInput.val(orderedQuantity);
+                    differentQuantityCheck.prop('disabled', false);
+                    priceChangeCheck.prop('disabled', false);
                 }
                 updateRowColor(row);
             });
@@ -148,6 +201,29 @@
                 row.addClass('bg-warning');
             }
         }
+
+        // Form validation
+        $('#completeRestockForm').on('submit', function(e) {
+            var storageLocation = $('#storage_location').val();
+            
+            if (!storageLocation) {
+                e.preventDefault();
+                alert('Please select a storage location.');
+                return false;
+            }
+            
+            if (storageLocation === 'shop' && !$('#branch_id').val()) {
+                e.preventDefault();
+                alert('Please select a branch for shop storage.');
+                return false;
+            }
+            
+            if (storageLocation === 'warehouse' && !$('#warehouse_id').val()) {
+                e.preventDefault();
+                alert('Please select a warehouse.');
+                return false;
+            }
+        });
     });
 </script>
 @endsection

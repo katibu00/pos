@@ -292,7 +292,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card dashboard-card bg-danger text-white">
                             <div class="card-body">
                                 <i class="fas fa-cash-register card-icon"></i>
@@ -305,7 +305,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card dashboard-card bg-danger text-white">
                             <div class="card-body">
                                 <i class="fas fa-exchange-alt card-icon"></i>
@@ -317,7 +317,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card dashboard-card bg-danger text-white">
                             <div class="card-body">
                                 <i class="fas fa-credit-card card-icon"></i>
@@ -329,7 +329,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card dashboard-card bg-danger text-white">
                             <div class="card-body">
                                 <i class="fas fa-credit-card card-icon"></i>
